@@ -219,6 +219,15 @@ export const DEFAULT_CONFIG = {
     'curse',
     'swear',
     'insult'],
+
+  // Mots-clés pour la détection de contenu dans les pages (content.js)
+  contentDetectionKeywords: [
+    'porn', 'xxx', 'adult', 'sex', 'nude', 'nsfw',
+    'casino', 'gambling', 'bet', 'poker',
+    'dating', 'hookup', 'meet singles',
+    'music', 'spotify', 'deezer', 'soundcloud'
+  ],
+
   whitelistedSites: ['quran.com', 'islamqa.info', 'bayyinah.tv', 'seekersguidance.org'],
 
   // Catégories

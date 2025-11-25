@@ -197,14 +197,14 @@ function showBlockOverlay(keyword) {
  */
 async function init() {
   try {
-    // Récupère les mots-clés personnalisés depuis la config
+    // Récupère les mots-clés de détection de contenu depuis la config
     let customKeywords = [];
     try {
       const response = await chrome.runtime.sendMessage({ action: 'getConfig' });
       const config = response?.config;
 
-      if (config && config.blockedKeywords && Array.isArray(config.blockedKeywords)) {
-        customKeywords = config.blockedKeywords;
+      if (config && config.contentDetectionKeywords && Array.isArray(config.contentDetectionKeywords)) {
+        customKeywords = config.contentDetectionKeywords;
       }
     } catch (error) {
       console.error('Erreur lors de la récupération de la config:', error);

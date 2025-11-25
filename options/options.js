@@ -170,6 +170,7 @@ function populateFields() {
   // Listes
   document.getElementById('blockedDomains').value = config.blockedDomains.join('\n');
   document.getElementById('blockedKeywords').value = config.blockedKeywords.join('\n');
+  document.getElementById('contentDetectionKeywords').value = (config.contentDetectionKeywords || []).join('\n');
   document.getElementById('whitelistedSites').value = config.whitelistedSites.join('\n');
 
   // Horaires
@@ -220,8 +221,11 @@ function setupEventListeners() {
   // Charger liste recommandée de domaines
   document.getElementById('loadRecommended').addEventListener('click', loadRecommendedList);
 
-  // Charger liste recommandée de mots-clés
+  // Charger liste recommandée de mots-clés (URLs)
   document.getElementById('loadRecommendedKeywords').addEventListener('click', loadRecommendedKeywords);
+
+  // Charger liste recommandée de mots-clés (Détection de contenu)
+  document.getElementById('loadRecommendedContentKeywords').addEventListener('click', loadRecommendedContentKeywords);
 
   // Changer PIN
   document.getElementById('changePinBtn').addEventListener('click', handleChangePin);
@@ -249,6 +253,10 @@ async function saveConfig() {
         .map(d => d.trim())
         .filter(d => d),
       blockedKeywords: document.getElementById('blockedKeywords').value
+        .split('\n')
+        .map(k => k.trim())
+        .filter(k => k),
+      contentDetectionKeywords: document.getElementById('contentDetectionKeywords').value
         .split('\n')
         .map(k => k.trim())
         .filter(k => k),
@@ -304,7 +312,7 @@ function loadRecommendedList() {
   showNotification(`✅ ${recommended.length} sites ajoutés !`, 'success');
 }
 
-// Charge la liste recommandée de mots-clés
+// Charge la liste recommandée de mots-clés (URLs)
 async function loadRecommendedKeywords() {
   try {
     // Charge la liste par défaut depuis storage.js
@@ -326,6 +334,32 @@ async function loadRecommendedKeywords() {
     showNotification(`✅ ${newKeywords.length} nouveaux mots-clés ajoutés ! (Total: ${combined.length})`, 'success');
   } catch (error) {
     console.error('Erreur lors du chargement des mots-clés recommandés:', error);
+    showNotification('❌ Erreur lors du chargement', 'error');
+  }
+}
+
+// Charge la liste recommandée de mots-clés (Détection de contenu)
+async function loadRecommendedContentKeywords() {
+  try {
+    // Charge la liste par défaut depuis storage.js
+    const { DEFAULT_CONFIG } = await import('../utils/storage.js');
+    const recommended = DEFAULT_CONFIG.contentDetectionKeywords || [];
+
+    const current = document.getElementById('contentDetectionKeywords').value
+      .split('\n')
+      .map(k => k.trim())
+      .filter(k => k);
+
+    // Combine les listes sans doublons (insensible à la casse)
+    const currentLower = current.map(k => k.toLowerCase());
+    const newKeywords = recommended.filter(k => !currentLower.includes(k.toLowerCase()));
+    const combined = [...current, ...newKeywords];
+
+    document.getElementById('contentDetectionKeywords').value = combined.join('\n');
+
+    showNotification(`✅ ${newKeywords.length} nouveaux mots-clés ajoutés ! (Total: ${combined.length})`, 'success');
+  } catch (error) {
+    console.error('Erreur lors du chargement des mots-clés de contenu:', error);
     showNotification('❌ Erreur lors du chargement', 'error');
   }
 }
