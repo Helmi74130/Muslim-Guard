@@ -7,6 +7,7 @@ function detectSuspiciousContent(customKeywords = []) {
   try {
     const bodyText = document.body?.innerText?.toLowerCase() || '';
     const title = document.title?.toLowerCase() || '';
+    const fullText = title + ' ' + bodyText;
 
     // Utilise les mots-clés personnalisés de la config
     const keywords = customKeywords.length > 0 ? customKeywords : [
@@ -17,11 +18,20 @@ function detectSuspiciousContent(customKeywords = []) {
       'music', 'spotify', 'deezer', 'soundcloud'
     ];
 
+    // Trouve tous les mots-clés présents et leur position
+    let foundKeywords = [];
     for (const keyword of keywords) {
       const keywordLower = keyword.toLowerCase();
-      if (bodyText.includes(keywordLower) || title.includes(keywordLower)) {
-        return { suspicious: true, keyword };
+      const position = fullText.indexOf(keywordLower);
+      if (position !== -1) {
+        foundKeywords.push({ keyword, position });
       }
+    }
+
+    // Si on a trouvé des mots-clés, retourne celui qui apparaît en PREMIER dans le texte
+    if (foundKeywords.length > 0) {
+      foundKeywords.sort((a, b) => a.position - b.position);
+      return { suspicious: true, keyword: foundKeywords[0].keyword };
     }
 
     return { suspicious: false };

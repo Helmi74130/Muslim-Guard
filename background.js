@@ -296,6 +296,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     try {
       if (message.action === 'reloadConfig') {
         await loadConfig();
+        // Recalcule immédiatement le statut des prières
+        await checkPrayerTime();
         sendResponse({ success: true });
       } else if (message.action === 'getConfig') {
         await loadConfig();
