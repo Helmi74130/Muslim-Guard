@@ -120,10 +120,9 @@ async function finishSetup() {
     alert('MuslimGuard est maintenant actif ! Veuillez vous rendre dans les parametres pour modiffiers vos préférences.');
 
     // Ferme l'onglet ou redirige vers le dashboard
-    chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
     window.close();
   } catch (error) {
-    console.error('Erreur lors de la finalisation:', error);
     alert('Une erreur est survenue. Veuillez réessayer.');
   }
 }
@@ -156,6 +155,4 @@ document.addEventListener('DOMContentLoaded', () => {
       input.disabled = !e.target.checked;
     });
   });
-
-  console.log('Setup page chargée');
 });
