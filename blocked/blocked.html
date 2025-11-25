@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Bloqué - MuslimGuard</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* ============================================
+       BLOCKED PAGE STYLES
+       ============================================ */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-lg);
+    }
+
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .fade-in {
+      animation: slideUp 0.6s ease-out;
+    }
+
+    /* ============================================
+       CONTAINER
+       ============================================ */
+
+    .blocked-container {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* ============================================
+       HEADER SECTION
+       ============================================ */
+
+    .blocked-header {
+      text-align: center;
+      margin-bottom: var(--spacing-2xl);
+      animation: slideDown 0.6s ease-out;
+    }
+
+    .header-icon {
+      font-size: 4rem;
+      margin-bottom: var(--spacing-lg);
+      animation: slideDown 0.8s ease-out;
+    }
+
+    .header-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-md);
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--danger-500) 0%, #f97316 100%);
+      color: white;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ============================================
+       MAIN CARD - BLOCAGE MESSAGE
+       ============================================ */
+
+    .blocked-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      padding: var(--spacing-2xl);
+      margin-bottom: var(--spacing-xl);
+      animation: slideUp 0.8s ease-out;
+      border-top: 4px solid var(--danger-500);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .blocked-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.5;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .blocked-card h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .reason-box {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border-left: 4px solid var(--danger-500);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    #reasonText {
+      color: var(--danger-600);
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    #customMessage {
+      background: var(--gray-50);
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      color: var(--gray-700);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      border-left: 3px solid var(--primary-500);
+    }
+
+    .blocked-url {
+      background: var(--gray-100);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+      color: var(--gray-700);
+    }
+
+    .blocked-url-label {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    /* ============================================
+       VERSE CARD
+       ============================================ */
+
+    .verse-card {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-2xl);
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow-xl);
+      animation: slideUp 1s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .verse-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.3;
+    }
+
+    .verse-content {
+      display: flex;
+      gap: var(--spacing-lg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .verse-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .verse-text {
+      flex: 1;
+    }
+
+    #verseText {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      margin-bottom: var(--spacing-lg);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    #verseRef {
+      font-size: 0.875rem;
+      opacity: 0.95;
+      font-weight: 500;
+    }
+
+    /* ============================================
+       ALTERNATIVES SECTION
+       ============================================ */
+
+    .alternatives-header {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .alternatives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+      animation: slideUp 1.2s ease-out;
+    }
+
+    .alternative-card {
+      display: block;
+      padding: var(--spacing-lg);
+      background: white;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: inherit;
+      transition: all var(--transition);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .alternative-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .alternative-card:hover::before {
+      left: 100%;
+    }
+
+    .alternative-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-500);
+    }
+
+    .alternative-card.alt-green {
+      border-color: var(--primary-100);
+    }
+
+    .alternative-card.alt-green:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-500);
+    }
+
+    .alternative-card.alt-blue {
+      border-color: var(--secondary-100);
+    }
+
+    .alternative-card.alt-blue:hover {
+      background: var(--secondary-50);
+      border-color: var(--secondary-500);
+    }
+
+    .alternative-card.alt-purple {
+      border-color: #ddd6fe;
+    }
+
+    .alternative-card.alt-purple:hover {
+      background: #f3e8ff;
+      border-color: #8b5cf6;
+    }
+
+    .alternative-card.alt-yellow {
+      border-color: #fef3c7;
+    }
+
+    .alternative-card.alt-yellow:hover {
+      background: #fffbeb;
+      border-color: #fbbf24;
+    }
+
+    .alt-icon {
+      font-size: 2rem;
+      margin-bottom: var(--spacing-md);
+      display: block;
+    }
+
+    .alt-title {
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-sm);
+      font-size: 0.95rem;
+    }
+
+    .alt-description {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+    }
+
+    /* ============================================
+       PRAYER CARD
+       ============================================ */
+
+    .prayer-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary-500);
+      animation: slideUp 1.4s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-xl);
+    }
+
+    .prayer-left {
+      flex: 1;
+    }
+
+    .prayer-title {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .prayer-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .prayer-right {
+      text-align: right;
+    }
+
+    .prayer-countdown-label {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      font-weight: 600;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    #prayerCountdown p:last-child {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-600);
+      margin: 0;
+    }
+
+    /* ============================================
+       REQUEST ACCESS SECTION
+       ============================================ */
+
+    .request-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--secondary-500);
+      animation: slideUp 1.6s ease-out;
+    }
+
+    .request-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .request-header h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .request-description {
+      font-size: 0.95rem;
+      color: var(--gray-600);
+      margin-bottom: var(--spacing-lg);
+      line-height: 1.6;
+    }
+
+    #requestReason {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 100px;
+      transition: all var(--transition);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    #requestReason:focus {
+      outline: none;
+      border-color: var(--secondary-500);
+      box-shadow: 0 0 0 3px var(--secondary-50);
+    }
+
+    #requestAccessBtn {
+      width: 100%;
+      padding: var(--spacing-lg) var(--spacing-2xl);
+      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-lg);
+    }
+
+    #requestAccessBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    #requestAccessBtn:active {
+      transform: scale(0.98);
+    }
+
+    #requestAccessBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #requestSuccess {
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-lg);
+      background: linear-gradient(135deg, var(--primary-50) 0%, #d1fae5 100%);
+      border-left: 4px solid var(--primary-500);
+      border-radius: var(--radius-md);
+      color: var(--primary-700);
+      font-weight: 600;
+      animation: slideUp 0.4s ease-out;
+      display: none;
+    }
+
+    #requestSuccess.show {
+      display: block;
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+
+    .blocked-footer {
+      text-align: center;
+      margin-top: var(--spacing-2xl);
+      padding-top: var(--spacing-xl);
+      border-top: 1px solid var(--gray-200);
+      color: var(--gray-600);
+      font-size: 0.875rem;
+    }
+
+    .blocked-footer p {
+      margin: var(--spacing-sm) 0;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 768px) {
+      body {
+        padding: var(--spacing-md);
+      }
+
+      .header-title {
+        font-size: 1.75rem;
+      }
+
+      .blocked-card,
+      .request-card {
+        padding: var(--spacing-lg);
+      }
+
+      .verse-card {
+        padding: var(--spacing-lg);
+      }
+
+      .verse-content {
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .verse-icon {
+        font-size: 2rem;
+      }
+
+      #verseText {
+        font-size: 1rem;
+      }
+
+      .alternatives-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .prayer-card {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .prayer-right {
+        text-align: left;
+        width: 100%;
+      }
+
+      .blocked-card h2 {
+        font-size: 1.5rem;
+      }
+
+      .alternatives-header {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: var(--spacing-md);
+      }
+
+      .header-icon {
+        font-size: 3rem;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+      }
+
+      .blocked-card,
+      .verse-card,
+      .request-card {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .alternatives-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .prayer-card {
+        padding: var(--spacing-lg);
+      }
+
+      #verseText {
+        font-size: 0.95rem;
+      }
+
+      .blocked-card h2 {
+        font-size: 1.25rem;
+      }
+
+      .alternatives-header {
+        font-size: 1rem;
+      }
+
+      #requestAccessBtn {
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="blocked-container fade-in">
+    <!-- Header -->
+    <div class="blocked-header">
+      <div class="header-icon">
+        <img src="/assets/Logo tagline.png" alt="" srcset="">
+      </div>
+      <div class="header-subtitle">🛑 Site Bloqué</div>
+    </div>
+
+    <!-- Main Blocked Message -->
+    <div class="blocked-card">
+      <div class="card-content">
+        <h2>Ce site a été bloqué</h2>
+        
+        <div id="reasonBox" class="reason-box">
+          <p id="reasonText"></p>
+        </div>
+
+        <div id="customMessage"></div>
+
+        <div>
+          <div class="blocked-url-label">URL Bloquée</div>
+          <div class="blocked-url" id="blockedUrl"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quranic Verse -->
+    <div class="verse-card">
+      <div class="verse-content">
+        <div class="verse-icon"></div>
+        <div class="verse-text">
+          <p id="verseText"></p>
+          <p id="verseRef"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alternatives Section -->
+    <div class="alternatives-header">
+      Que faire à la place ?
+    </div>
+    <div class="alternatives-grid">
+      <a href="https://quran.com" target="_blank" class="alternative-card alt-green">
+        <span class="alt-icon">
+          <img style="height: 30px;" src="/assets/Quran.png" alt="" srcset="">
+        </span>
+        <div class="alt-title">Lire le Coran</div>
+        <div class="alt-description">Quran.com</div>
+      </a>
+      <a href="https://islamqa.info" target="_blank" class="alternative-card alt-blue">
+        <span class="alt-icon">
+          <img style="height: 30px;" src="/assets/learn.png" alt="" srcset="">
+        </span>
+        <div class="alt-title">Apprendre l'Islam</div>
+        <div class="alt-description">Questions & Réponses</div>
+      </a>
+      <a href="https://bayyinah.tv" target="_blank" class="alternative-card alt-purple">
+        <span class="alt-icon">📺</span>
+        <div class="alt-title">Cours Vidéo</div>
+        <div class="alt-description">Bayyinah TV</div>
+      </a>
+      <a href="https://seekersguidance.org" target="_blank" class="alternative-card alt-yellow">
+        <span class="alt-icon">🌙</span>
+        <div class="alt-title">Éducation</div>
+        <div class="alt-description">SeekersGuidance</div>
+      </a>
+    </div>
+
+    <!-- Prayer Time -->
+    <div class="prayer-card">
+      <div class="prayer-left">
+        <div class="prayer-title">Prochaine prière</div>
+        <div class="prayer-name" id="nextPrayerText"></div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-countdown-label">Dans</div>
+        <div id="prayerCountdown">
+          <p>--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Access -->
+    <div class="request-card">
+      <div class="request-header">
+        <h3>Demander un accès exceptionnel</h3>
+      </div>
+      <p class="request-description">
+        Si vous avez besoin d'accéder à ce site pour un motif légitime (devoirs, travail), vous pouvez envoyer une demande au parent.
+      </p>
+      <textarea
+        id="requestReason"
+        placeholder="Expliquez pourquoi vous avez besoin d'accéder à ce site..."
+      ></textarea>
+      <button id="requestAccessBtn">Envoyer la demande</button>
+      <div id="requestSuccess">✅ Demande envoyée ! Un parent recevra une notification.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="blocked-footer">
+      <p>Cette protection est mise en place pour votre bien-être.</p>
+      <p>MuslimGuard • Protection Familiale Islamique</p>
+    </div>
+  </div>
+
+  <script type="module" src="blocked.js"></script>
+</body>
+</html>

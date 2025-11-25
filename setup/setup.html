@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuration MuslimGuard</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* ============================================
+   SETUP PAGE - DESIGN AMÉLIORÉ
+   ============================================ */
+
+/* BASE STYLES */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #ecfdf5 0%, #dbeafe 50%, #f9fafb 100%) !important;
+  min-height: 100vh;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.container {
+  max-width: 700px !important;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* STEP NAVIGATION */
+.step {
+  display: none !important;
+}
+
+.step.active {
+  display: block !important;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* HEADER */
+.text-center {
+  margin-bottom: 2rem !important;
+  animation: slideDown 0.6s ease-out;
+}
+
+.text-6xl {
+  font-size: 3.5rem !important;
+  animation: slideDown 0.8s ease-out;
+  display: inline-block;
+  margin-bottom: 1rem !important;
+}
+
+.text-4xl {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  margin-bottom: 0.5rem !important;
+  letter-spacing: -0.5px;
+}
+
+.text-gray-600 {
+  font-size: 1rem !important;
+  color: #4b5563 !important;
+}
+
+/* PROGRESS BAR */
+.bg-gray-200 {
+  background-color: #e5e7eb !important;
+  height: 6px !important;
+  border-radius: 3px !important;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important;
+  height: 6px !important;
+  border-radius: 3px !important;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+/* CARDS */
+.bg-white {
+  background-color: white !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  padding: 2rem !important;
+  margin-bottom: 1.5rem !important;
+  animation: fadeIn 0.5s ease-out;
+  border-top: 4px solid #003463;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-white::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* TYPOGRAPHY */
+.text-2xl {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  margin-bottom: 1rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.text-gray-700 {
+  color: #374151 !important;
+  line-height: 1.6 !important;
+}
+
+.font-semibold {
+  font-weight: 600 !important;
+}
+
+.text-sm {
+  font-size: 0.875rem !important;
+  color: #6b7280 !important;
+}
+
+/* BOXES & ALERTS */
+.bg-blue-50 {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+  border-left: 4px solid #3b82f6 !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.bg-red-100 {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  border-left: 4px solid #ef4444 !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  margin-bottom: 1rem !important;
+  color: #991b1b !important;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.bg-green-50 {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%) !important;
+  border-left: 4px solid #003463 !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.bg-blue-50 h3,
+.bg-green-50 h3 {
+  color: #1f2937 !important;
+}
+
+/* LISTS */
+ul {
+  list-style: disc !important;
+  margin-left: 1.25rem !important;
+}
+
+li {
+  color: #374151 !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.6;
+}
+
+/* FORMS */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="time"] {
+  padding: 0.75rem 1rem !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.95rem !important;
+  font-family: inherit !important;
+  transition: all 0.2s !important;
+  margin-bottom: 0.75rem !important;
+  background: white;
+  width: 100% !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="time"]:focus {
+  outline: none !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  margin-right: 0.5rem !important;
+  cursor: pointer !important;
+  accent-color: #10b981 !important;
+  width: auto !important;
+}
+
+label {
+  display: block !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 0.5rem !important;
+  font-size: 0.95rem;
+}
+
+label.block {
+  cursor: pointer;
+}
+
+/* BUTTONS */
+button {
+  border: none !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  padding: 0.75rem 1rem !important;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.bg-blue-500 {
+  background: linear-gradient(135deg, #003463 0%, #003463 100%) !important;
+  color: white !important;
+  box-shadow: 0 10px 15px -3px rgba(16, 69, 185, 0.3) !important;
+}
+
+.bg-green-500:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(16, 46, 180, 0.4) !important;
+}
+
+.bg-gray-300 {
+  background-color: #d1d5db !important;
+  color: #1f2937 !important;
+}
+
+.bg-gray-300:hover {
+  background-color: #9ca3af !important;
+}
+
+.w-full {
+  width: 100% !important;
+}
+
+/* LAYOUT */
+.flex {
+  display: flex !important;
+}
+
+.gap-4 {
+  gap: 1rem !important;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.mb-4 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mb-8 {
+  margin-bottom: 2rem !important;
+}
+
+.mt-1 {
+  margin-top: 0.25rem !important;
+}
+
+.py-8 {
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+}
+
+.px-4 {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+/* GRID */
+.grid {
+  display: grid !important;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem !important;
+  }
+
+  .bg-white {
+    padding: 1.5rem !important;
+  }
+
+  .text-6xl {
+    font-size: 2.5rem !important;
+  }
+
+  .text-4xl {
+    font-size: 1.5rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .flex {
+    flex-direction: column;
+  }
+
+  .gap-4 {
+    gap: 0.5rem !important;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .py-8 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .bg-white {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .text-6xl {
+    font-size: 2rem !important;
+  }
+
+  .text-4xl {
+    font-size: 1.25rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.1rem !important;
+  }
+}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .progress-bar {
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-2xl">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="text-6xl mb-4">
+        <img src="/assets/Logo tagline.png" alt="" srcset="">
+      </div>
+      <p class="text-gray-600">Configuration de votre contrôle parental islamique</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="bg-gray-200 h-2 rounded-full mb-8">
+      <div id="progressBar" class="progress-bar bg-blue-500 h-2 rounded-full" style="width: 20%"></div>
+    </div>
+
+    <!-- Step 1: Bienvenue -->
+    <div id="step1" class="step active bg-white rounded-lg shadow-lg p-8">
+      <h2 class="text-2xl font-bold mb-4">Bienvenue dans MuslimGuard</h2>
+      <p class="text-gray-700 mb-4">
+        Cette extension va vous aider à protéger votre famille des contenus inappropriés sur Internet.
+      </p>
+      <div class="p-4 mb-6">
+        <h3 class="font-semibold mb-2">Fonctionnalités principales :</h3>
+        <ul class="list-disc list-inside text-gray-700 space-y-1">
+          <li>Blocage de sites et contenus inappropriés</li>
+          <li>Pause automatique pendant les heures de prière</li>
+          <li>Contrôle parental avec code PIN</li>
+          <li>Monitoring et statistiques détaillées</li>
+        </ul>
+      </div>
+      <button id="step1Next" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition">
+        Commencer →
+      </button>
+    </div>
+
+    <!-- Step 2: Création du PIN -->
+    <div id="step2" class="step bg-white rounded-lg shadow-lg p-8">
+      <h2 class="text-2xl font-bold mb-4">Créez votre code PIN parental</h2>
+      <p class="text-gray-700 mb-6">
+        Ce code vous permettra de gérer les paramètres de l'extension. Gardez-le secret !
+      </p>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-semibold mb-2">Code PIN (4-6 chiffres)</label>
+        <input
+          type="password"
+          id="pinInput"
+          maxlength="6"
+          placeholder="Entrez votre PIN"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700 font-semibold mb-2">Confirmez le PIN</label>
+        <input
+          type="password"
+          id="pinConfirm"
+          maxlength="6"
+          placeholder="Confirmez votre PIN"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700 font-semibold mb-2">Email de récupération (optionnel)</label>
+        <input
+          type="email"
+          id="recoveryEmail"
+          placeholder="votre@email.com"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+        <p class="text-sm text-gray-500 mt-1">En cas d'oubli du PIN</p>
+      </div>
+      <div id="pinError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+      <div class="flex gap-4">
+        <button id="step2Prev" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 rounded-lg transition">
+          ← Retour
+        </button>
+        <button id="step2Save" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition">
+          Continuer →
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Mode de protection -->
+    <div id="step3" class="step bg-white rounded-lg shadow-lg p-8">
+      <h2 class="text-2xl font-bold mb-4">Choisissez votre mode de protection</h2>
+      <div class="space-y-4 mb-6">
+        <label class="block cursor-pointer">
+          <input type="radio" name="mode" value="strict" class="mr-2">
+          <div class="inline-block">
+            <span class="font-semibold">Mode Strict</span>
+            <p class="text-sm text-gray-600">Bloque tout sauf sites sur listes blanches.</p>
+          </div>
+        </label>
+        <label class="block cursor-pointer">
+          <input type="radio" name="mode" value="moderate" checked class="mr-2">
+          <div class="inline-block">
+            <span class="font-semibold">Mode Modéré (Recommandé)</span>
+            <p class="text-sm text-gray-600">Bloque contenus inappropriés, réseaux sociaux optionnels.</p>
+          </div>
+        </label>
+        <label class="block cursor-pointer">
+          <input type="radio" name="mode" value="permissive" class="mr-2">
+          <div class="inline-block">
+            <span class="font-semibold">Mode Permissif</span>
+            <p class="text-sm text-gray-600">Bloque uniquement contenus explicites.</p>
+          </div>
+        </label>
+      </div>
+      <div class="flex gap-4">
+        <button id="prevBtn" data-action="prev" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 rounded-lg transition">
+          ← Retour
+        </button>
+        <button id="nextBtn" data-action="next" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition">
+          Continuer →
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Horaires de prières -->
+    <div id="step4" class="step bg-white rounded-lg shadow-lg p-8">
+      <h2 class="text-2xl font-bold mb-4">Configurez les horaires de prière</h2>
+      <p class="text-gray-700 mb-4">
+        Internet sera en pause pendant ±15 minutes autour de chaque prière (sauf sites sur listes blanches).
+      </p>
+      <div class="mb-4">
+        <label class="flex items-center">
+          <input type="checkbox" id="prayerPause" checked class="mr-2">
+          <span>Activer la pause pendant les prières</span>
+        </label>
+      </div>
+      <div id="prayerInputs" class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Fajr</label>
+          <input type="time" id="fajr" value="05:30" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Dhuhr</label>
+          <input type="time" id="dhuhr" value="13:00" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Asr</label>
+          <input type="time" id="asr" value="16:30" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Maghrib</label>
+          <input type="time" id="maghrib" value="19:00" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">Isha</label>
+          <input type="time" id="isha" value="20:30" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <button id="prevBtn" data-action="prev" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 rounded-lg transition">
+          ← Retour
+        </button>
+        <button id="nextBtn" data-action="next" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition">
+          Continuer →
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 5: Terminé -->
+    <div id="step5" class="step bg-white rounded-lg shadow-lg p-8 text-center">
+      <div class="text-6xl mb-4"><img style="width: 50px;" src="/assets/check.png" alt="" srcset=""></div>
+      <h2 class="text-2xl font-bold mb-4">Configuration terminée !</h2>
+      <p class="text-gray-700 mb-6">
+        MuslimGuard est maintenant actif et protège votre navigation. MashAllah !
+      </p>
+      <div class="border-l-4 p-4 mb-6 text-left">
+        <h3 class="font-semibold mb-2">Prochaines étapes :</h3>
+        <ul class="list-disc list-inside text-gray-700 space-y-1">
+          <li>Personnalisez les listes de blocage dans les Options</li>
+          <li>Consultez le Dashboard parent pour voir les statistiques</li>
+          <li>Utilisez le code PIN pour modifier les paramètres</li>
+        </ul>
+      </div>
+      <button id="finishBtn" data-action="finish" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition">
+        Terminer et activer
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="setup.js"></script>
+</body>
+</html>

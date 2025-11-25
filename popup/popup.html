@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MuslimGuard</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* ============================================
+       POPUP SPECIFIC STYLES
+       ============================================ */
+
+
+
+    .popup-container {
+      width: 400px;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      min-height: 100vh;
+      padding: var(--spacing-lg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+
+    .popup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-xl);
+      padding-bottom: var(--spacing-lg);
+      border-bottom: 2px solid var(--primary-100);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .logo-icon {
+      font-size: 1.75rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .logo-text .tagline {
+      font-size: 0.65rem;
+      color: var(--primary-600);
+      font-weight: 600;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #statusBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* ============================================
+       TOGGLE PROTECTION
+       ============================================ */
+
+    .protection-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--primary-500);
+      transition: all var(--transition);
+    }
+
+    .protection-card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .protection-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .protection-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 3.5rem;
+      height: 1.75rem;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--gray-300);
+      transition: var(--transition-fast);
+      border-radius: 9999px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 1.5rem;
+      width: 1.5rem;
+      left: 0.125rem;
+      bottom: 0.125rem;
+      background-color: white;
+      transition: var(--transition-fast);
+      border-radius: 50%;
+      box-shadow: var(--shadow);
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--primary-500);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(1.75rem);
+    }
+
+    #statusText {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+
+    /* ============================================
+       STATS SECTION
+       ============================================ */
+
+    .stats-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .stats-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+    }
+
+    .stat-item {
+      background: var(--gray-50);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      text-align: center;
+      transition: all var(--transition);
+      border: 1px solid var(--gray-100);
+    }
+
+    .stat-item:hover {
+      background: var(--gray-100);
+      border-color: var(--primary-200);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-600);
+    }
+
+    #blockedCount {
+      color: var(--danger-500);
+    }
+
+    /* ============================================
+       PRAYER CARD
+       ============================================ */
+
+    #nextPrayerCard {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow-lg);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #nextPrayerCard::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.5;
+    }
+
+    .prayer-card-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .prayer-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+
+    .prayer-card-body {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+    }
+
+    #prayerName {
+      font-size: 1.375rem;
+      font-weight: 700;
+    }
+
+    #prayerTime {
+      font-size: 1.375rem;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+    }
+
+    #prayerCountdown {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+
+    /* ============================================
+       ACHIEVEMENT CARD
+       ============================================ */
+
+    #achievementCard {
+      background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow);
+      border: 2px solid #ddd6fe;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      animation: slideIn var(--transition-slow) ease-out;
+    }
+
+    #achievementCard.hidden {
+      display: none;
+    }
+
+    #achievementIcon {
+      font-size: 1.875rem;
+      animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+      0% {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      70% {
+        transform: translateY(5px);
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #achievementName {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #5b21b6;
+      margin: 0;
+    }
+
+    .achievement-text {
+      font-size: 0.75rem;
+      color: #7c3aed;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+       ============================================ */
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    #dashboardBtn,
+    #optionsBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    #dashboardBtn:active,
+    #optionsBtn:active {
+      transform: scale(0.98);
+    }
+
+    #dashboardBtn {
+      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
+      color: white;
+      box-shadow: var(--shadow-lg);
+    }
+
+    #dashboardBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    #optionsBtn {
+      background: white;
+      color: var(--gray-800);
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow);
+    }
+
+    #optionsBtn:hover {
+      background: var(--gray-50);
+      border-color: var(--primary-300);
+      color: var(--primary-600);
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+
+    .popup-footer {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--gray-500);
+      margin-top: auto;
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .popup-footer p {
+      margin: 0;
+    }
+
+    .heart {
+      color: var(--primary-500);
+      animation: heartbeat 1.3s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% {
+        transform: scale(1);
+      }
+      10%, 30% {
+        transform: scale(0.9);
+      }
+      20%, 50%, 80% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* ============================================
+       MODAL PIN
+       ============================================ */
+
+    #pinModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      margin: -16px;
+    }
+
+    #pinModal.flex {
+      display: flex;
+    }
+
+    #pinModal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-xl);
+      max-width: 320px;
+      width: 90%;
+      animation: slideIn var(--transition-slow) ease-out;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .modal-icon {
+      font-size: 1.5rem;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-5px);
+      }
+      75% {
+        transform: translateX(5px);
+      }
+    }
+
+    #pinInput {
+      width: 100%;
+      padding: var(--spacing-md) var(--spacing-md);
+      font-size: 1.5rem;
+      letter-spacing: 0.5rem;
+      text-align: center;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      transition: all var(--transition);
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    #pinInput:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    #pinInput::placeholder {
+      color: var(--gray-300);
+      letter-spacing: 0.2rem;
+    }
+
+    #pinError {
+      color: var(--danger-500);
+      font-size: 0.85rem;
+      margin-bottom: var(--spacing-md);
+      animation: slideIn var(--transition-fast) ease-out;
+    }
+
+    #pinError.hidden {
+      display: none;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+    }
+
+    #pinCancel,
+    #pinSubmit {
+      flex: 1;
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.95rem;
+    }
+
+    #pinCancel {
+      background: var(--gray-100);
+      color: var(--gray-800);
+    }
+
+    #pinCancel:hover {
+      background: var(--gray-200);
+    }
+
+    #pinSubmit {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    #pinSubmit:hover {
+      background: var(--primary-600);
+    }
+
+    #pinCancel:active,
+    #pinSubmit:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================
+       SCROLLBAR STYLING
+       ============================================ */
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-100);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-300);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-400);
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 400px) {
+      body {
+        width: 100%;
+      }
+
+      .popup-container {
+        padding: var(--spacing-md);
+      }
+
+      .logo-text h1 {
+        font-size: 1.1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="header-left">
+        <div class="logo-icon">
+          <img src="/assets/logo MG.png" alt="">
+        </div>
+        <div class="logo-text">
+          <h1>Muslim Guard</h1>
+          <p class="tagline">Protection</p>
+        </div>
+      </div>
+      <div id="statusBadge" class="px-2 py-1 rounded-full text-xs font-semibold">
+        <!-- Rempli par JS -->
+      </div>
+    </div>
+
+    <!-- Protection Toggle -->
+    <div class="protection-card">
+      <div class="protection-header">
+        <label class="protection-label" for="protectionToggle">
+           Protection active
+        </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="protectionToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p id="statusText" class="text-sm text-gray-600">
+        <!-- Rempli par JS -->
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-card">
+      <div class="stats-header">
+        <span>
+          <img style="height: 30px;" src="/assets/stats.png" alt="" srcset="">
+        </span>
+        <span>Statistiques d'aujourd'hui</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Sites bloqués</div>
+          <div id="blockedCount" class="stat-value">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Jours de streak</div>
+          <div id="streakDays" class="stat-value">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prayer Card -->
+    <div id="nextPrayerCard">
+      <div class="prayer-card-content">
+        <div class="prayer-card-header">
+          <span>
+            <img style="height: 30px;" src="/assets/timewhite.png" alt="" srcset="">
+          </span>
+          <span>Prochaine prière</span>
+        </div>
+        <div class="prayer-card-body">
+          <div id="prayerName" style="font-size: 1.375rem; font-weight: 700;">Dhuhr</div>
+          <div id="prayerTime" style="font-size: 1.375rem; font-weight: 700; font-family: 'Courier New', monospace;">13:00</div>
+        </div>
+        <div id="prayerCountdown" style="font-size: 0.875rem; opacity: 0.9; font-weight: 500;">Dans 2h 15min</div>
+      </div>
+    </div>
+
+    <!-- Achievement Card -->
+    <div id="achievementCard" class="hidden">
+      <div id="achievementIcon">🏆</div>
+      <div>
+        <p id="achievementName"></p>
+        <p class="achievement-text">Débloqué ! 🎉</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="dashboardBtn">
+        <span>Dashboard Parent</span>
+      </button>
+      <button id="optionsBtn">
+        <span>Paramètres</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="popup-footer">
+      <p>Version 1.0.0 • Made with <span class="heart">💚</span> for Muslim families</p>
+    </div>
+  </div>
+
+  <!-- Modal PIN -->
+  <div id="pinModal" class="hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-icon">🔒</span>
+        <span>Code PIN requis</span>
+      </div>
+      <input
+        type="password"
+        id="pinInput"
+        maxlength="6"
+        placeholder="• • • • • •"
+      >
+      <div id="pinError" class="hidden"></div>
+      <div class="modal-buttons">
+        <button id="pinCancel">
+          Annuler
+        </button>
+        <button id="pinSubmit">
+          Valider
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paramètres - MuslimGuard</title>
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* ============================================
+       OPTIONS PAGE LAYOUT
+       ============================================ */
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      margin: 0;
+      padding: 0;
+    }
+
+    .options-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ============================================
+       SIDEBAR NAVIGATION
+       ============================================ */
+
+    .sidebar {
+      width: 280px;
+      background: white;
+      border-right: 1px solid var(--gray-200);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: var(--spacing-xl);
+      border-bottom: 2px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .sidebar-logo {
+      font-size: 2rem;
+    }
+
+    .sidebar-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-title h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .sidebar-title .subtitle {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    .sidebar-logo img{
+      height: 80px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--spacing-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: transparent;
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      color: var(--gray-700);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .tab-btn:hover {
+      background: var(--gray-50);
+      color: var(--primary-600);
+    }
+
+    .tab-btn.active {
+      background: var(--primary-50);
+      color: var(--primary-600);
+      border-color: var(--primary-500);
+      font-weight: 600;
+    }
+
+    .tab-btn::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 0;
+      background: var(--primary-500);
+      border-radius: 3px;
+      transition: height var(--transition);
+    }
+
+    .tab-btn.active::before {
+      height: 60%;
+    }
+
+    .sidebar-footer {
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    #saveBtn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: var(--shadow);
+    }
+
+    #saveBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    #saveBtn:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-2xl);
+    }
+
+    .content-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .content-icon {
+      font-size: 2.5rem;
+    }
+
+    .content-header-text h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .content-header-text p {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin: 0;
+    }
+
+    /* ============================================
+       TAB CONTENT
+       ============================================ */
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn var(--transition) ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================
+       SECTIONS
+       ============================================ */
+
+    .settings-section {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+      box-shadow: var(--shadow);
+      transition: all var(--transition);
+      border-left: 4px solid var(--primary-100);
+    }
+
+    .settings-section:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .section-header-text h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .section-description {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    /* ============================================
+       PROTECTION MODE RADIOS
+       ============================================ */
+
+    .protection-modes {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .mode-option {
+      display: flex;
+      align-items: flex-start;
+      padding: var(--spacing-lg);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition);
+      background: white;
+    }
+
+    .mode-option:hover {
+      border-color: var(--primary-300);
+      background: var(--primary-50);
+    }
+
+    .mode-option input[type="radio"] {
+      width: auto;
+      margin-top: 2px;
+      margin-right: var(--spacing-md);
+      cursor: pointer;
+      accent-color: var(--primary-500);
+    }
+
+    .mode-label {
+      flex: 1;
+    }
+
+    .mode-name {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-xs);
+      font-size: 0.95rem;
+    }
+
+    .mode-description {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+
+    /* ============================================
+       CHECKBOXES GRID
+       ============================================ */
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-md);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition);
+      background: white;
+    }
+
+    .checkbox-item:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-300);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin-right: var(--spacing-md);
+      cursor: pointer;
+      accent-color: var(--primary-500);
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      cursor: pointer;
+      flex: 1;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    /* ============================================
+       TEXTAREA
+       ============================================ */
+
+    .code-textarea {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 180px;
+      transition: all var(--transition);
+      background: white;
+    }
+
+    .code-textarea:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    /* ============================================
+       TIME INPUTS
+       ============================================ */
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    .time-input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .time-input-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .time-input-group input[type="time"],
+    input[type="email"],
+    input[type="password"] {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .time-input-group input[type="time"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
+
+    .action-button {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+
+    .action-button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-600);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+      background: var(--secondary-500);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-600);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-danger {
+      background: var(--danger-500);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-600);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ============================================
+       DANGER ZONE
+       ============================================ */
+
+    .danger-zone {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      border-left-color: var(--danger-500) !important;
+      border: 2px solid var(--danger-200);
+    }
+
+    .danger-zone .section-icon {
+      color: var(--danger-500);
+    }
+
+    .danger-zone .section-header-text h2 {
+      color: var(--danger-600);
+    }
+
+    /* ============================================
+       PIN CHANGE FORM
+       ============================================ */
+
+    .pin-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .pin-inputs input {
+      width: 100%;
+    }
+
+    /* ============================================
+       SCROLLBAR
+       ============================================ */
+
+    .sidebar::-webkit-scrollbar,
+    .main-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track,
+    .main-content::-webkit-scrollbar-track {
+      background: var(--gray-100);
+    }
+
+    .sidebar::-webkit-scrollbar-thumb,
+    .main-content::-webkit-scrollbar-thumb {
+      background: var(--primary-300);
+      border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover,
+    .main-content::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-400);
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 240px;
+      }
+
+      .main-content {
+        padding: var(--spacing-xl);
+      }
+
+      .checkbox-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .options-container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .sidebar-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+      }
+
+      .tab-btn {
+        flex-shrink: 0;
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.85rem;
+      }
+
+      .sidebar-footer {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      #saveBtn {
+        width: 100%;
+      }
+
+      .main-content {
+        padding: var(--spacing-lg);
+      }
+
+      .content-header {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .content-icon {
+        font-size: 2rem;
+      }
+
+      .content-header-text h1 {
+        font-size: 1.5rem;
+      }
+
+      .checkbox-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .time-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-section {
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .protection-modes .mode-option {
+        padding: var(--spacing-md);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: var(--spacing-md);
+      }
+
+      .sidebar-header {
+        padding: var(--spacing-lg) var(--spacing-md);
+      }
+
+      .sidebar-title h2 {
+        font-size: 1rem;
+      }
+
+      .content-header {
+        gap: var(--spacing-sm);
+      }
+
+      .content-icon {
+        font-size: 1.5rem;
+      }
+
+      .content-header-text h1 {
+        font-size: 1.25rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .section-icon {
+        font-size: 1.25rem;
+      }
+
+      .settings-section {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .code-textarea {
+        min-height: 120px;
+        font-size: 0.8rem;
+      }
+
+      .action-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    .content-icon img{
+      height: 60px;
+    }
+  </style>
+</head>
+<body>
+  <div class="options-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="/assets/Logo tagline.png" alt="" srcset="">
+        </div>
+        <div class="sidebar-title">
+          <h2>Paramètres</h2>
+          <p class="subtitle">Configuration</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="tab-btn active" data-tab="general">
+          <span></span>
+          <span>Général</span>
+        </button>
+        <button class="tab-btn" data-tab="lists">
+          <span></span>
+          <span>Listes</span>
+        </button>
+        <button class="tab-btn" data-tab="schedule">
+          <span></span>
+          <span>Horaires</span>
+        </button>
+        <button class="tab-btn" data-tab="appearance">
+          <span></span>
+          <span>Sécurité</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="saveBtn">
+          <span>Sauvegarder</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Tab: Général -->
+      <div id="tab-general" class="tab-content active">
+        <!-- Mode de Protection -->
+        <div class="content-header">
+          <div class="content-icon">
+            <img src="/assets/shieldok.png" alt="" srcset="">
+          </div>
+          <div class="content-header-text">
+            <h1>Mode de Protection</h1>
+            <p>Choisissez le niveau de protection souhaité</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="protection-modes">
+            <label class="mode-option">
+              <input type="radio" name="protectionMode" value="strict">
+              <div class="mode-label">
+                <div class="mode-name">Mode Strict</div>
+                <div class="mode-description">Bloque tout sauf sites éducatifs et islamiques</div>
+              </div>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="protectionMode" value="moderate">
+              <div class="mode-label">
+                <div class="mode-name">Mode Modéré</div>
+                <div class="mode-description">Bloque contenus inappropriés selon catégories</div>
+              </div>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="protectionMode" value="permissive">
+              <div class="mode-label">
+                <div class="mode-name">Mode Permissif</div>
+                <div class="mode-description">Bloque uniquement contenus explicites</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Catégories à Bloquer -->
+        <div class="content-header" style="margin-top: var(--spacing-2xl);">
+          <div class="content-icon">
+            <img src="/assets/handblock.png" alt="">
+          </div>
+          <div class="content-header-text">
+            <h1>Catégories à Bloquer</h1>
+            <p>Sélectionnez les catégories que vous souhaitez bloquer</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="checkbox-grid">
+            <label class="checkbox-item">
+              <input type="checkbox" id="blockSocialMedia">
+              <label for="blockSocialMedia">Réseaux Sociaux</label>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="blockMusicStreaming">
+              <label for="blockMusicStreaming">Streaming Musical</label>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="blockVideoStreaming">
+              <label for="blockVideoStreaming">Streaming Vidéo</label>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="blockDating">
+              <label for="blockDating">Rencontres</label>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="blockGaming">
+              <label for="blockGaming">Jeux en Ligne</label>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="blockAdult">
+              <label for="blockAdult">Contenu Adulte</label>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Listes -->
+      <div id="tab-lists" class="tab-content">
+        <div class="content-header">
+          <div class="content-icon">
+            <img style="height: 40px;" src="/assets/list.png" alt="" srcset="">
+          </div>
+          <div class="content-header-text">
+            <h1>Listes de Blocage</h1>
+            <p>Gérez vos domaines, mots-clés et whitelist</p>
+          </div>
+        </div>
+
+        <!-- Domaines Bloqués -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/handblock.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Domaines Bloqués</h2>
+            </div>
+          </div>
+          <p class="section-description">Un domaine par ligne. Wildcards supportés: *.youtube.com</p>
+          <textarea id="blockedDomains" class="code-textarea" placeholder="youtube.com&#10;tiktok.com&#10;*.instagram.com"></textarea>
+          <button id="loadRecommended" class="action-button btn-primary">
+            <span>Charger automatiquement 900+ sites recommandés</span>
+          </button>
+        </div>
+
+        <!-- Mots-clés à Bloquer -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/keyword.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Mots-clés à Bloquer</h2>
+            </div>
+          </div>
+          <p class="section-description">Bloque les URLs contenant ces mots (insensible à la casse)</p>
+          <textarea id="blockedKeywords" class="code-textarea" placeholder="music&#10;dating&#10;casino"></textarea>
+        </div>
+
+        <!-- Whitelist -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/check.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Sites Toujours Autorisés</h2>
+            </div>
+          </div>
+          <p class="section-description">Ces sites ne seront jamais bloqués</p>
+          <textarea id="whitelistedSites" class="code-textarea" placeholder="quran.com&#10;islamqa.info"></textarea>
+        </div>
+      </div>
+
+      <!-- Tab: Horaires -->
+      <div id="tab-schedule" class="tab-content">
+        <div class="content-header">
+          <div class="content-icon">
+            <img style="height: 40px;" src="/assets/time.png" alt="" srcset="">
+          </div>
+          <div class="content-header-text">
+            <h1>Paramètres Horaires</h1>
+            <p>Configurez les prières et les plages d'accès</p>
+          </div>
+        </div>
+
+        <!-- Pause pour les Prières -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/masjid.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Pause pour les Prières</h2>
+            </div>
+          </div>
+          <div class="checkbox-item" style="border: none; padding: 0; margin-bottom: var(--spacing-lg);">
+            <input type="checkbox" id="prayerPauseEnabled">
+            <label for="prayerPauseEnabled">Activer la pause internet pendant les prières (±15 min)</label>
+          </div>
+          <div class="time-grid">
+            <div class="time-input-group">
+              <label for="fajr">Fajr</label>
+              <input type="time" id="fajr">
+            </div>
+            <div class="time-input-group">
+              <label for="dhuhr">Dhuhr</label>
+              <input type="time" id="dhuhr">
+            </div>
+            <div class="time-input-group">
+              <label for="asr">Asr</label>
+              <input type="time" id="asr">
+            </div>
+            <div class="time-input-group">
+              <label for="maghrib">Maghrib</label>
+              <input type="time" id="maghrib">
+            </div>
+            <div class="time-input-group">
+              <label for="isha">Isha</label>
+              <input type="time" id="isha">
+            </div>
+          </div>
+        </div>
+
+        <!-- Plages Horaires -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/time.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Plages Horaires d'Accès</h2>
+            </div>
+          </div>
+          <div class="checkbox-item" style="border: none; padding: 0; margin-bottom: var(--spacing-lg);">
+            <input type="checkbox" id="scheduleEnabled">
+            <label for="scheduleEnabled">Limiter l'accès internet à certaines heures</label>
+          </div>
+          <div class="time-grid">
+            <div class="time-input-group">
+              <label for="allowedHoursStart">Heure de début</label>
+              <input type="time" id="allowedHoursStart">
+            </div>
+            <div class="time-input-group">
+              <label for="allowedHoursEnd">Heure de fin</label>
+              <input type="time" id="allowedHoursEnd">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Sécurité -->
+      <div id="tab-appearance" class="tab-content">
+        <div class="content-header">
+          <div class="content-icon">
+            <img style="height: 40px;" src="/assets/secur.png" alt="" srcset="">
+          </div>
+          <div class="content-header-text">
+            <h1>Sécurité & Apparence</h1>
+            <p>Gérez la sécurité et les paramètres d'affichage</p>
+          </div>
+        </div>
+
+        <!-- Message de Blocage -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/message.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Message de Blocage</h2>
+            </div>
+          </div>
+          <p class="section-description">Personnalisez le message affiché sur la page de blocage</p>
+          <textarea id="blockPageMessage" class="code-textarea"></textarea>
+        </div>
+
+        <!-- Email de Récupération -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">📧</div>
+            <div class="section-header-text">
+              <h2>Email de Récupération</h2>
+            </div>
+          </div>
+          <p class="section-description">Utilisé pour récupérer votre PIN en cas d'oubli</p>
+          <input type="email" id="recoveryEmail" placeholder="parent@email.com">
+        </div>
+
+        <!-- Changer le PIN -->
+        <div class="settings-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/secur.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Changer le Code PIN</h2>
+            </div>
+          </div>
+          <p class="section-description">Mettez à jour votre code PIN de protection</p>
+          <div class="pin-inputs">
+            <input type="password" id="oldPin" placeholder="PIN actuel">
+            <input type="password" id="newPin" placeholder="Nouveau PIN">
+            <input type="password" id="confirmPin" placeholder="Confirmer le nouveau PIN">
+          </div>
+          <button id="changePinBtn" class="action-button btn-primary">
+            <span>Changer le PIN</span>
+          </button>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="settings-section danger-zone">
+          <div class="section-header">
+            <div class="section-icon">
+              <img style="height: 40px;" src="/assets/warning.png" alt="" srcset="">
+            </div>
+            <div class="section-header-text">
+              <h2>Zone Danger</h2>
+            </div>
+          </div>
+          <p class="section-description">Cette action réinitialisera toute la configuration sauf le PIN</p>
+          <button id="resetBtn" class="action-button btn-danger">
+            <span>Réinitialiser toute la configuration</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
