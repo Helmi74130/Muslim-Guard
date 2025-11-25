@@ -4,10 +4,17 @@ import { getConfig, setValue, resetConfig } from '../utils/storage.js';
 import { changePin, verifyPin, generateSessionToken, verifySessionToken } from '../utils/auth.js';
 import { getRecommendedBlockList } from '../utils/lists.js';
 
+
+
 let config = null;
 let isAuthenticated = false;
 
+let isAuthenticated = false;
+
+
+
 // Chargement initial
+
 document.addEventListener('DOMContentLoaded', async () => {
   await checkAuthentication();
   setupPinProtection();
@@ -141,7 +148,9 @@ async function unlockPage() {
 
   // Charge la configuration et initialise la page
   await loadConfig();
+
   setupTabs();
+
   setupEventListeners();
 }
 
@@ -439,11 +448,10 @@ async function handleReset() {
 function showNotification(message, type = 'info') {
   // Crée l'élément de notification
   const notif = document.createElement('div');
-  notif.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-semibold z-50 ${
-    type === 'success' ? 'bg-green-500' :
-    type === 'error' ? 'bg-red-500' :
-    'bg-blue-500'
-  }`;
+  notif.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-semibold z-50 ${type === 'success' ? 'bg-green-500' :
+      type === 'error' ? 'bg-red-500' :
+        'bg-blue-500'
+    }`;
   notif.textContent = message;
   notif.style.animation = 'slideIn 0.3s ease-out';
 

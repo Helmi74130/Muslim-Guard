@@ -223,7 +223,6 @@ async function submitPin() {
   const pin = document.getElementById('pinInput').value;
   const errorDiv = document.getElementById('pinError');
 
-  console.log('🔐 submitPin appelé, PIN:', pin ? '****' : 'vide', 'Action:', pendingAction);
 
   if (!pin) {
     errorDiv.textContent = 'Entrez le code PIN';
@@ -232,11 +231,11 @@ async function submitPin() {
   }
 
   try {
-    console.log('🔍 Vérification du PIN...');
+
 
     // Vérifie le PIN
     const isValid = await verifyPin(pin);
-    console.log('🔍 Résultat vérification PIN:', isValid);
+
 
     if (!isValid) {
       console.error('❌ PIN incorrect');
@@ -245,8 +244,6 @@ async function submitPin() {
       return;
     }
 
-    console.log('PIN valide! Action à exécuter:', pendingAction);
-
     // Sauvegarde l'action avant de cacher le modal
     const action = pendingAction;
 
@@ -254,29 +251,23 @@ async function submitPin() {
     hidePinModal();
 
     if (action === 'toggleProtection') {
-      console.log('🔄 Toggle protection...');
       await toggleProtection(false);
     } else if (action === 'openOptions') {
       // Ouvre les options dans un nouvel onglet
       const url = chrome.runtime.getURL('options/options.html');
-      console.log('Ouverture des options:', url);
 
       try {
         const tab = await chrome.tabs.create({ url });
-        console.log('✅ Onglet créé:', tab.id);
 
         // Ferme le popup après un court délai
         setTimeout(() => {
-          console.log('👋 Fermeture du popup');
           window.close();
         }, 100);
       } catch (tabError) {
-        console.error('❌ Erreur création onglet:', tabError);
         alert('Erreur lors de l\'ouverture des paramètres: ' + tabError.message);
       }
     }
   } catch (error) {
-    console.error('💥 Erreur lors de la vérification du PIN:', error);
     errorDiv.textContent = 'Erreur : ' + error.message;
     errorDiv.classList.remove('hidden');
   }
