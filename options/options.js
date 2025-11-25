@@ -4,17 +4,10 @@ import { getConfig, setValue, resetConfig } from '../utils/storage.js';
 import { changePin, verifyPin, generateSessionToken, verifySessionToken } from '../utils/auth.js';
 import { getRecommendedBlockList } from '../utils/lists.js';
 
-
-
 let config = null;
 let isAuthenticated = false;
 
-let isAuthenticated = false;
-
-
-
 // Chargement initial
-
 document.addEventListener('DOMContentLoaded', async () => {
   await checkAuthentication();
   setupPinProtection();
@@ -177,9 +170,7 @@ async function unlockPage() {
 
   // Charge la configuration et initialise la page
   await loadConfig();
-
   setupTabs();
-
   setupEventListeners();
 }
 
