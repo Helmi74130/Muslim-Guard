@@ -1,17 +1,149 @@
 // options/options.js - Page de configuration complète
 
 import { getConfig, setValue, resetConfig } from '../utils/storage.js';
-import { changePin } from '../utils/auth.js';
+import { changePin, verifyPin, generateSessionToken, verifySessionToken } from '../utils/auth.js';
 import { getRecommendedBlockList } from '../utils/lists.js';
 
 let config = null;
+let isAuthenticated = false;
 
 // Chargement initial
 document.addEventListener('DOMContentLoaded', async () => {
+  await checkAuthentication();
+  setupPinProtection();
+});
+
+// Vérifie si l'utilisateur a une session valide
+async function checkAuthentication() {
+  try {
+    // Vérifie si un token de session existe et est valide
+    const sessionToken = localStorage.getItem('optionsSessionToken');
+
+    if (sessionToken) {
+      const isValid = await verifySessionToken(sessionToken);
+
+      if (isValid) {
+        isAuthenticated = true;
+        await unlockPage();
+        return;
+      }
+    }
+
+    // Pas de session valide, afficher l'overlay de PIN
+    isAuthenticated = false;
+  } catch (error) {
+    console.error('Erreur lors de la vérification de l\'authentification:', error);
+    isAuthenticated = false;
+  }
+}
+
+// Configure la protection par PIN
+function setupPinProtection() {
+  const pinInput = document.getElementById('pinInput');
+  const submitBtn = document.getElementById('submitPinBtn');
+  const pinError = document.getElementById('pinError');
+
+  // Soumission par bouton
+  submitBtn.addEventListener('click', handlePinSubmit);
+
+  // Soumission par touche Entrée
+  pinInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      handlePinSubmit();
+    }
+  });
+
+  // Retire l'erreur quand l'utilisateur tape
+  pinInput.addEventListener('input', () => {
+    pinInput.classList.remove('error');
+    pinError.textContent = '';
+  });
+
+  // Focus automatique sur le champ PIN
+  if (!isAuthenticated) {
+    pinInput.focus();
+  }
+}
+
+// Gère la soumission du PIN
+async function handlePinSubmit() {
+  const pinInput = document.getElementById('pinInput');
+  const submitBtn = document.getElementById('submitPinBtn');
+  const pinError = document.getElementById('pinError');
+  const pin = pinInput.value.trim();
+
+  // Validation basique
+  if (!pin) {
+    showPinError('Veuillez entrer votre code PIN');
+    return;
+  }
+
+  if (pin.length < 4 || pin.length > 6) {
+    showPinError('Le PIN doit contenir 4 à 6 chiffres');
+    return;
+  }
+
+  // Désactive le bouton pendant la vérification
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Vérification...';
+
+  try {
+    // Vérifie le PIN
+    const isValid = await verifyPin(pin);
+
+    if (isValid) {
+      // PIN correct - Génère un token de session
+      const token = await generateSessionToken();
+
+      if (token) {
+        localStorage.setItem('optionsSessionToken', token);
+      }
+
+      isAuthenticated = true;
+      await unlockPage();
+    } else {
+      // PIN incorrect
+      showPinError('❌ Code PIN incorrect');
+      pinInput.value = '';
+      pinInput.focus();
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification du PIN:', error);
+    showPinError('❌ Erreur lors de la vérification');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Déverrouiller';
+  }
+}
+
+// Affiche une erreur de PIN
+function showPinError(message) {
+  const pinInput = document.getElementById('pinInput');
+  const pinError = document.getElementById('pinError');
+
+  pinInput.classList.add('error');
+  pinError.textContent = message;
+}
+
+// Déverrouille la page
+async function unlockPage() {
+  const overlay = document.getElementById('pinOverlay');
+  const container = document.querySelector('.options-container');
+
+  // Animation de déverrouillage
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.3s ease-out';
+
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    container.classList.add('unlocked');
+  }, 300);
+
+  // Charge la configuration et initialise la page
   await loadConfig();
   setupTabs();
   setupEventListeners();
-});
+}
 
 // Charge la configuration
 async function loadConfig() {
