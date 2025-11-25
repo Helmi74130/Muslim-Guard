@@ -3,21 +3,23 @@
 /**
  * Détecte les mots-clés suspects dans la page
  */
-function detectSuspiciousContent() {
+function detectSuspiciousContent(customKeywords = []) {
   try {
     const bodyText = document.body?.innerText?.toLowerCase() || '';
     const title = document.title?.toLowerCase() || '';
 
-    // Mots-clés suspects
-    const suspiciousKeywords = [
+    // Utilise les mots-clés personnalisés de la config
+    const keywords = customKeywords.length > 0 ? customKeywords : [
+      // Liste par défaut au cas où
       'porn', 'xxx', 'adult', 'sex', 'nude', 'nsfw',
       'casino', 'gambling', 'bet', 'poker',
       'dating', 'hookup', 'meet singles',
       'music', 'spotify', 'deezer', 'soundcloud'
     ];
 
-    for (const keyword of suspiciousKeywords) {
-      if (bodyText.includes(keyword) || title.includes(keyword)) {
+    for (const keyword of keywords) {
+      const keywordLower = keyword.toLowerCase();
+      if (bodyText.includes(keywordLower) || title.includes(keywordLower)) {
         return { suspicious: true, keyword };
       }
     }
@@ -195,8 +197,21 @@ function showBlockOverlay(keyword) {
  */
 async function init() {
   try {
-    // Détecte les contenus suspects
-    const detection = detectSuspiciousContent();
+    // Récupère les mots-clés personnalisés depuis la config
+    let customKeywords = [];
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'getConfig' });
+      const config = response?.config;
+
+      if (config && config.blockedKeywords && Array.isArray(config.blockedKeywords)) {
+        customKeywords = config.blockedKeywords;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la config:', error);
+    }
+
+    // Détecte les contenus suspects avec les mots-clés personnalisés
+    const detection = detectSuspiciousContent(customKeywords);
 
     if (detection.suspicious) {
       console.log('⚠️ Contenu suspect détecté:', detection.keyword);

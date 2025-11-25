@@ -1003,11 +1003,19 @@
               <img style="height: 40px;" src="/assets/keyword.png" alt="" srcset="">
             </div>
             <div class="section-header-text">
-              <h2>Mots-clés à Bloquer</h2>
+              <h2>Mots-clés de Détection de Contenu</h2>
             </div>
           </div>
-          <p class="section-description">Bloque les URLs contenant ces mots (insensible à la casse)</p>
-          <textarea id="blockedKeywords" class="code-textarea" placeholder="music&#10;dating&#10;casino"></textarea>
+          <p class="section-description">
+            <strong>Double protection :</strong><br>
+            • Bloque les URLs contenant ces mots<br>
+            • Détecte et bloque le contenu des pages chargées (insensible à la casse)<br>
+            Un mot-clé par ligne. Ajoutez vos propres mots personnalisés !
+          </p>
+          <textarea id="blockedKeywords" class="code-textarea" placeholder="porn&#10;music&#10;dating&#10;casino&#10;gambling&#10;(ajoutez vos mots...)"></textarea>
+          <button id="loadRecommendedKeywords" class="action-button btn-secondary">
+            <span>📝 Charger la liste recommandée (200+ mots-clés)</span>
+          </button>
         </div>
 
         <!-- Whitelist -->

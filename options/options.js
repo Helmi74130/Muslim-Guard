@@ -217,8 +217,11 @@ function setupEventListeners() {
   // Bouton Sauvegarder
   document.getElementById('saveBtn').addEventListener('click', saveConfig);
 
-  // Charger liste recommandée
+  // Charger liste recommandée de domaines
   document.getElementById('loadRecommended').addEventListener('click', loadRecommendedList);
+
+  // Charger liste recommandée de mots-clés
+  document.getElementById('loadRecommendedKeywords').addEventListener('click', loadRecommendedKeywords);
 
   // Changer PIN
   document.getElementById('changePinBtn').addEventListener('click', handleChangePin);
@@ -285,7 +288,7 @@ async function saveConfig() {
   }
 }
 
-// Charge la liste recommandée
+// Charge la liste recommandée de domaines
 function loadRecommendedList() {
   const recommended = getRecommendedBlockList();
   const current = document.getElementById('blockedDomains').value
@@ -299,6 +302,32 @@ function loadRecommendedList() {
   document.getElementById('blockedDomains').value = combined.join('\n');
 
   showNotification(`✅ ${recommended.length} sites ajoutés !`, 'success');
+}
+
+// Charge la liste recommandée de mots-clés
+async function loadRecommendedKeywords() {
+  try {
+    // Charge la liste par défaut depuis storage.js
+    const { DEFAULT_CONFIG } = await import('../utils/storage.js');
+    const recommended = DEFAULT_CONFIG.blockedKeywords || [];
+
+    const current = document.getElementById('blockedKeywords').value
+      .split('\n')
+      .map(k => k.trim())
+      .filter(k => k);
+
+    // Combine les listes sans doublons (insensible à la casse)
+    const currentLower = current.map(k => k.toLowerCase());
+    const newKeywords = recommended.filter(k => !currentLower.includes(k.toLowerCase()));
+    const combined = [...current, ...newKeywords];
+
+    document.getElementById('blockedKeywords').value = combined.join('\n');
+
+    showNotification(`✅ ${newKeywords.length} nouveaux mots-clés ajoutés ! (Total: ${combined.length})`, 'success');
+  } catch (error) {
+    console.error('Erreur lors du chargement des mots-clés recommandés:', error);
+    showNotification('❌ Erreur lors du chargement', 'error');
+  }
 }
 
 // Change le PIN
