@@ -50,11 +50,26 @@ function setupPinProtection() {
   const submitBtn = document.getElementById('submitPinBtn');
   const pinError = document.getElementById('pinError');
 
+  console.log('setupPinProtection - Elements trouvés:', {
+    pinInput: !!pinInput,
+    submitBtn: !!submitBtn,
+    pinError: !!pinError
+  });
+
+  if (!pinInput || !submitBtn || !pinError) {
+    console.error('Éléments PIN non trouvés !');
+    return;
+  }
+
   // Soumission par bouton
-  submitBtn.addEventListener('click', handlePinSubmit);
+  submitBtn.addEventListener('click', () => {
+    console.log('Bouton cliqué !');
+    handlePinSubmit();
+  });
 
   // Soumission par touche Entrée
   pinInput.addEventListener('keypress', (e) => {
+    console.log('Touche pressée:', e.key);
     if (e.key === 'Enter') {
       handlePinSubmit();
     }
@@ -68,24 +83,32 @@ function setupPinProtection() {
 
   // Focus automatique sur le champ PIN
   if (!isAuthenticated) {
-    pinInput.focus();
+    setTimeout(() => {
+      pinInput.focus();
+    }, 100);
   }
 }
 
 // Gère la soumission du PIN
 async function handlePinSubmit() {
+  console.log('handlePinSubmit appelée');
+
   const pinInput = document.getElementById('pinInput');
   const submitBtn = document.getElementById('submitPinBtn');
   const pinError = document.getElementById('pinError');
   const pin = pinInput.value.trim();
 
+  console.log('PIN saisi:', pin ? '****' : '(vide)', 'Longueur:', pin.length);
+
   // Validation basique
   if (!pin) {
+    console.log('PIN vide');
     showPinError('Veuillez entrer votre code PIN');
     return;
   }
 
   if (pin.length < 4 || pin.length > 6) {
+    console.log('PIN longueur invalide');
     showPinError('Le PIN doit contenir 4 à 6 chiffres');
     return;
   }
@@ -95,21 +118,27 @@ async function handlePinSubmit() {
   submitBtn.textContent = 'Vérification...';
 
   try {
+    console.log('Appel de verifyPin...');
     // Vérifie le PIN
     const isValid = await verifyPin(pin);
+    console.log('Résultat verifyPin:', isValid);
 
     if (isValid) {
+      console.log('PIN valide ! Génération du token...');
       // PIN correct - Génère un token de session
       const token = await generateSessionToken();
+      console.log('Token généré:', token ? 'OK' : 'ERREUR');
 
       if (token) {
         localStorage.setItem('optionsSessionToken', token);
       }
 
       isAuthenticated = true;
+      console.log('Déverrouillage de la page...');
       await unlockPage();
     } else {
       // PIN incorrect
+      console.log('PIN incorrect');
       showPinError('❌ Code PIN incorrect');
       pinInput.value = '';
       pinInput.focus();
