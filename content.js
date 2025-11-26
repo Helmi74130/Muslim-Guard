@@ -207,14 +207,29 @@ function showBlockOverlay(keyword) {
  */
 async function init() {
   try {
-    // Récupère les mots-clés de détection de contenu depuis la config
+    // Récupère la config complète depuis le background
     let customKeywords = [];
+    let protectionEnabled = true; // Par défaut activé
+
     try {
       const response = await chrome.runtime.sendMessage({ action: 'getConfig' });
       const config = response?.config;
 
-      if (config && config.contentDetectionKeywords && Array.isArray(config.contentDetectionKeywords)) {
-        customKeywords = config.contentDetectionKeywords;
+      if (config) {
+        // Vérifie si la protection est activée
+        protectionEnabled = config.protectionEnabled !== false;
+
+        console.log('🛡️ Content.js - Protection activée:', protectionEnabled);
+
+        // Si la protection est désactivée, on ne fait rien
+        if (!protectionEnabled) {
+          console.log('⏸️ Protection désactivée - Aucune détection de contenu');
+          return;
+        }
+
+        if (config.contentDetectionKeywords && Array.isArray(config.contentDetectionKeywords)) {
+          customKeywords = config.contentDetectionKeywords;
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la récupération de la config:', error);
