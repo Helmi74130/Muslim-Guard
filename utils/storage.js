@@ -18,16 +18,15 @@ export const DEFAULT_CONFIG = {
 
   // Listes de blocage
   blockedDomains: [],
-  blockedKeywords: ['porn',
+  blockedKeywords: [
+    'porn',
     'porno',
     'pornographie',
     'xxx',
     'sexe',
-    'adult',
     'nude',
     'nudo',
     'webcam',
-    'cam',
     'cams',
     'erotic',
     'érotique',
@@ -37,11 +36,8 @@ export const DEFAULT_CONFIG = {
     'amateur',
     'couple',
     'amateur',
-    'gay',
     'lesbian',
     'trans',
-
-    // Jeux d'argent & Paris
     'casino',
     'gambling',
     'poker',
@@ -50,16 +46,12 @@ export const DEFAULT_CONFIG = {
     'slot',
     'slots',
     'machine à sous',
-    'pari',
-    'paris',
     'betting',
     'bet',
     'bingo',
     'loto',
     'loterie',
     'hippodrome',
-
-    // Musique & Divertissement
     'music',
     'musique',
     'spotify',
@@ -77,8 +69,6 @@ export const DEFAULT_CONFIG = {
     'club',
     'nightclub',
     'concert',
-
-    // Rencontres & Dating
     'dating',
     'rencontre',
     'rencontres',
@@ -93,12 +83,9 @@ export const DEFAULT_CONFIG = {
     'couple',
     'love',
     'amour',
-
-    // Drogues & Alcool
     'alcool',
     'alcohol',
     'biere',
-    'vin',
     'vodka',
     'whisky',
     'cannabis',
@@ -113,10 +100,7 @@ export const DEFAULT_CONFIG = {
     'ecstasy',
     'mdma',
     'lsd',
-    'acid',
     'trip',
-
-    // Films & Séries inappropriés
     'movie',
     'films',
     'cinema',
@@ -132,8 +116,6 @@ export const DEFAULT_CONFIG = {
     'pirate',
     'download',
     'télécharger',
-
-    // Jeux vidéo (selon politique)
     'game',
     'jeu',
     'jeux',
@@ -147,8 +129,6 @@ export const DEFAULT_CONFIG = {
     'steam',
     'twitch',
     'youtube gaming',
-
-    // Réseaux sociaux
     'facebook',
     'instagram',
     'tiktok',
@@ -159,8 +139,6 @@ export const DEFAULT_CONFIG = {
     'discord',
     'whatsapp web',
     'viber',
-
-    // Contenu violent
     'violence',
     'gore',
     'violent',
@@ -169,16 +147,12 @@ export const DEFAULT_CONFIG = {
     'jeux de guerre',
     'terrorisme',
     'terrorist',
-
-    // Mode & Beauté inappropriée
     'bikini',
     'lingerie',
     'swimwear',
     'maillot',
     'fashion model',
     'mannequin',
-
-    // Shopping & Luxe
     'shopping',
     'luxury',
     'luxe',
@@ -186,8 +160,6 @@ export const DEFAULT_CONFIG = {
     'louis vuitton',
     'fashion',
     'designer',
-
-    // Contenu religieux inapproprié
     'atheism',
     'athéisme',
     'anti-islam',
@@ -195,18 +167,6 @@ export const DEFAULT_CONFIG = {
     'critique islam',
     'apostasy',
     'apostasie',
-
-    // VPN & Proxy (pour contourner)
-    'vpn',
-    'proxy',
-    'tor',
-    'anonyme',
-    'anonymous',
-    'hide',
-    'unblock',
-    'débloquer',
-
-    // Autres
     'gossip',
     'potins',
     'celebrity',
@@ -222,13 +182,13 @@ export const DEFAULT_CONFIG = {
 
   // Mots-clés pour la détection de contenu dans les pages (content.js)
   contentDetectionKeywords: [
-    'porn', 'xxx', 'adult', 'sex', 'nude', 'nsfw',
-    'casino', 'gambling', 'bet', 'poker',
+    'porn', 'xxx', 'sex', 'nude',
+    'casino', 'gambling', 'poker',
     'dating', 'hookup', 'meet singles',
     'music', 'spotify', 'deezer', 'soundcloud'
   ],
 
-  whitelistedSites: ['quran.com', 'islamqa.info', 'bayyinah.tv', 'seekersguidance.org'],
+  whitelistedSites: ['quran.com', 'coran-en-ligne.com'],
 
   // Catégories
   blockSocialMedia: true,

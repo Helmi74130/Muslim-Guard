@@ -1510,17 +1510,27 @@ export function matchesDomain(url, pattern) {
 /**
  * Vérifie si une URL contient des mots-clés suspects
  */
+// NOUVEAU CODE - Correspondance de mots entiers uniquement
 export function containsSuspiciousKeywords(url, keywords) {
   const urlLower = url.toLowerCase();
 
   for (const keyword of keywords) {
-    if (urlLower.includes(keyword.toLowerCase())) {
+    const keywordLower = keyword.toLowerCase();
+    
+    // Échappe les caractères spéciaux pour regex
+    const escapedKeyword = keywordLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Regex avec délimiteurs de mots (\b) pour correspondance exacte
+    const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'i');
+    
+    if (regex.test(urlLower)) {
       return { blocked: true, keyword };
     }
   }
 
   return { blocked: false };
 }
+
 
 /**
  * Récupère tous les domaines d'une catégorie
