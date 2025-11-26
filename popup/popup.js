@@ -283,6 +283,9 @@ async function toggleProtection(enabled) {
 
     console.log('✅ Valeur sauvegardée dans storage');
 
+    // IMPORTANT : Attendre un peu pour s'assurer que le storage est bien écrit
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     // Recharge la config dans le background
     const response = await chrome.runtime.sendMessage({ action: 'reloadConfig' });
     console.log('✅ Background rechargé:', response);
