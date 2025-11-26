@@ -192,8 +192,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
     // Vérifie si la protection est activée
     if (!config.protectionEnabled) {
+      console.log('⏸️ Protection désactivée - Navigation autorisée pour:', details.url);
       return;
     }
+
+    console.log('🛡️ Protection activée - Vérification de:', details.url);
 
     // Vérifie si c'est l'heure de prière
     if (isPrayerTime && !isWhitelisted(details.url, [...config.whitelistedSites])) {
@@ -295,10 +298,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
       if (message.action === 'reloadConfig') {
+        console.log('📥 Demande de rechargement de config reçue');
         await loadConfig();
+        console.log('✅ Config rechargée. protectionEnabled =', config.protectionEnabled);
         // Recalcule immédiatement le statut des prières
         await checkPrayerTime();
-        sendResponse({ success: true });
+        sendResponse({ success: true, protectionEnabled: config.protectionEnabled });
       } else if (message.action === 'getConfig') {
         await loadConfig();
         sendResponse({ config });

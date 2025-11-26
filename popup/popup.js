@@ -276,11 +276,16 @@ async function submitPin() {
 // Toggle la protection
 async function toggleProtection(enabled) {
   try {
+    console.log('🔄 Toggle protection:', enabled);
+
     await setValue('protectionEnabled', enabled);
     config.protectionEnabled = enabled;
 
+    console.log('✅ Valeur sauvegardée dans storage');
+
     // Recharge la config dans le background
-    await chrome.runtime.sendMessage({ action: 'reloadConfig' });
+    const response = await chrome.runtime.sendMessage({ action: 'reloadConfig' });
+    console.log('✅ Background rechargé:', response);
 
     // Met à jour l'UI
     updateStatus();
@@ -291,8 +296,10 @@ async function toggleProtection(enabled) {
     } else {
       showNotification('Protection désactivée 🔴');
     }
+
+    console.log('✅ Toggle terminé. Protection est maintenant:', enabled ? 'ACTIVÉE' : 'DÉSACTIVÉE');
   } catch (error) {
-    console.error('Erreur lors du toggle:', error);
+    console.error('❌ Erreur lors du toggle:', error);
   }
 }
 
