@@ -198,8 +198,6 @@ function showBlockOverlay(keyword) {
   overlay.addEventListener('click', (e) => {
     e.stopPropagation();
   });
-
-  console.log('🚫 Page bloquée par MuslimGuard - Mot détecté:', keyword);
 }
 
 /**
@@ -219,11 +217,8 @@ async function init() {
         // Vérifie si la protection est activée
         protectionEnabled = config.protectionEnabled !== false;
 
-        console.log('🛡️ Content.js - Protection activée:', protectionEnabled);
-
         // Si la protection est désactivée, on ne fait rien
         if (!protectionEnabled) {
-          console.log('⏸️ Protection désactivée - Aucune détection de contenu');
           return;
         }
 
@@ -239,8 +234,6 @@ async function init() {
     const detection = detectSuspiciousContent(customKeywords);
 
     if (detection.suspicious) {
-      console.log('⚠️ Contenu suspect détecté:', detection.keyword);
-
       // Affiche l'overlay de blocage
       showBlockOverlay(detection.keyword);
 
@@ -267,5 +260,3 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
-
-console.log('✅ MuslimGuard content script chargé sur:', window.location.hostname);

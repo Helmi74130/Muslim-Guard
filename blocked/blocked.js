@@ -192,5 +192,3 @@ function setupEventListeners() {
     }
   });
 }
-
-console.log('Page de blocage chargée');

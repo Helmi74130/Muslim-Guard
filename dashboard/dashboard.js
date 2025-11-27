@@ -281,5 +281,3 @@ function setupEventListeners() {
     loadRecentLogs(e.target.value);
   });
 }
-
-console.log('Dashboard chargé');

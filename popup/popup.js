@@ -231,14 +231,10 @@ async function submitPin() {
   }
 
   try {
-
-
     // Vérifie le PIN
     const isValid = await verifyPin(pin);
 
-
     if (!isValid) {
-      console.error('❌ PIN incorrect');
       errorDiv.textContent = 'Code PIN incorrect';
       errorDiv.classList.remove('hidden');
       return;
@@ -276,19 +272,14 @@ async function submitPin() {
 // Toggle la protection
 async function toggleProtection(enabled) {
   try {
-    console.log('🔄 Toggle protection:', enabled);
-
     await setValue('protectionEnabled', enabled);
     config.protectionEnabled = enabled;
-
-    console.log('✅ Valeur sauvegardée dans storage');
 
     // IMPORTANT : Attendre un peu pour s'assurer que le storage est bien écrit
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // Recharge la config dans le background
-    const response = await chrome.runtime.sendMessage({ action: 'reloadConfig' });
-    console.log('✅ Background rechargé:', response);
+    await chrome.runtime.sendMessage({ action: 'reloadConfig' });
 
     // Met à jour l'UI
     updateStatus();
@@ -299,8 +290,6 @@ async function toggleProtection(enabled) {
     } else {
       showNotification('Protection désactivée 🔴');
     }
-
-    console.log('✅ Toggle terminé. Protection est maintenant:', enabled ? 'ACTIVÉE' : 'DÉSACTIVÉE');
   } catch (error) {
     console.error('❌ Erreur lors du toggle:', error);
   }
@@ -309,7 +298,4 @@ async function toggleProtection(enabled) {
 // Affiche une notification temporaire
 function showNotification(message) {
   // Note: Dans un popup, on peut juste logger ou utiliser une alerte discrète
-  console.log(message);
 }
-
-console.log('Popup chargé');
