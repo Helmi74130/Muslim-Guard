@@ -195,7 +195,6 @@ function populateFields() {
 
   // Apparence
   document.getElementById('blockPageMessage').value = config.blockPageMessage;
-  document.getElementById('recoveryEmail').value = config.recoveryEmail || '';
 }
 
 // Gestion des tabs
@@ -288,8 +287,7 @@ async function saveConfig() {
       allowedHoursEnd: document.getElementById('allowedHoursEnd').value,
 
       // Apparence
-      blockPageMessage: document.getElementById('blockPageMessage').value,
-      recoveryEmail: document.getElementById('recoveryEmail').value
+      blockPageMessage: document.getElementById('blockPageMessage').value
     };
 
     await setValue(newConfig);

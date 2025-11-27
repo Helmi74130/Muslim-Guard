@@ -7,7 +7,6 @@ export const DEFAULT_CONFIG = {
   // Auth
   parentPinHash: null,
   parentPinSalt: null,
-  recoveryEmail: '',
   isSetupComplete: false,
 
   // Config générale
