@@ -17,8 +17,6 @@ let isPrayerTime = false;
  * Initialisation au démarrage de l'extension
  */
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('MuslimGuard installé:', details.reason);
-
   if (details.reason === 'install') {
     // Première installation
     await setValue('installDate', Date.now());
@@ -28,8 +26,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     if (!setupComplete) {
       chrome.tabs.create({ url: 'setup/setup.html' });
     }
-  } else if (details.reason === 'update') {
-    console.log('Extension mise à jour vers', chrome.runtime.getManifest().version);
   }
 
   // Charge la config
@@ -43,7 +39,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
  * Au démarrage du navigateur
  */
 chrome.runtime.onStartup.addListener(async () => {
-  console.log('Navigateur démarré, chargement de la config...');
   await loadConfig();
   setupAlarms();
 });
@@ -54,7 +49,6 @@ chrome.runtime.onStartup.addListener(async () => {
 async function loadConfig() {
   try {
     config = await getConfig();
-    console.log('Configuration chargée:', config.protectionEnabled ? 'Protection activée' : 'Protection désactivée');
   } catch (error) {
     console.error('Erreur lors du chargement de la config:', error);
   }
@@ -145,7 +139,6 @@ async function cleanOldLogs() {
   try {
     const { cleanOldLogs } = await import('./utils/storage.js');
     await cleanOldLogs();
-    console.log('Vieux logs nettoyés');
   } catch (error) {
     console.error('Erreur lors du nettoyage des logs:', error);
   }
@@ -163,7 +156,6 @@ async function resetDailyStats() {
       topBlockedSites: {},
       timeSpentByCategory: {}
     });
-    console.log('Stats quotidiennes réinitialisées');
   } catch (error) {
     console.error('Erreur lors du reset des stats:', error);
   }
@@ -192,11 +184,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
     // Vérifie si la protection est activée
     if (!config.protectionEnabled) {
-      console.log('⏸️ Protection désactivée - Navigation autorisée pour:', details.url);
       return;
     }
-
-    console.log('🛡️ Protection activée - Vérification de:', details.url);
 
     // Vérifie si c'est l'heure de prière
     if (isPrayerTime && !isWhitelisted(details.url, [...config.whitelistedSites])) {
@@ -298,9 +287,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
       if (message.action === 'reloadConfig') {
-        console.log('📥 Demande de rechargement de config reçue');
         await loadConfig();
-        console.log('✅ Config rechargée. protectionEnabled =', config.protectionEnabled);
         // Recalcule immédiatement le statut des prières
         await checkPrayerTime();
         sendResponse({ success: true, protectionEnabled: config.protectionEnabled });
@@ -341,8 +328,6 @@ async function addTemporaryWhitelist(domain, minutes) {
 
     await setValue('temporaryWhitelist', tempWhitelist);
     await loadConfig();
-
-    console.log(`${domain} ajouté à la whitelist temporaire pour ${minutes} minutes`);
   } catch (error) {
     console.error('Erreur lors de l\'ajout à la whitelist temporaire:', error);
   }
@@ -366,8 +351,6 @@ async function handleAccessRequest(url, reason) {
         { title: 'Refuser' }
       ]
     });
-
-    console.log('Demande d\'accès envoyée:', url, reason);
   } catch (error) {
     console.error('Erreur lors de la demande d\'accès:', error);
   }
@@ -377,15 +360,9 @@ async function handleAccessRequest(url, reason) {
  * Gère les clics sur les notifications
  */
 chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
-  if (buttonIndex === 0) {
-    // Bouton "Autoriser 30 min"
-    // On devrait récupérer l'URL de la notification, mais c'est complexe
-    // Pour simplifier, on pourrait stocker l'URL dans un cache temporaire
-    console.log('Accès autorisé pour 30 minutes');
-  } else {
-    console.log('Accès refusé');
-  }
-
+  // Bouton "Autoriser 30 min" ou "Refuser"
+  // Note: On devrait récupérer l'URL de la notification, mais c'est complexe
+  // Pour simplifier, on pourrait stocker l'URL dans un cache temporaire
   chrome.notifications.clear(notificationId);
 });
 
@@ -421,5 +398,3 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     updateIcon();
   }
 });
-
-console.log('MuslimGuard background service worker chargé ✅');
