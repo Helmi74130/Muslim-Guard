@@ -91,30 +91,6 @@ export async function changePin(oldPin, newPin) {
 }
 
 /**
- * Réinitialise le PIN avec l'email de récupération
- * Note: Dans une vraie app, on enverrait un email. Ici c'est simulé.
- */
-export async function resetPinWithEmail(email, newPin) {
-  try {
-    const storedEmail = await getValue('recoveryEmail');
-
-    if (!storedEmail) {
-      return { success: false, error: 'Aucun email de récupération configuré' };
-    }
-
-    if (email.toLowerCase() !== storedEmail.toLowerCase()) {
-      return { success: false, error: 'Email de récupération incorrect' };
-    }
-
-    // Définit le nouveau PIN
-    return await setParentPin(newPin);
-  } catch (error) {
-    console.error('Erreur lors de la réinitialisation du PIN:', error);
-    return { success: false, error: error.message };
-  }
-}
-
-/**
  * Vérifie si le setup initial est terminé
  */
 export async function isSetupComplete() {

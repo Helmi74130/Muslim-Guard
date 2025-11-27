@@ -44,7 +44,6 @@ function updateProgress() {
 async function savePin() {
   const pin = document.getElementById('pinInput').value;
   const confirm = document.getElementById('pinConfirm').value;
-  const email = document.getElementById('recoveryEmail').value;
   const errorDiv = document.getElementById('pinError');
 
   // Validation
@@ -69,11 +68,6 @@ async function savePin() {
   if (!result.success) {
     showError(errorDiv, result.error || 'Erreur lors de la sauvegarde du PIN');
     return;
-  }
-
-  // Sauvegarde l'email de récupération si fourni
-  if (email) {
-    await setValue('recoveryEmail', email);
   }
 
   // Cache l'erreur et passe à l'étape suivante

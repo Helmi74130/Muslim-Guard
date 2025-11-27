@@ -300,9 +300,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       } else if (message.action === 'addTempWhitelist') {
         await addTemporaryWhitelist(message.domain, message.minutes);
         sendResponse({ success: true });
-      } else if (message.action === 'requestAccess') {
-        await handleAccessRequest(message.url, message.reason);
-        sendResponse({ success: true });
       }
     } catch (error) {
       console.error('Erreur dans le gestionnaire de messages:', error);
@@ -332,39 +329,6 @@ async function addTemporaryWhitelist(domain, minutes) {
     console.error('Erreur lors de l\'ajout à la whitelist temporaire:', error);
   }
 }
-
-/**
- * Gère une demande d'accès exceptionnel
- */
-async function handleAccessRequest(url, reason) {
-  try {
-    // Envoie une notification au parent
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: 'assets/icon-128.png',
-      title: '🔔 Demande d\'accès',
-      message: `Demande d'accès à: ${new URL(url).hostname}\nRaison: ${reason}`,
-      priority: 2,
-      requireInteraction: true,
-      buttons: [
-        { title: 'Autoriser 30 min' },
-        { title: 'Refuser' }
-      ]
-    });
-  } catch (error) {
-    console.error('Erreur lors de la demande d\'accès:', error);
-  }
-}
-
-/**
- * Gère les clics sur les notifications
- */
-chrome.notifications.onButtonClicked.addListener(async (notificationId, buttonIndex) => {
-  // Bouton "Autoriser 30 min" ou "Refuser"
-  // Note: On devrait récupérer l'URL de la notification, mais c'est complexe
-  // Pour simplifier, on pourrait stocker l'URL dans un cache temporaire
-  chrome.notifications.clear(notificationId);
-});
 
 /**
  * Met à jour l'icône de l'extension selon l'état

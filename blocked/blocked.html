@@ -417,104 +417,6 @@
     }
 
     /* ============================================
-       REQUEST ACCESS SECTION
-       ============================================ */
-
-    .request-card {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-xl);
-      box-shadow: var(--shadow);
-      border-top: 4px solid var(--secondary-500);
-      animation: slideUp 1.6s ease-out;
-    }
-
-    .request-header {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .request-header h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin: 0;
-    }
-
-    .request-description {
-      font-size: 0.95rem;
-      color: var(--gray-600);
-      margin-bottom: var(--spacing-lg);
-      line-height: 1.6;
-    }
-
-    #requestReason {
-      width: 100%;
-      padding: var(--spacing-md);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-md);
-      font-family: inherit;
-      font-size: 0.95rem;
-      resize: vertical;
-      min-height: 100px;
-      transition: all var(--transition);
-      margin-bottom: var(--spacing-lg);
-    }
-
-    #requestReason:focus {
-      outline: none;
-      border-color: var(--secondary-500);
-      box-shadow: 0 0 0 3px var(--secondary-50);
-    }
-
-    #requestAccessBtn {
-      width: 100%;
-      padding: var(--spacing-lg) var(--spacing-2xl);
-      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
-      color: white;
-      border: none;
-      border-radius: var(--radius-md);
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all var(--transition);
-      box-shadow: var(--shadow-lg);
-    }
-
-    #requestAccessBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-xl);
-    }
-
-    #requestAccessBtn:active {
-      transform: scale(0.98);
-    }
-
-    #requestAccessBtn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    #requestSuccess {
-      margin-top: var(--spacing-lg);
-      padding: var(--spacing-lg);
-      background: linear-gradient(135deg, var(--primary-50) 0%, #d1fae5 100%);
-      border-left: 4px solid var(--primary-500);
-      border-radius: var(--radius-md);
-      color: var(--primary-700);
-      font-weight: 600;
-      animation: slideUp 0.4s ease-out;
-      display: none;
-    }
-
-    #requestSuccess.show {
-      display: block;
-    }
-
-    /* ============================================
        FOOTER
        ============================================ */
 
@@ -544,8 +446,7 @@
         font-size: 1.75rem;
       }
 
-      .blocked-card,
-      .request-card {
+      .blocked-card {
         padding: var(--spacing-lg);
       }
 
@@ -605,8 +506,7 @@
       }
 
       .blocked-card,
-      .verse-card,
-      .request-card {
+      .verse-card {
         padding: var(--spacing-lg);
         margin-bottom: var(--spacing-lg);
       }
@@ -629,11 +529,6 @@
 
       .alternatives-header {
         font-size: 1rem;
-      }
-
-      #requestAccessBtn {
-        padding: var(--spacing-md) var(--spacing-lg);
-        font-size: 0.95rem;
       }
     }
   </style>
@@ -720,22 +615,6 @@
           <p>--</p>
         </div>
       </div>
-    </div>
-
-    <!-- Request Access -->
-    <div class="request-card">
-      <div class="request-header">
-        <h3>Demander un accès exceptionnel</h3>
-      </div>
-      <p class="request-description">
-        Si vous avez besoin d'accéder à ce site pour un motif légitime (devoirs, travail), vous pouvez envoyer une demande au parent.
-      </p>
-      <textarea
-        id="requestReason"
-        placeholder="Expliquez pourquoi vous avez besoin d'accéder à ce site..."
-      ></textarea>
-      <button id="requestAccessBtn">Envoyer la demande</button>
-      <div id="requestSuccess">✅ Demande envoyée ! Un parent recevra une notification.</div>
     </div>
 
     <!-- Footer -->

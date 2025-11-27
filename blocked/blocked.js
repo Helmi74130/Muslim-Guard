@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadRandomVerse();
   loadCustomMessage();
   loadNextPrayer();
-  setupEventListeners();
 });
 
 // Charge la raison du blocage depuis l'URL
@@ -156,39 +155,4 @@ function updateCountdown(prayerMinutes, currentMinutes) {
   if (countdownEl) {
     countdownEl.querySelector('p:last-child').textContent = countdown;
   }
-}
-
-// Configuration des event listeners
-function setupEventListeners() {
-  const requestBtn = document.getElementById('requestAccessBtn');
-  requestBtn.addEventListener('click', async () => {
-    const reason = document.getElementById('requestReason').value.trim();
-
-    if (!reason) {
-      alert('Veuillez expliquer pourquoi vous avez besoin d\'accéder à ce site.');
-      return;
-    }
-
-    try {
-      // Récupère l'URL bloquée
-      const urlParams = new URLSearchParams(window.location.search);
-      const blockedUrl = urlParams.get('url') || document.referrer || window.location.href;
-
-      // Envoie la demande au background
-      await chrome.runtime.sendMessage({
-        action: 'requestAccess',
-        url: blockedUrl,
-        reason: reason
-      });
-
-      // Affiche le message de succès
-      document.getElementById('requestSuccess').classList.remove('hidden');
-      requestBtn.disabled = true;
-      requestBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      requestBtn.textContent = 'Demande envoyée ✓';
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi de la demande:', error);
-      alert('Une erreur est survenue. Veuillez réessayer.');
-    }
-  });
 }
