@@ -13,8 +13,7 @@
     "tabs",
     "alarms",
     "notifications",
-    "webNavigation",
-    "scripting"
+    "webNavigation"
   ],
   "host_permissions": [
     "<all_urls>"
