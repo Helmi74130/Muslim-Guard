@@ -38,6 +38,20 @@ function prevStep() {
 function updateProgress() {
   const progress = (currentStep / totalSteps) * 100;
   document.getElementById('progressBar').style.width = `${progress}%`;
+
+  // Met à jour les indicateurs visuels
+  for (let i = 1; i <= totalSteps; i++) {
+    const indicator = document.getElementById(`indicator${i}`);
+    if (i < currentStep) {
+      indicator.classList.remove('active');
+      indicator.classList.add('completed');
+    } else if (i === currentStep) {
+      indicator.classList.remove('completed');
+      indicator.classList.add('active');
+    } else {
+      indicator.classList.remove('active', 'completed');
+    }
+  }
 }
 
 // Sauvegarde du PIN (Étape 2)
@@ -71,13 +85,13 @@ async function savePin() {
   }
 
   // Cache l'erreur et passe à l'étape suivante
-  errorDiv.classList.add('hidden');
+  errorDiv.classList.remove('show');
   nextStep();
 }
 
 function showError(errorDiv, message) {
   errorDiv.textContent = message;
-  errorDiv.classList.remove('hidden');
+  errorDiv.classList.add('show');
 }
 
 // Finalisation du setup (Étape 5)
