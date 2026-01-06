@@ -53,12 +53,14 @@ function updateStatus() {
   toggle.checked = config.protectionEnabled;
 
   if (config.protectionEnabled) {
-    badge.textContent = '🟢 Actif';
-    badge.className = 'px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800';
-    text.textContent = `Protection ${config.protectionMode} activée`;
+    badge.textContent = 'Actif';
+    badge.style.background = '#d1fae5';
+    badge.style.color = '#065f46';
+    text.textContent = `Mode ${config.protectionMode}`;
   } else {
-    badge.textContent = '🔴 Désactivé';
-    badge.className = 'px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800';
+    badge.textContent = 'Inactif';
+    badge.style.background = '#fee2e2';
+    badge.style.color = '#991b1b';
     text.textContent = 'Protection désactivée';
   }
 }
@@ -173,7 +175,7 @@ function setupEventListeners() {
     const hasPin = await getValue('parentPinHash');
     if (!hasPin) {
       // Pas de PIN, redirige vers le setup
-      alert('⚠️ Configuration incomplète. Veuillez compléter le setup initial.');
+      alert('Configuration incomplète. Veuillez compléter le setup initial.');
       chrome.tabs.create({ url: chrome.runtime.getURL('setup/setup.html') });
       return;
     }
@@ -286,12 +288,12 @@ async function toggleProtection(enabled) {
 
     // Notification
     if (enabled) {
-      showNotification('Protection activée 🟢');
+      showNotification('Protection activée');
     } else {
-      showNotification('Protection désactivée 🔴');
+      showNotification('Protection désactivée');
     }
   } catch (error) {
-    console.error('❌ Erreur lors du toggle:', error);
+    console.error('Erreur lors du toggle:', error);
   }
 }
 

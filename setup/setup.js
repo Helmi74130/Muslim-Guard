@@ -2,6 +2,7 @@
 
 import { setParentPin, completeSetup } from '../utils/auth.js';
 import { setValue } from '../utils/storage.js';
+import { initializePrayerTimes } from '../utils/prayerApi.js';
 
 let currentStep = 1;
 const totalSteps = 5;
@@ -94,29 +95,133 @@ function showError(errorDiv, message) {
   errorDiv.classList.add('show');
 }
 
+// Récupération automatique des horaires de prière (Étape 4)
+let fetchedPrayerTimes = null;
+
+async function fetchPrayerTimes() {
+  const cityInput = document.getElementById('prayerCity');
+  const methodSelect = document.getElementById('prayerMethod');
+  const errorDiv = document.getElementById('prayerError');
+  const previewDiv = document.getElementById('prayerPreview');
+  const previewContent = document.getElementById('prayerPreviewContent');
+  const fetchBtn = document.getElementById('fetchPrayerTimes');
+
+  const city = cityInput.value.trim();
+  const method = parseInt(methodSelect.value);
+
+  if (!city) {
+    showError(errorDiv, 'Veuillez entrer le nom de votre ville');
+    return;
+  }
+
+  try {
+    fetchBtn.textContent = 'Récupération en cours...';
+    fetchBtn.disabled = true;
+    errorDiv.classList.remove('show');
+
+    const result = await initializePrayerTimes(city, method);
+
+    fetchedPrayerTimes = {
+      city: city,
+      method: method,
+      timings: result.timings,
+      location: result.location
+    };
+
+    // Affiche l'aperçu avec un tableau propre
+    previewContent.innerHTML = `
+      <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px solid #e2e8f0;">
+        <strong style="color: #0f172a;">${result.location}</strong>
+      </div>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid #e2e8f0;">
+            <th style="padding: 10px; text-align: left; font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Prière</th>
+            <th style="padding: 10px; text-align: right; font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Horaire</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px; color: #0f172a; font-weight: 500;">Fajr</td>
+            <td style="padding: 12px; text-align: right; color: #0f172a; font-weight: 600; font-size: 15px;">${result.timings.fajr}</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px; color: #0f172a; font-weight: 500;">Dhuhr</td>
+            <td style="padding: 12px; text-align: right; color: #0f172a; font-weight: 600; font-size: 15px;">${result.timings.dhuhr}</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px; color: #0f172a; font-weight: 500;">Asr</td>
+            <td style="padding: 12px; text-align: right; color: #0f172a; font-weight: 600; font-size: 15px;">${result.timings.asr}</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 12px; color: #0f172a; font-weight: 500;">Maghrib</td>
+            <td style="padding: 12px; text-align: right; color: #0f172a; font-weight: 600; font-size: 15px;">${result.timings.maghrib}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px; color: #0f172a; font-weight: 500;">Isha</td>
+            <td style="padding: 12px; text-align: right; color: #0f172a; font-weight: 600; font-size: 15px;">${result.timings.isha}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    previewDiv.style.display = 'block';
+
+    fetchBtn.textContent = 'Horaires récupérés';
+    setTimeout(() => {
+      fetchBtn.textContent = 'Récupérer les horaires';
+      fetchBtn.disabled = false;
+    }, 2000);
+
+  } catch (error) {
+    console.error('Error fetching prayer times:', error);
+    showError(errorDiv, 'Impossible de récupérer les horaires. Vérifiez le nom de la ville.');
+    fetchBtn.textContent = 'Récupérer les horaires';
+    fetchBtn.disabled = false;
+    previewDiv.style.display = 'none';
+  }
+}
+
 // Finalisation du setup (Étape 5)
 async function finishSetup() {
   try {
     // Récupère le mode de protection
     const mode = document.querySelector('input[name="mode"]:checked')?.value || 'moderate';
 
-    // Récupère les horaires de prière
+    // Récupère les horaires de prière selon le mode choisi
     const prayerPauseEnabled = document.getElementById('prayerPause').checked;
-    const prayerTimes = [
-      document.getElementById('fajr').value,
-      document.getElementById('dhuhr').value,
-      document.getElementById('asr').value,
-      document.getElementById('maghrib').value,
-      document.getElementById('isha').value
-    ];
+    const prayerMode = document.querySelector('input[name="prayerMode"]:checked')?.value || 'auto';
 
-    // Sauvegarde la configuration
-    await setValue({
+    let configToSave = {
       protectionMode: mode,
       prayerPauseEnabled,
-      prayerTimes,
       protectionEnabled: true
-    });
+    };
+
+    if (prayerMode === 'auto') {
+      // Mode automatique - vérifie que les horaires ont été récupérés
+      if (!fetchedPrayerTimes) {
+        alert('Veuillez d\'abord récupérer les horaires de prière en cliquant sur "Récupérer les horaires"');
+        return;
+      }
+      // Les horaires ont déjà été sauvegardés par initializePrayerTimes
+      // On n'a rien de plus à faire, prayerTimesAutoUpdate est déjà true
+    } else {
+      // Mode manuel
+      const prayerTimes = [
+        document.getElementById('fajr').value,
+        document.getElementById('dhuhr').value,
+        document.getElementById('asr').value,
+        document.getElementById('maghrib').value,
+        document.getElementById('isha').value
+      ];
+
+      configToSave.prayerTimes = prayerTimes;
+      configToSave.prayerTimesAutoUpdate = false;
+      configToSave.prayerCity = null;
+    }
+
+    // Sauvegarde la configuration
+    await setValue(configToSave);
 
     // Marque le setup comme terminé
     await completeSetup();
@@ -131,6 +236,7 @@ async function finishSetup() {
     chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
     window.close();
   } catch (error) {
+    console.error('Setup error:', error);
     alert('Une erreur est survenue. Veuillez réessayer.');
   }
 }
@@ -159,8 +265,35 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('prayerPause')?.addEventListener('change', (e) => {
     const inputs = document.getElementById('prayerInputs');
     inputs.style.opacity = e.target.checked ? '1' : '0.5';
-    inputs.querySelectorAll('input').forEach(input => {
+    inputs.querySelectorAll('input, select, button').forEach(input => {
       input.disabled = !e.target.checked;
     });
+  });
+
+  // Toggle entre mode automatique et manuel
+  document.querySelectorAll('input[name="prayerMode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const autoInputs = document.getElementById('autoModeInputs');
+      const manualInputs = document.getElementById('manualModeInputs');
+
+      if (e.target.value === 'auto') {
+        autoInputs.style.display = 'block';
+        manualInputs.style.display = 'none';
+      } else {
+        autoInputs.style.display = 'none';
+        manualInputs.style.display = 'block';
+      }
+    });
+  });
+
+  // Bouton de récupération des horaires
+  document.getElementById('fetchPrayerTimes')?.addEventListener('click', fetchPrayerTimes);
+
+  // Permettre de récupérer les horaires en appuyant sur Entrée dans le champ ville
+  document.getElementById('prayerCity')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      fetchPrayerTimes();
+    }
   });
 });

@@ -6,10 +6,6 @@
   <title>Site Bloqué - MuslimGuard</title>
   <link rel="stylesheet" href="../styles.css">
   <style>
-    /* ============================================
-       BLOCKED PAGE STYLES
-       ============================================ */
-
     * {
       margin: 0;
       padding: 0;
@@ -22,361 +18,141 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--spacing-lg);
+      padding: 24px;
+      background: #00305A;
     }
-
-    /* ============================================
-       ANIMATIONS
-       ============================================ */
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.7;
-      }
-    }
-
-    .fade-in {
-      animation: slideUp 0.6s ease-out;
-    }
-
-    /* ============================================
-       CONTAINER
-       ============================================ */
 
     .blocked-container {
-      max-width: 900px;
+      max-width: 600px;
       width: 100%;
     }
 
-    /* ============================================
-       HEADER SECTION
-       ============================================ */
-
+    /* Header */
     .blocked-header {
       text-align: center;
-      margin-bottom: var(--spacing-2xl);
-      animation: slideDown 0.6s ease-out;
+      margin-bottom: 32px;
     }
 
     .header-icon {
-      font-size: 4rem;
-      margin-bottom: var(--spacing-lg);
-      animation: slideDown 0.8s ease-out;
+      margin-bottom: 24px;
     }
 
-    .header-title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: var(--spacing-md);
-      letter-spacing: -0.5px;
+    .header-icon img {
+      height: 80px;
     }
 
     .header-subtitle {
       display: inline-block;
-      background: linear-gradient(135deg, var(--danger-500) 0%, #f97316 100%);
-      color: white;
-      padding: var(--spacing-sm) var(--spacing-lg);
-      border-radius: 9999px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+      background: white;
+      color: #00305A;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
     }
 
-    /* ============================================
-       MAIN CARD - BLOCAGE MESSAGE
-       ============================================ */
-
+    /* Main Card */
     .blocked-card {
       background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
-      padding: var(--spacing-2xl);
-      margin-bottom: var(--spacing-xl);
-      animation: slideUp 0.8s ease-out;
-      border-top: 4px solid var(--danger-500);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .blocked-card::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(239, 68, 68, 0.03) 1px, transparent 1px);
-      background-size: 20px 20px;
-      opacity: 0.5;
-    }
-
-    .card-content {
-      position: relative;
-      z-index: 1;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
     }
 
     .blocked-card h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: var(--spacing-lg);
+      font-size: 24px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
     }
 
     .reason-box {
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-      border-left: 4px solid var(--danger-500);
-      padding: var(--spacing-lg);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--spacing-lg);
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 24px;
     }
 
     #reasonText {
-      color: var(--danger-600);
-      font-weight: 500;
+      color: #6b7280;
+      font-weight: 400;
       line-height: 1.6;
+      font-size: 15px;
     }
 
     #customMessage {
-      background: var(--gray-50);
-      padding: var(--spacing-lg);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--spacing-lg);
-      color: var(--gray-700);
-      font-size: 0.95rem;
-      line-height: 1.7;
-      border-left: 3px solid var(--primary-500);
-    }
-
-    .blocked-url {
-      background: var(--gray-100);
-      padding: var(--spacing-md) var(--spacing-lg);
-      border-radius: var(--radius-md);
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      word-break: break-all;
-      color: var(--gray-700);
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     .blocked-url-label {
-      font-size: 0.75rem;
-      color: var(--gray-600);
-      font-weight: 600;
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: var(--spacing-sm);
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
     }
 
-    /* ============================================
-       VERSE CARD
-       ============================================ */
+    .blocked-url {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 13px;
+      word-break: break-all;
+      color: #111827;
+    }
 
+    /* Verse Card */
     .verse-card {
-      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      background: #111827;
       color: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-2xl);
-      margin-bottom: var(--spacing-xl);
-      box-shadow: var(--shadow-xl);
-      animation: slideUp 1s ease-out;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .verse-card::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-      background-size: 30px 30px;
-      opacity: 0.3;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
     }
 
     .verse-content {
-      display: flex;
-      gap: var(--spacing-lg);
-      position: relative;
-      z-index: 1;
-    }
-
-    .verse-icon {
-      font-size: 2.5rem;
-      flex-shrink: 0;
+      width: 100%;
     }
 
     .verse-text {
-      flex: 1;
+      width: 100%;
     }
 
     #verseText {
-      font-size: 1.125rem;
-      line-height: 1.8;
-      margin-bottom: var(--spacing-lg);
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 12px;
       font-style: italic;
-      font-weight: 500;
+      font-weight: 400;
     }
 
     #verseRef {
-      font-size: 0.875rem;
-      opacity: 0.95;
-      font-weight: 500;
+      font-size: 13px;
+      color: #9ca3af;
+      font-weight: 400;
     }
 
-    /* ============================================
-       ALTERNATIVES SECTION
-       ============================================ */
-
-    .alternatives-header {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: var(--spacing-xl);
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-    }
-
-    .alternatives-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-xl);
-      animation: slideUp 1.2s ease-out;
-    }
-
-    .alternative-card {
-      display: block;
-      padding: var(--spacing-lg);
-      background: white;
-      border: 2px solid var(--gray-200);
-      border-radius: var(--radius-lg);
-      text-decoration: none;
-      color: inherit;
-      transition: all var(--transition);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .alternative-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-    }
-
-    .alternative-card:hover::before {
-      left: 100%;
-    }
-
-    .alternative-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-500);
-    }
-
-    .alternative-card.alt-green {
-      border-color: var(--primary-100);
-    }
-
-    .alternative-card.alt-green:hover {
-      background: var(--primary-50);
-      border-color: var(--primary-500);
-    }
-
-    .alternative-card.alt-blue {
-      border-color: var(--secondary-100);
-    }
-
-    .alternative-card.alt-blue:hover {
-      background: var(--secondary-50);
-      border-color: var(--secondary-500);
-    }
-
-    .alternative-card.alt-purple {
-      border-color: #ddd6fe;
-    }
-
-    .alternative-card.alt-purple:hover {
-      background: #f3e8ff;
-      border-color: #8b5cf6;
-    }
-
-    .alternative-card.alt-yellow {
-      border-color: #fef3c7;
-    }
-
-    .alternative-card.alt-yellow:hover {
-      background: #fffbeb;
-      border-color: #fbbf24;
-    }
-
-    .alt-icon {
-      font-size: 2rem;
-      margin-bottom: var(--spacing-md);
-      display: block;
-    }
-
-    .alt-title {
-      font-weight: 700;
-      color: var(--gray-800);
-      margin-bottom: var(--spacing-sm);
-      font-size: 0.95rem;
-    }
-
-    .alt-description {
-      font-size: 0.8rem;
-      color: var(--gray-600);
-    }
-
-    /* ============================================
-       PRAYER CARD
-       ============================================ */
-
+    /* Prayer Card */
     .prayer-card {
       background: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-xl);
-      margin-bottom: var(--spacing-xl);
-      box-shadow: var(--shadow);
-      border-left: 4px solid var(--primary-500);
-      animation: slideUp 1.4s ease-out;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--spacing-xl);
+      gap: 24px;
     }
 
     .prayer-left {
@@ -384,18 +160,18 @@
     }
 
     .prayer-title {
-      font-size: 0.875rem;
-      color: var(--gray-600);
-      font-weight: 600;
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: var(--spacing-sm);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
     }
 
     .prayer-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--gray-800);
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
     }
 
     .prayer-right {
@@ -403,204 +179,108 @@
     }
 
     .prayer-countdown-label {
-      font-size: 0.75rem;
-      color: var(--gray-600);
-      font-weight: 600;
-      margin-bottom: var(--spacing-xs);
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 500;
+      margin-bottom: 4px;
     }
 
-    #prayerCountdown p:last-child {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary-600);
+    #prayerCountdown p {
+      font-size: 24px;
+      font-weight: 600;
+      color: #00305A;
       margin: 0;
     }
 
-    /* ============================================
-       FOOTER
-       ============================================ */
-
+    /* Footer */
     .blocked-footer {
       text-align: center;
-      margin-top: var(--spacing-2xl);
-      padding-top: var(--spacing-xl);
-      border-top: 1px solid var(--gray-200);
-      color: var(--gray-600);
-      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
     }
 
     .blocked-footer p {
-      margin: var(--spacing-sm) 0;
+      margin: 8px 0;
     }
 
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-
+    /* Responsive */
     @media (max-width: 768px) {
       body {
-        padding: var(--spacing-md);
+        padding: 16px;
       }
 
-      .header-title {
-        font-size: 1.75rem;
+      .header-icon img {
+        height: 60px;
       }
 
       .blocked-card {
-        padding: var(--spacing-lg);
+        padding: 24px;
       }
 
       .verse-card {
-        padding: var(--spacing-lg);
-      }
-
-      .verse-content {
-        flex-direction: column;
-        gap: var(--spacing-md);
-      }
-
-      .verse-icon {
-        font-size: 2rem;
+        padding: 20px;
       }
 
       #verseText {
-        font-size: 1rem;
-      }
-
-      .alternatives-grid {
-        grid-template-columns: repeat(2, 1fr);
+        font-size: 15px;
       }
 
       .prayer-card {
         flex-direction: column;
         align-items: flex-start;
-        text-align: left;
       }
 
       .prayer-right {
         text-align: left;
         width: 100%;
       }
-
-      .blocked-card h2 {
-        font-size: 1.5rem;
-      }
-
-      .alternatives-header {
-        font-size: 1.1rem;
-      }
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: var(--spacing-md);
-      }
-
-      .header-icon {
-        font-size: 3rem;
-        margin-bottom: var(--spacing-md);
-      }
-
-      .header-title {
-        font-size: 1.5rem;
-      }
-
-      .blocked-card,
-      .verse-card {
-        padding: var(--spacing-lg);
-        margin-bottom: var(--spacing-lg);
-      }
-
-      .alternatives-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .prayer-card {
-        padding: var(--spacing-lg);
+      .blocked-card h2 {
+        font-size: 20px;
       }
 
       #verseText {
-        font-size: 0.95rem;
-      }
-
-      .blocked-card h2 {
-        font-size: 1.25rem;
-      }
-
-      .alternatives-header {
-        font-size: 1rem;
+        font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="blocked-container fade-in">
+  <div class="blocked-container">
     <!-- Header -->
     <div class="blocked-header">
       <div class="header-icon">
-        <img src="/assets/Logo tagline.png" alt="" srcset="">
+        <img src="/assets/Logo tagline.png" alt="MuslimGuard">
       </div>
-      <div class="header-subtitle">🛑 Site Bloqué</div>
+      <div class="header-subtitle">Site bloqué</div>
     </div>
 
     <!-- Main Blocked Message -->
     <div class="blocked-card">
-      <div class="card-content">
-        <h2>Ce site a été bloqué</h2>
-        
-        <div id="reasonBox" class="reason-box">
-          <p id="reasonText"></p>
-        </div>
+      <h2>Ce site a été bloqué</h2>
 
-        <div id="customMessage"></div>
+      <div id="reasonBox" class="reason-box">
+        <p id="reasonText"></p>
+      </div>
 
-        <div>
-          <div class="blocked-url-label">URL Bloquée</div>
-          <div class="blocked-url" id="blockedUrl"></div>
-        </div>
+      <div id="customMessage"></div>
+
+      <div>
+        <div class="blocked-url-label">URL bloquée</div>
+        <div class="blocked-url" id="blockedUrl"></div>
       </div>
     </div>
 
     <!-- Quranic Verse -->
     <div class="verse-card">
       <div class="verse-content">
-        <div class="verse-icon"></div>
         <div class="verse-text">
           <p id="verseText"></p>
           <p id="verseRef"></p>
         </div>
       </div>
-    </div>
-
-    <!-- Alternatives Section -->
-    <div class="alternatives-header">
-      Que faire à la place ?
-    </div>
-    <div class="alternatives-grid">
-      <a href="https://quran.com" target="_blank" class="alternative-card alt-green">
-        <span class="alt-icon">
-          <img style="height: 30px;" src="/assets/Quran.png" alt="" srcset="">
-        </span>
-        <div class="alt-title">Lire le Coran</div>
-        <div class="alt-description">Quran.com</div>
-      </a>
-      <a href="https://islamqa.info" target="_blank" class="alternative-card alt-blue">
-        <span class="alt-icon">
-          <img style="height: 30px;" src="/assets/learn.png" alt="" srcset="">
-        </span>
-        <div class="alt-title">Apprendre l'Islam</div>
-        <div class="alt-description">Questions & Réponses</div>
-      </a>
-      <a href="https://bayyinah.tv" target="_blank" class="alternative-card alt-purple">
-        <span class="alt-icon">📺</span>
-        <div class="alt-title">Cours Vidéo</div>
-        <div class="alt-description">Bayyinah TV</div>
-      </a>
-      <a href="https://seekersguidance.org" target="_blank" class="alternative-card alt-yellow">
-        <span class="alt-icon">🌙</span>
-        <div class="alt-title">Éducation</div>
-        <div class="alt-description">SeekersGuidance</div>
-      </a>
     </div>
 
     <!-- Prayer Time -->
@@ -619,8 +299,7 @@
 
     <!-- Footer -->
     <div class="blocked-footer">
-      <p>Cette protection est mise en place pour votre bien-être.</p>
-      <p>MuslimGuard • Protection Familiale Islamique</p>
+      <p>MuslimGuard</p>
     </div>
   </div>
 

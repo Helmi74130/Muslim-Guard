@@ -14,114 +14,251 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
       background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-      min-height: 100vh;
+      margin: 0;
+      padding: 0;
     }
 
     /* ============================================
-       HEADER
+       DASHBOARD LAYOUT WITH SIDEBAR
        ============================================ */
 
-    .dashboard-header {
-      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
-      box-shadow: var(--shadow-lg);
-      color: white;
-      position: relative;
-      overflow: hidden;
+    .dashboard-layout {
+      display: flex;
+      min-height: 100vh;
     }
 
-    .dashboard-header::before {
-      content: "";
-      position: absolute;
+    .text-black{
+      color: black;
+    }
+
+    /* ============================================
+       SIDEBAR NAVIGATION
+       ============================================ */
+
+    .sidebar {
+      width: 280px;
+      background: white;
+      border-right: 1px solid var(--gray-200);
+      box-shadow: var(--shadow);
+      position: sticky;
       top: 0;
-      right: -100px;
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-      background-size: 30px 30px;
-      opacity: 0.5;
-    }
-
-    .header-content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--spacing-2xl) var(--spacing-lg);
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-lg);
-    }
-
-    .header-icon {
-      font-size: 2.5rem;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-
-      0%,
-      100% {
-        transform: translateY(0px);
-      }
-
-      50% {
-        transform: translateY(-8px);
-      }
-    }
-
-    .header-title {
+      height: 100vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
 
-    .header-title h1 {
-      font-size: 2rem;
-      color: var(--primary-50);
-      font-weight: 700;
-      margin: 0;
-      letter-spacing: -0.5px;
-    }
-
-    .header-title .subtitle {
-      font-size: 0.875rem;
-      opacity: 0.9;
-      margin: 0;
-      font-weight: 500;
-    }
-
-    .header-buttons {
+    .sidebar-header {
+      padding: var(--spacing-xl);
+      border-bottom: 2px solid var(--gray-100);
       display: flex;
+      align-items: center;
       gap: var(--spacing-md);
     }
 
-    .header-btn {
+    .sidebar-logo {
+      font-size: 2rem;
+    }
+
+    .sidebar-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-title h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .sidebar-title .subtitle {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .sidebar-logo img {
+      height: 80px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--spacing-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .tab-btn {
       display: flex;
       align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: transparent;
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      color: var(--gray-700);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.95rem;
+      position: relative;
+    }
+
+    .tab-btn:hover {
+      background: var(--gray-50);
+      color: var(--primary-600);
+    }
+
+    .tab-btn.active {
+      background: var(--primary-50);
+      color: var(--primary-600);
+      border-color: var(--primary-500);
+      font-weight: 600;
+    }
+
+    .tab-btn::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 0;
+      background: var(--primary-500);
+      border-radius: 3px;
+      transition: height var(--transition);
+    }
+
+    .tab-btn.active::before {
+      height: 60%;
+    }
+
+    .sidebar-footer {
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      flex-direction: column;
       gap: var(--spacing-sm);
-      padding: var(--spacing-sm) var(--spacing-lg);
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    #exportBtn,
+    #refreshBtn,
+    #settingsBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
       border-radius: var(--radius-md);
       font-weight: 600;
       cursor: pointer;
       transition: all var(--transition);
-      backdrop-filter: blur(10px);
-      font-size: 0.875rem;
+      box-shadow: var(--shadow);
+      font-size: 0.95rem;
     }
 
-    .header-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.5);
+    #exportBtn {
+      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
+      color: white;
+    }
+
+    #exportBtn:hover {
       transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
     }
 
-    .header-btn:active {
+    #refreshBtn {
+      background: white;
+      color: var(--gray-700);
+      border: 1px solid var(--gray-200);
+    }
+
+    #refreshBtn:hover {
+      background: var(--gray-50);
+    }
+
+    #settingsBtn {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      margin-top: var(--spacing-md);
+    }
+
+    #settingsBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    #exportBtn:active,
+    #refreshBtn:active,
+    #settingsBtn:active {
       transform: scale(0.98);
+    }
+
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-2xl);
+    }
+
+    .content-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .content-icon {
+      font-size: 2.5rem;
+    }
+
+    .content-header-text h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .content-header-text p {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin: 0;
+    }
+
+    /* ============================================
+       TAB CONTENT
+       ============================================ */
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn var(--transition) ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* ============================================
@@ -129,9 +266,7 @@
        ============================================ */
 
     .dashboard-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: var(--spacing-2xl) var(--spacing-lg);
+      max-width: 100%;
     }
 
     /* ============================================
@@ -386,10 +521,19 @@
       font-weight: 600;
       font-size: 0.875rem;
       transition: all var(--transition-slow);
+      min-width: 40px;
     }
 
     .chart-bar:hover .chart-bar-fill {
       filter: brightness(1.1);
+    }
+
+    .chart-count {
+      min-width: 40px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray-700);
     }
 
     /* ============================================
@@ -629,41 +773,60 @@
        ============================================ */
 
     @media (max-width: 1024px) {
-      .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      .sidebar {
+        width: 240px;
       }
 
-      .header-buttons {
-        flex-direction: column;
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       }
 
       .hourly-grid {
         grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
       }
-
-      .hourly-column {
-        height: 100px;
-      }
     }
 
     @media (max-width: 768px) {
-      .dashboard-header {
-        padding: var(--spacing-xl) var(--spacing-md);
-      }
-
-      .header-content {
+      .dashboard-layout {
         flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-lg);
       }
 
-      .header-buttons {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .sidebar-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+      }
+
+      .tab-btn {
+        flex-shrink: 0;
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.85rem;
+      }
+
+      .sidebar-footer {
+        flex-direction: column;
         width: 100%;
       }
 
-      .header-btn {
-        flex: 1;
-        justify-content: center;
+      #exportBtn,
+      #refreshBtn,
+      #settingsBtn {
+        width: 100%;
+      }
+
+      .main-content {
+        padding: var(--spacing-lg);
       }
 
       .stats-grid {
@@ -689,10 +852,6 @@
         gap: var(--spacing-sm);
       }
 
-      .hourly-column {
-        height: 80px;
-      }
-
       .logs-table {
         font-size: 0.8rem;
       }
@@ -708,16 +867,32 @@
     }
 
     @media (max-width: 480px) {
-      .dashboard-container {
+      .main-content {
+        padding: var(--spacing-md);
+      }
+
+      .sidebar-header {
         padding: var(--spacing-lg) var(--spacing-md);
+      }
+
+      .sidebar-title h2 {
+        font-size: 1rem;
+      }
+
+      .content-header {
+        gap: var(--spacing-sm);
+      }
+
+      .content-icon {
+        font-size: 1.5rem;
+      }
+
+      .content-header-text h1 {
+        font-size: 1.25rem;
       }
 
       .dashboard-section {
         padding: var(--spacing-lg);
-      }
-
-      .header-title h1 {
-        font-size: 1.5rem;
       }
 
       .section-title {
@@ -748,145 +923,191 @@
 </head>
 
 <body>
-  <!-- Header -->
-  <div class="dashboard-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="header-icon">
-          <img style="height: 80px;" src="/assets/logo-white.png" alt="" srcset="">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="/assets/Logo tagline.png" alt="">
         </div>
-        <div class="header-title">
-          <h1>Dashboard Parent</h1>
-          <p class="subtitle">Suivez la protection de vos enfants</p>
+        <div class="sidebar-title">
+          <h2>Dashboard</h2>
+          <p class="subtitle">Statistiques</p>
         </div>
       </div>
-      <div class="header-buttons">
-        <button id="exportBtn" class="header-btn">
+
+      <nav class="sidebar-nav">
+        <button class="tab-btn active" data-tab="overview">
+          <span>Vue d'ensemble</span>
+        </button>
+        <button class="tab-btn" data-tab="top-sites">
+          <span>Top Sites Bloqués</span>
+        </button>
+        <button class="tab-btn" data-tab="recent-logs">
+          <span>Derniers Blocages</span>
+        </button>
+        <button class="tab-btn" data-tab="achievements">
+          <span>Achievements</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="exportBtn">
           <span>
-            <img style="height: 15px;" src="/assets/export.png" alt="" srcset="">
+            <img style="height: 15px;" src="/assets/export.png" alt="">
           </span>
           <span>Exporter CSV</span>
         </button>
-        <button id="refreshBtn" class="header-btn">
+        <button id="refreshBtn">
           <span>
-            <img style="height: 15px;" src="/assets/refresh.png" alt="" srcset="">
+            <img style="height: 15px;" src="/assets/refresh.png" alt="">
           </span>
           <span>Actualiser</span>
         </button>
+        <button id="settingsBtn">
+          <span>Paramètres</span>
+        </button>
       </div>
-    </div>
-  </div>
+    </aside>
 
-  <div class="dashboard-container">
-    <!-- Stats Overview -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">
-          <img style="height: 50px;" src="/assets/handblock.png" alt="" srcset="">
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Tab: Vue d'ensemble -->
+      <div id="tab-overview" class="tab-content active">
+        <div class="content-header">
+          <div class="content-header-text">
+            <h1>Vue d'ensemble</h1>
+            <p>Statistiques globales de protection</p>
+          </div>
         </div>
-        <div class="stat-value" id="totalBlocked">0</div>
-        <div class="stat-label">Sites bloqués (7j)</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">
-          <img style="height: 50px;" src="/assets/streak.png" alt="" srcset="">
-        </div>
-        <div class="stat-value success" id="streak">0</div>
-        <div class="stat-label">Jours de streak</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">
-          <img style="height: 50px;" src="/assets/block.png" alt="" srcset="">
-        </div>
-        <div class="stat-value info" id="todayBlocked">0</div>
-        <div class="stat-label">Bloqués aujourd'hui</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">
-          <img style="height: 50px;" src="/assets/danger.png" alt="" srcset="">
-        </div>
-        <div class="stat-value danger" id="suspiciousCount">0</div>
-        <div class="stat-label">Tentatives suspectes</div>
-      </div>
-    </div>
 
-    <!-- Top Sites Bloqués -->
-    <div class="dashboard-section">
-      <div class="section-header">
-        <div class="section-title">
-          <span>Top 10 Sites Bloqués</span>
-          <span style="font-size: 0.875rem; color: var(--gray-500); font-weight: 500;">(7 derniers jours)</span>
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <img style="height: 50px;" src="/assets/handblock.png" alt="">
+            </div>
+            <div class="stat-value" id="totalBlocked">0</div>
+            <div class="stat-label">Sites bloqués (7j)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <img style="height: 50px;" src="/assets/streak.png" alt="">
+            </div>
+            <div class="stat-value success" id="streak">0</div>
+            <div class="stat-label">Jours de streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <img style="height: 50px;" src="/assets/block.png" alt="">
+            </div>
+            <div class="stat-value info" id="todayBlocked">0</div>
+            <div class="stat-label">Bloqués aujourd'hui</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <img style="height: 50px;" src="/assets/danger.png" alt="">
+            </div>
+            <div class="stat-value danger" id="suspiciousCount">0</div>
+            <div class="stat-label">Tentatives suspectes</div>
+          </div>
         </div>
-      </div>
-      <div id="topSites" class="top-sites-list">
-        <!-- Rempli par JS -->
-      </div>
-    </div>
 
-    <!-- Graphique par jour -->
-    <div class="dashboard-section">
-      <div class="section-header">
-        <div class="section-title">
-          <span>Blocages par Jour</span>
-          <span style="font-size: 0.875rem; color: var(--gray-500); font-weight: 500;">(7 derniers jours)</span>
-        </div>
-      </div>
-      <div id="dailyChart" class="chart-container">
-        <!-- Rempli par JS -->
-      </div>
-    </div>
-
-    <!-- Blocages par heure -->
-    <div class="dashboard-section">
-      <div class="section-header">
-        <div class="section-title">
-          <span>Blocages par Heure</span>
-        </div>
-      </div>
-      <div id="hourlyChart" class="hourly-grid">
-        <!-- Rempli par JS -->
-      </div>
-    </div>
-
-    <!-- Logs récents -->
-    <div class="dashboard-section">
-      <div class="section-header">
-        <div class="section-title">
-          <span>Derniers Blocages</span>
-        </div>
-        <select id="logFilter" class="section-control">
-          <option value="all">📋 Tous</option>
-          <option value="today">📅 Aujourd'hui</option>
-          <option value="week">📆 Cette semaine</option>
-        </select>
-      </div>
-      <div class="logs-table-wrapper">
-        <table class="logs-table">
-          <thead>
-            <tr>
-              <th>Date/Heure</th>
-              <th>Domaine</th>
-              <th>Raison</th>
-            </tr>
-          </thead>
-          <tbody id="logsTable">
+        <!-- Graphique par jour -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <span>Blocages par Jour</span>
+              <span style="font-size: 0.875rem; color: var(--gray-500); font-weight: 500;">(7 derniers jours)</span>
+            </div>
+          </div>
+          <div id="dailyChart" class="chart-container">
             <!-- Rempli par JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </div>
+        </div>
 
-    <!-- Achievements -->
-    <div class="dashboard-section achievements-section">
-      <div class="section-header">
-        <div class="section-title">
-          <span style="color: #f3f4f6;">Achievements Débloqués</span>
+        <!-- Blocages par heure -->
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <span>Blocages par Heure</span>
+            </div>
+          </div>
+          <div id="hourlyChart" class="hourly-grid">
+            <!-- Rempli par JS -->
+          </div>
         </div>
       </div>
-      <div id="achievements" class="achievements-grid">
-        <!-- Rempli par JS -->
+
+      <!-- Tab: Top Sites Bloqués -->
+      <div id="tab-top-sites" class="tab-content">
+        <div class="content-header">
+          <div class="content-header-text">
+            <h1>Top Sites Bloqués</h1>
+            <p>Les 10 sites les plus bloqués (7 derniers jours)</p>
+          </div>
+        </div>
+
+        <div class="dashboard-section">
+          <div id="topSites" class="top-sites-list">
+            <!-- Rempli par JS -->
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- Tab: Derniers Blocages -->
+      <div id="tab-recent-logs" class="tab-content">
+        <div class="content-header">
+          <div class="content-header-text">
+            <h1>Derniers Blocages</h1>
+            <p>Historique complet des sites bloqués</p>
+          </div>
+        </div>
+
+        <div class="dashboard-section">
+          <div class="section-header">
+            <div class="section-title">
+              <span>Filtrer les blocages</span>
+            </div>
+            <select id="logFilter" class="section-control">
+              <option value="all">Tous</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="week">Cette semaine</option>
+            </select>
+          </div>
+          <div class="logs-table-wrapper">
+            <table class="logs-table">
+              <thead>
+                <tr>
+                  <th>Date/Heure</th>
+                  <th>Domaine</th>
+                  <th>Raison</th>
+                </tr>
+              </thead>
+              <tbody id="logsTable">
+                <!-- Rempli par JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Achievements -->
+      <div id="tab-achievements" class="tab-content">
+        <div class="content-header">
+          <div class="content-header-text">
+            <h1>Achievements</h1>
+            <p>Vos accomplissements débloqués</p>
+          </div>
+        </div>
+
+        <div class="dashboard-section achievements-section">
+          <div id="achievements" class="achievements-grid">
+            <!-- Rempli par JS -->
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script type="module" src="dashboard.js"></script>

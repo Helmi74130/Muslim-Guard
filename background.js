@@ -8,6 +8,7 @@ import {
   getActiveCategories,
   isWhitelisted
 } from './utils/lists.js';
+import { updatePrayerTimesFromCity } from './utils/prayerApi.js';
 
 // État global
 let config = null;
@@ -66,6 +67,12 @@ function setupAlarms() {
 
   // Reset les stats quotidiennes à minuit
   chrome.alarms.create('resetDaily', { periodInMinutes: 1440 });
+
+  // Met à jour les horaires de prière quotidiennement (toutes les 24h)
+  chrome.alarms.create('updatePrayerTimes', { periodInMinutes: 1440 });
+
+  // Mise à jour immédiate au démarrage si nécessaire
+  updatePrayerTimesIfNeeded();
 }
 
 /**
@@ -78,6 +85,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     await cleanOldLogs();
   } else if (alarm.name === 'resetDaily') {
     await resetDailyStats();
+  } else if (alarm.name === 'updatePrayerTimes') {
+    await updatePrayerTimesIfNeeded();
   }
 });
 
@@ -95,6 +104,17 @@ async function checkPrayerTime() {
 
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const today = now.toDateString();
+
+    // Récupère les prières déjà notifiées aujourd'hui
+    const result = await chrome.storage.local.get(['notifiedPrayers']);
+    let notifiedPrayers = result.notifiedPrayers || {};
+
+    // Réinitialise si on a changé de jour
+    if (notifiedPrayers.date !== today) {
+      notifiedPrayers = { date: today, prayers: [] };
+      await chrome.storage.local.set({ notifiedPrayers });
+    }
 
     // Vérifie chaque heure de prière
     for (const prayerTime of config.prayerTimes) {
@@ -104,9 +124,12 @@ async function checkPrayerTime() {
       // ±15 minutes autour de l'heure de prière
       const diff = Math.abs(currentMinutes - prayerMinutes);
       if (diff <= config.prayerPauseDuration) {
-        if (!isPrayerTime) {
-          isPrayerTime = true;
-          // Envoie une notification
+        isPrayerTime = true;
+
+        // N'affiche la notification que si elle n'a pas déjà été affichée aujourd'hui
+        if (!notifiedPrayers.prayers.includes(prayerTime)) {
+          notifiedPrayers.prayers.push(prayerTime);
+          await chrome.storage.local.set({ notifiedPrayers });
           showPrayerNotification(prayerTime);
         }
         return;
@@ -130,6 +153,39 @@ function showPrayerNotification(prayerTime) {
     message: `Il est ${prayerTime}. Internet est en pause pendant 15 minutes.`,
     priority: 2
   });
+}
+
+/**
+ * Met à jour les horaires de prière si le mode auto est activé
+ */
+async function updatePrayerTimesIfNeeded() {
+  try {
+    await loadConfig();
+
+    // Vérifie si l'auto-update est activé
+    if (!config.prayerTimesAutoUpdate || !config.prayerCity) {
+      return;
+    }
+
+    const lastUpdate = config.prayerTimesLastUpdate;
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    // Met à jour si jamais mis à jour ou si dernier update > 24h
+    if (!lastUpdate || (now - lastUpdate > oneDayMs)) {
+      console.log('Updating prayer times from API...');
+      const success = await updatePrayerTimesFromCity();
+
+      if (success) {
+        console.log('Prayer times updated successfully');
+        await loadConfig(); // Recharge la config mise à jour
+      } else {
+        console.warn('Failed to update prayer times');
+      }
+    }
+  } catch (error) {
+    console.error('Error in updatePrayerTimesIfNeeded:', error);
+  }
 }
 
 /**

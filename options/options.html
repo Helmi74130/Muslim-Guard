@@ -134,11 +134,11 @@
       padding: var(--spacing-lg);
       border-top: 1px solid var(--gray-100);
       display: flex;
+      flex-direction: column;
       gap: var(--spacing-sm);
     }
 
     #saveBtn {
-      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -160,6 +160,32 @@
     }
 
     #saveBtn:active {
+      transform: scale(0.98);
+    }
+
+    #dashboardLink {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: var(--shadow);
+      margin-top: var(--spacing-md);
+    }
+
+    #dashboardLink:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    #dashboardLink:active {
       transform: scale(0.98);
     }
 
@@ -225,138 +251,294 @@
     }
 
     /* ============================================
-       SECTIONS
-       ============================================ */
+   SECTIONS
+   ============================================ */
 
-    .settings-section {
-      background: white;
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-xl);
-      margin-bottom: var(--spacing-xl);
-      box-shadow: var(--shadow);
-      transition: all var(--transition);
-      border-left: 4px solid var(--primary-100);
-    }
+.settings-section {
+  background: white;
+  border-radius: var(--radius-lg);
+  /* Réduction du padding pour moins d'espace perdu */
+  padding: var(--spacing-lg); 
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
+  /* Suppression de la bordure gauche épaisse qui faisait "vieux" */
+  border: 1px solid var(--gray-200);
+}
 
-    .settings-section:hover {
-      box-shadow: var(--shadow-lg);
-    }
+.settings-section:hover {
+  box-shadow: var(--shadow-lg);
+}
 
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-lg);
-    }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md); /* Réduction de la marge */
+}
 
-    .section-icon {
-      font-size: 1.5rem;
-    }
+.section-icon {
+  font-size: 1.5rem;
+}
 
-    .section-header-text h2 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--gray-800);
-      margin: 0;
-    }
+.section-header-text h2 {
+  font-size: 1.125rem; /* Légèrement plus petit pour l'élégance */
+  font-weight: 700;
+  color: var(--gray-800);
+  margin: 0;
+}
 
-    .section-description {
-      font-size: 0.875rem;
-      color: var(--gray-600);
-      margin-bottom: var(--spacing-lg);
-    }
+.section-description {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-bottom: var(--spacing-md);
+}
+
+/* ============================================
+   PROTECTION MODE RADIOS - IMPROVED
+   ============================================ */
+
+.protection-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.mode-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-xl);
+  border: 3px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  position: relative;
+  min-height: 200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mode-option input[type="radio"] {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: var(--primary-500);
+}
+
+.mode-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+  transition: transform 0.3s ease;
+}
+
+.mode-option:hover .mode-icon {
+  transform: scale(1.15);
+}
+
+.mode-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.mode-name {
+  font-weight: 700;
+  color: var(--gray-800);
+  font-size: 1.125rem;
+}
+
+.mode-description {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+
+/* Mode Strict - Rouge */
+.mode-strict:hover {
+  border-color: #dc2626;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
+  transform: translateY(-4px);
+}
+
+.mode-strict:has(input:checked) {
+  border-color: #dc2626;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.2), 0 0 0 3px rgba(220, 38, 38, 0.1);
+  transform: translateY(-4px);
+}
+
+.mode-strict:has(input:checked) .mode-name {
+  color: #dc2626;
+}
+
+/* Mode Modéré - Orange */
+.mode-moderate:hover {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+  transform: translateY(-4px);
+}
+
+.mode-moderate:has(input:checked) {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2), 0 0 0 3px rgba(245, 158, 11, 0.1);
+  transform: translateY(-4px);
+}
+
+.mode-moderate:has(input:checked) .mode-name {
+  color: #f59e0b;
+}
+
+/* Mode Permissif - Vert */
+.mode-permissive:hover {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+  transform: translateY(-4px);
+}
+
+.mode-permissive:has(input:checked) {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2), 0 0 0 3px rgba(16, 185, 129, 0.1);
+  transform: translateY(-4px);
+}
+
+.mode-permissive:has(input:checked) .mode-name {
+  color: #10b981;
+}
 
     /* ============================================
-       PROTECTION MODE RADIOS
-       ============================================ */
-
-    .protection-modes {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-md);
-    }
-
-    .mode-option {
-      display: flex;
-      align-items: flex-start;
-      padding: var(--spacing-lg);
-      border: 2px solid var(--gray-200);
-      border-radius: var(--radius-lg);
-      cursor: pointer;
-      transition: all var(--transition);
-      background: white;
-    }
-
-    .mode-option:hover {
-      border-color: var(--primary-300);
-      background: var(--primary-50);
-    }
-
-    .mode-option input[type="radio"] {
-      width: auto;
-      margin-top: 2px;
-      margin-right: var(--spacing-md);
-      cursor: pointer;
-      accent-color: var(--primary-500);
-    }
-
-    .mode-label {
-      flex: 1;
-    }
-
-    .mode-name {
-      font-weight: 600;
-      color: var(--gray-800);
-      margin-bottom: var(--spacing-xs);
-      font-size: 0.95rem;
-    }
-
-    .mode-description {
-      font-size: 0.875rem;
-      color: var(--gray-600);
-    }
-
-    /* ============================================
-       CHECKBOXES GRID
+       CHECKBOXES GRID - IMPROVED
        ============================================ */
 
     .checkbox-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: var(--spacing-md);
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--spacing-lg);
     }
 
     .checkbox-item {
       display: flex;
       align-items: center;
-      padding: var(--spacing-md);
-      border: 2px solid var(--gray-200);
-      border-radius: var(--radius-md);
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      border: 3px solid var(--gray-200);
+      border-radius: var(--radius-lg);
       cursor: pointer;
-      transition: all var(--transition);
-      background: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .checkbox-item:hover {
-      background: var(--primary-50);
-      border-color: var(--primary-300);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .checkbox-item:hover .category-icon {
+      transform: scale(1.2);
     }
 
     .checkbox-item input[type="checkbox"] {
-      width: auto;
-      margin-right: var(--spacing-md);
+      width: 20px;
+      height: 20px;
+      margin-right: 0;
+      margin-left: auto;
       cursor: pointer;
       accent-color: var(--primary-500);
+      flex-shrink: 0;
     }
 
     .checkbox-item label {
       margin: 0;
       cursor: pointer;
       flex: 1;
-      font-weight: 500;
+      font-weight: 600;
       font-size: 0.95rem;
+      color: var(--gray-800);
+    }
+
+    /* Couleurs spécifiques par catégorie */
+    .category-social:hover {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+
+    .category-social:has(input:checked) {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+    }
+
+    .category-music:hover {
+      border-color: #a855f7;
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    }
+
+    .category-music:has(input:checked) {
+      border-color: #a855f7;
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.2);
+    }
+
+    .category-video:hover {
+      border-color: #ec4899;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    }
+
+    .category-video:has(input:checked) {
+      border-color: #ec4899;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+      box-shadow: 0 8px 24px rgba(236, 72, 153, 0.2);
+    }
+
+    .category-dating:hover {
+      border-color: #ef4444;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    }
+
+    .category-dating:has(input:checked) {
+      border-color: #ef4444;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+    }
+
+    .category-gaming:hover {
+      border-color: #14b8a6;
+      background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+    }
+
+    .category-gaming:has(input:checked) {
+      border-color: #14b8a6;
+      background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+      box-shadow: 0 8px 24px rgba(20, 184, 166, 0.2);
+    }
+
+    .category-adult:hover {
+      border-color: #dc2626;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    }
+
+    .category-adult:has(input:checked) {
+      border-color: #dc2626;
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.2);
     }
 
     /* ============================================
@@ -608,6 +790,18 @@
         grid-template-columns: 1fr;
       }
 
+      .protection-modes {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-option {
+        min-height: 160px;
+      }
+
+      .mode-icon {
+        font-size: 3rem;
+      }
+
       .time-grid {
         grid-template-columns: 1fr;
       }
@@ -615,10 +809,6 @@
       .settings-section {
         padding: var(--spacing-lg);
         margin-bottom: var(--spacing-lg);
-      }
-
-      .protection-modes .mode-option {
-        padding: var(--spacing-md);
       }
     }
 
@@ -823,6 +1013,621 @@
       filter: none;
       pointer-events: all;
     }
+
+    /* ============================================
+       PRAYER SECTION MODERN STYLES
+       ============================================ */
+
+    .prayer-toggle-card,
+    .schedule-toggle-card {
+      background: linear-gradient(135deg, var(--primary-50) 0%, #f0f9ff 100%);
+      border: 2px solid var(--primary-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    /* Toggle Switch Styles */
+    .prayer-toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .prayer-toggle-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .prayer-toggle-text {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--gray-800);
+      flex: 1;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 54px;
+      height: 28px;
+      flex-shrink: 0;
+      margin-left: var(--spacing-lg);
+    }
+
+    .toggle-checkbox {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #cbd5e1;
+      border-radius: 34px;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-checkbox:checked + .toggle-slider {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .toggle-checkbox:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+
+    .toggle-slider:hover {
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 0 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .toggle-checkbox:focus + .toggle-slider {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .toggle-checkbox:disabled + .toggle-slider {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .prayer-subsection-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin: 0 0 var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .prayer-subsection-title::before {
+      content: "";
+      width: 4px;
+      height: 20px;
+      background: var(--primary-500);
+      border-radius: 2px;
+    }
+
+    /* Mode selector buttons */
+    .prayer-mode-selector {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .prayer-mode-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-md);
+    }
+
+    .prayer-mode-btn {
+      position: relative;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .prayer-mode-btn input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .prayer-mode-btn-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-xl);
+      background: white;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition);
+      text-align: center;
+    }
+
+    .prayer-mode-btn:hover .prayer-mode-btn-content {
+      border-color: var(--primary-300);
+      background: var(--primary-50);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .prayer-mode-btn input[type="radio"]:checked + .prayer-mode-btn-content {
+      border-color: var(--primary-500);
+      background: linear-gradient(135deg, var(--primary-50) 0%, #f0f9ff 100%);
+      box-shadow: 0 0 0 3px var(--primary-100);
+    }
+
+    .prayer-mode-icon {
+      font-size: 2rem;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .prayer-mode-text {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--gray-800);
+    }
+
+    .prayer-mode-desc {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+    }
+
+    /* Config card */
+    .prayer-config-card {
+      background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-top: var(--spacing-lg);
+    }
+
+    /* Input groups */
+    .prayer-input-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .prayer-input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .prayer-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .prayer-label-icon {
+      font-size: 1.2rem;
+    }
+
+    .prayer-input,
+    .prayer-select {
+      width: 100%;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      transition: all var(--transition);
+      background: white;
+      font-family: inherit;
+    }
+
+    .prayer-input:focus,
+    .prayer-select:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    .prayer-hint {
+      display: block;
+      color: var(--gray-600);
+      font-size: 0.8rem;
+      margin-top: var(--spacing-sm);
+      font-style: italic;
+    }
+
+    /* Preview card */
+    .prayer-preview-card {
+      background: white;
+      border: 2px solid var(--primary-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .prayer-preview-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--gray-800);
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--gray-100);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .prayer-preview-icon {
+      font-size: 1.2rem;
+    }
+
+    .prayer-preview-content {
+      color: var(--gray-700);
+      line-height: 1.8;
+    }
+
+    .prayer-preview-footer {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--gray-100);
+    }
+
+    .prayer-update-time {
+      font-weight: 600;
+      color: var(--primary-600);
+    }
+
+    /* Fetch button */
+    .prayer-fetch-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      width: 100%;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: var(--shadow);
+    }
+
+    .prayer-fetch-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .prayer-fetch-btn:active {
+      transform: scale(0.98);
+    }
+
+    .prayer-fetch-icon {
+      font-size: 1.2rem;
+      animation: none;
+    }
+
+    .prayer-fetch-btn:hover .prayer-fetch-icon {
+      animation: rotate 1s linear infinite;
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Prayer times grid */
+    .prayer-times-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    .prayer-time-card {
+      background: white;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      transition: all var(--transition);
+    }
+
+    .prayer-time-card:hover {
+      border-color: var(--primary-300);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .prayer-time-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--gray-700);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .prayer-time-icon {
+      font-size: 1.3rem;
+    }
+
+    .prayer-time-input {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      transition: all var(--transition);
+      font-family: monospace;
+    }
+
+    .prayer-time-input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    /* ============================================
+       SCHEDULE TIME CONFIG STYLES
+       ============================================ */
+
+    .schedule-time-config {
+      margin-top: var(--spacing-lg);
+    }
+
+    .schedule-time-card {
+      background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .schedule-time-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .schedule-time-icon {
+      font-size: 1.5rem;
+    }
+
+    .schedule-time-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .schedule-time-hint {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin: 0 0 var(--spacing-xl);
+      padding-left: calc(1.5rem + var(--spacing-md));
+    }
+
+    .schedule-time-inputs {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: var(--spacing-lg);
+      align-items: end;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .schedule-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .schedule-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--gray-800);
+    }
+
+    .schedule-label-icon {
+      font-size: 1.2rem;
+    }
+
+    .schedule-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-sm) var(--spacing-md);
+      transition: all var(--transition);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .schedule-input-box:hover {
+      border-color: var(--primary-400);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    }
+
+    .schedule-input-box:focus-within {
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    .schedule-input-prefix {
+      font-size: 1.25rem;
+      margin-right: var(--spacing-sm);
+    }
+
+    .schedule-time-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      font-family: 'Courier New', monospace;
+      background: transparent;
+      padding: var(--spacing-xs) 0;
+    }
+
+    .schedule-time-input::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity var(--transition);
+    }
+
+    .schedule-time-input::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+
+    .schedule-separator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: var(--spacing-md);
+    }
+
+    .schedule-arrow {
+      font-size: 2rem;
+      color: var(--primary-500);
+      font-weight: 700;
+    }
+
+    .schedule-example {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #fbbf24;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .schedule-example-icon {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .schedule-example-text {
+      font-size: 0.875rem;
+      color: #92400e;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* ============================================
+       NOTIFICATION ANIMATIONS
+       ============================================ */
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100px) scale(0.9);
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .prayer-mode-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .prayer-times-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .prayer-toggle-label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+      }
+
+      .toggle-switch {
+        margin-left: 0;
+        align-self: flex-end;
+      }
+
+      .schedule-time-inputs {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+      }
+
+      .schedule-separator {
+        display: none;
+      }
+
+      .schedule-time-card {
+        padding: var(--spacing-lg);
+      }
+
+      .schedule-example {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      /* Notifications responsive */
+      #notification-container {
+        left: 12px !important;
+        right: 12px !important;
+        top: 12px !important;
+      }
+
+      #notification-container > div {
+        min-width: auto !important;
+        max-width: 100% !important;
+      }
+    }
   </style>
 </head>
 
@@ -831,7 +1636,6 @@
   <div id="pinOverlay">
     <div class="pin-modal">
       <div class="pin-modal-header">
-        <div class="pin-modal-icon">🔒</div>
         <h2 class="pin-modal-title">Page Protégée</h2>
         <p class="pin-modal-description">Entrez votre code PIN pour accéder aux paramètres</p>
       </div>
@@ -866,19 +1670,15 @@
 
       <nav class="sidebar-nav">
         <button class="tab-btn active" data-tab="general">
-          <span></span>
           <span>Général</span>
         </button>
         <button class="tab-btn" data-tab="lists">
-          <span></span>
           <span>Listes</span>
         </button>
         <button class="tab-btn" data-tab="schedule">
-          <span></span>
           <span>Horaires</span>
         </button>
         <button class="tab-btn" data-tab="appearance">
-          <span></span>
           <span>Sécurité</span>
         </button>
       </nav>
@@ -886,6 +1686,9 @@
       <div class="sidebar-footer">
         <button id="saveBtn">
           <span>Sauvegarder</span>
+        </button>
+        <button id="dashboardLink">
+          <span>Retour au Dashboard</span>
         </button>
       </div>
     </aside>
@@ -896,9 +1699,6 @@
       <div id="tab-general" class="tab-content active">
         <!-- Mode de Protection -->
         <div class="content-header">
-          <div class="content-icon">
-            <img src="/assets/shieldok.png" alt="" srcset="">
-          </div>
           <div class="content-header-text">
             <h1>Mode de Protection</h1>
             <p>Choisissez le niveau de protection souhaité</p>
@@ -907,22 +1707,25 @@
 
         <div class="settings-section">
           <div class="protection-modes">
-            <label class="mode-option">
+            <label class="mode-option mode-strict">
               <input type="radio" name="protectionMode" value="strict">
+              <div class="mode-icon"></div>
               <div class="mode-label">
                 <div class="mode-name">Mode Strict</div>
                 <div class="mode-description">Bloque tout sauf sites éducatifs et islamiques</div>
               </div>
             </label>
-            <label class="mode-option">
+            <label class="mode-option mode-moderate">
               <input type="radio" name="protectionMode" value="moderate">
+              <div class="mode-icon"></div>
               <div class="mode-label">
                 <div class="mode-name">Mode Modéré</div>
                 <div class="mode-description">Bloque contenus inappropriés selon catégories</div>
               </div>
             </label>
-            <label class="mode-option">
+            <label class="mode-option mode-permissive">
               <input type="radio" name="protectionMode" value="permissive">
+              <div class="mode-icon"></div>
               <div class="mode-label">
                 <div class="mode-name">Mode Permissif</div>
                 <div class="mode-description">Bloque uniquement contenus explicites</div>
@@ -933,9 +1736,6 @@
 
         <!-- Catégories à Bloquer -->
         <div class="content-header" style="margin-top: var(--spacing-2xl);">
-          <div class="content-icon">
-            <img src="/assets/handblock.png" alt="">
-          </div>
           <div class="content-header-text">
             <h1>Catégories à Bloquer</h1>
             <p>Sélectionnez les catégories que vous souhaitez bloquer</p>
@@ -944,27 +1744,27 @@
 
         <div class="settings-section">
           <div class="checkbox-grid">
-            <label class="checkbox-item">
+            <label class="checkbox-item category-social">
               <input type="checkbox" id="blockSocialMedia">
               <label for="blockSocialMedia">Réseaux Sociaux</label>
             </label>
-            <label class="checkbox-item">
+            <label class="checkbox-item category-music">
               <input type="checkbox" id="blockMusicStreaming">
               <label for="blockMusicStreaming">Streaming Musical</label>
             </label>
-            <label class="checkbox-item">
+            <label class="checkbox-item category-video">
               <input type="checkbox" id="blockVideoStreaming">
               <label for="blockVideoStreaming">Streaming Vidéo</label>
             </label>
-            <label class="checkbox-item">
+            <label class="checkbox-item category-dating">
               <input type="checkbox" id="blockDating">
               <label for="blockDating">Rencontres</label>
             </label>
-            <label class="checkbox-item">
+            <label class="checkbox-item category-gaming">
               <input type="checkbox" id="blockGaming">
               <label for="blockGaming">Jeux en Ligne</label>
             </label>
-            <label class="checkbox-item">
+            <label class="checkbox-item category-adult">
               <input type="checkbox" id="blockAdult">
               <label for="blockAdult">Contenu Adulte</label>
             </label>
@@ -975,9 +1775,7 @@
       <!-- Tab: Listes -->
       <div id="tab-lists" class="tab-content">
         <div class="content-header">
-          <div class="content-icon">
-            <img style="height: 40px;" src="/assets/list.png" alt="" srcset="">
-          </div>
+
           <div class="content-header-text">
             <h1>Listes de Blocage</h1>
             <p>Gérez vos domaines, mots-clés et whitelist</p>
@@ -987,9 +1785,6 @@
         <!-- Domaines Bloqués -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/handblock.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Domaines Bloqués</h2>
             </div>
@@ -1005,9 +1800,6 @@
         <!-- Mots-clés à Bloquer dans les URLs -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/keyword.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Mots-clés à Bloquer (URLs)</h2>
             </div>
@@ -1022,9 +1814,6 @@
         <!-- Mots-clés de Détection de Contenu dans les Pages -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/eyes.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Détection de Contenu dans les Pages</h2>
             </div>
@@ -1043,9 +1832,6 @@
         <!-- Whitelist -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/check.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Sites Toujours Autorisés</h2>
             </div>
@@ -1058,9 +1844,7 @@
       <!-- Tab: Horaires -->
       <div id="tab-schedule" class="tab-content">
         <div class="content-header">
-          <div class="content-icon">
-            <img style="height: 40px;" src="/assets/time.png" alt="" srcset="">
-          </div>
+
           <div class="content-header-text">
             <h1>Paramètres Horaires</h1>
             <p>Configurez les prières et les plages d'accès</p>
@@ -1070,37 +1854,138 @@
         <!-- Pause pour les Prières -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/masjid.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Pause pour les Prières</h2>
             </div>
           </div>
-          <div class="checkbox-item" style="border: none; padding: 0; margin-bottom: var(--spacing-lg);">
-            <input type="checkbox" id="prayerPauseEnabled">
-            <label for="prayerPauseEnabled">Activer la pause internet pendant les prières (±15 min)</label>
+
+          <!-- Toggle activation -->
+          <div class="prayer-toggle-card">
+            <div class="prayer-toggle-wrapper">
+              <label class="prayer-toggle-label">
+                <span class="prayer-toggle-text">Activer la pause internet pendant les prières (±15 min)</span>
+                <div class="toggle-switch">
+                  <input type="checkbox" id="prayerPauseEnabled" class="toggle-checkbox">
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
           </div>
-          <div class="time-grid">
-            <div class="time-input-group">
-              <label for="fajr">Fajr</label>
-              <input type="time" id="fajr">
+
+          <!-- Mode de configuration -->
+          <div class="prayer-mode-selector">
+            <h3 class="prayer-subsection-title">Mode de configuration</h3>
+            <div class="prayer-mode-buttons">
+              <label class="prayer-mode-btn">
+                <input type="radio" name="prayerModeOptions" value="auto" id="prayer-auto-options">
+                <div class="prayer-mode-btn-content">
+                  <span class="prayer-mode-icon">🌍</span>
+                  <span class="prayer-mode-text">Automatique</span>
+                  <span class="prayer-mode-desc">Mise à jour quotidienne</span>
+                </div>
+              </label>
+              <label class="prayer-mode-btn">
+                <input type="radio" name="prayerModeOptions" value="manual" id="prayer-manual-options">
+                <div class="prayer-mode-btn-content">
+                  <span class="prayer-mode-icon">✋</span>
+                  <span class="prayer-mode-text">Manuel</span>
+                  <span class="prayer-mode-desc">Configuration manuelle</span>
+                </div>
+              </label>
             </div>
-            <div class="time-input-group">
-              <label for="dhuhr">Dhuhr</label>
-              <input type="time" id="dhuhr">
+          </div>
+
+          <!-- Mode automatique -->
+          <div id="autoModeOptions" class="prayer-config-card" style="display: none;">
+            <div class="prayer-input-group">
+              <label for="prayerCityOptions" class="prayer-label">
+                <span class="prayer-label-icon"></span>
+                Ville
+              </label>
+              <input
+                type="text"
+                id="prayerCityOptions"
+                placeholder="Ex: Paris, France"
+                class="prayer-input"
+              >
+              <small class="prayer-hint">
+                Les horaires seront automatiquement mis à jour chaque jour
+              </small>
             </div>
-            <div class="time-input-group">
-              <label for="asr">Asr</label>
-              <input type="time" id="asr">
+
+            <div class="prayer-input-group">
+              <label for="prayerMethodOptions" class="prayer-label">
+                <span class="prayer-label-icon"></span>
+                Méthode de calcul
+              </label>
+              <select id="prayerMethodOptions" class="prayer-select">
+                <option value="3">Muslim World League (Europe)</option>
+                <option value="12">UOIF (France)</option>
+                <option value="2">ISNA (Amérique du Nord)</option>
+                <option value="18">Tunisie</option>
+                <option value="19">Algérie</option>
+                <option value="21">Maroc</option>
+                <option value="5">Égypte</option>
+                <option value="13">Turquie</option>
+                <option value="4">Arabie Saoudite</option>
+              </select>
             </div>
-            <div class="time-input-group">
-              <label for="maghrib">Maghrib</label>
-              <input type="time" id="maghrib">
+
+            <div id="prayerPreviewOptions" class="prayer-preview-card" style="display: none;">
+              <div class="prayer-preview-header">
+                <span class="prayer-preview-icon"></span>
+                Horaires actuels
+              </div>
+              <div id="prayerPreviewContentOptions" class="prayer-preview-content"></div>
+              <div class="prayer-preview-footer">
+                Dernière mise à jour : <span id="lastUpdateTime" class="prayer-update-time">-</span>
+              </div>
             </div>
-            <div class="time-input-group">
-              <label for="isha">Isha</label>
-              <input type="time" id="isha">
+
+            <button type="button" id="fetchPrayerTimesOptions" class="prayer-fetch-btn">
+              Récupérer les horaires maintenant
+            </button>
+          </div>
+
+          <!-- Mode manuel -->
+          <div id="manualModeOptions" class="prayer-config-card" style="display: none;">
+            <h3 class="prayer-subsection-title">Horaires de prière</h3>
+            <div class="prayer-times-grid">
+              <div class="prayer-time-card">
+                <label for="fajr" class="prayer-time-label">
+                  <span class="prayer-time-icon"></span>
+                  Fajr
+                </label>
+                <input type="time" id="fajr" class="prayer-time-input">
+              </div>
+              <div class="prayer-time-card">
+                <label for="dhuhr" class="prayer-time-label">
+                  <span class="prayer-time-icon"></span>
+                  Dhuhr
+                </label>
+                <input type="time" id="dhuhr" class="prayer-time-input">
+              </div>
+              <div class="prayer-time-card">
+                <label for="asr" class="prayer-time-label">
+                  <span class="prayer-time-icon"></span>
+                  Asr
+                </label>
+                <input type="time" id="asr" class="prayer-time-input">
+              </div>
+              <div class="prayer-time-card">
+                <label for="maghrib" class="prayer-time-label">
+                  <span class="prayer-time-icon"></span>
+                  Maghrib
+                </label>
+                <input type="time" id="maghrib" class="prayer-time-input">
+              </div>
+              <div class="prayer-time-card">
+                <label for="isha" class="prayer-time-label">
+                  <span class="prayer-time-icon"></span>
+                  Isha
+                </label>
+                <input type="time" id="isha" class="prayer-time-input">
+              </div>
             </div>
           </div>
         </div>
@@ -1108,25 +1993,57 @@
         <!-- Plages Horaires -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/time.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Plages Horaires d'Accès</h2>
             </div>
           </div>
-          <div class="checkbox-item" style="border: none; padding: 0; margin-bottom: var(--spacing-lg);">
-            <input type="checkbox" id="scheduleEnabled">
-            <label for="scheduleEnabled">Limiter l'accès internet à certaines heures</label>
-          </div>
-          <div class="time-grid">
-            <div class="time-input-group">
-              <label for="allowedHoursStart">Heure de début</label>
-              <input type="time" id="allowedHoursStart">
+          <div class="schedule-toggle-card">
+            <div class="prayer-toggle-wrapper">
+              <label class="prayer-toggle-label">
+                <span class="prayer-toggle-text">Limiter l'accès internet à certaines heures</span>
+                <div class="toggle-switch">
+                  <input type="checkbox" id="scheduleEnabled" class="toggle-checkbox">
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
             </div>
-            <div class="time-input-group">
-              <label for="allowedHoursEnd">Heure de fin</label>
-              <input type="time" id="allowedHoursEnd">
+          </div>
+
+          <div class="schedule-time-config">
+            <div class="schedule-time-card">
+              <div class="schedule-time-header">
+                <span class="schedule-time-title">Plage horaire autorisée</span>
+              </div>
+              <p class="">Définissez les heures pendant lesquelles Internet sera accessible</p>
+
+              <div class="schedule-time-inputs">
+                <div class="schedule-input-wrapper">
+                  <label for="allowedHoursStart" class="schedule-label">
+                    <span class="schedule-label-text">Début d'accès</span>
+                  </label>
+                  <div class="schedule-input-box">
+                    <input type="time" id="allowedHoursStart" class="schedule-time-input">
+                  </div>
+                </div>
+
+                <div class="schedule-separator">
+                  <span class="schedule-arrow">→</span>
+                </div>
+
+                <div class="schedule-input-wrapper">
+                  <label for="allowedHoursEnd" class="schedule-label">
+                    <span class="schedule-label-text">Fin d'accès</span>
+                  </label>
+                  <div class="schedule-input-box">
+                    <input type="time" id="allowedHoursEnd" class="schedule-time-input">
+                  </div>
+                </div>
+              </div>
+
+              <div class="schedule-example">
+                <span class="schedule-example-icon">💡</span>
+                <span class="schedule-example-text">Exemple : 08:00 → 22:00 autorise l'accès de 8h du matin à 10h du soir</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1135,9 +2052,6 @@
       <!-- Tab: Sécurité -->
       <div id="tab-appearance" class="tab-content">
         <div class="content-header">
-          <div class="content-icon">
-            <img style="height: 40px;" src="/assets/secur.png" alt="" srcset="">
-          </div>
           <div class="content-header-text">
             <h1>Sécurité & Apparence</h1>
             <p>Gérez la sécurité et les paramètres d'affichage</p>
@@ -1147,9 +2061,6 @@
         <!-- Message de Blocage -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/message.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Message de Blocage</h2>
             </div>
@@ -1161,9 +2072,6 @@
         <!-- Changer le PIN -->
         <div class="settings-section">
           <div class="section-header">
-            <div class="section-icon">
-              <img style="height: 40px;" src="/assets/secur.png" alt="" srcset="">
-            </div>
             <div class="section-header-text">
               <h2>Changer le Code PIN</h2>
             </div>
@@ -1183,7 +2091,7 @@
         <div class="settings-section danger-zone">
           <div class="section-header">
             <div class="section-icon">
-              <img style="height: 40px;" src="/assets/warning.png" alt="" srcset="">
+              <img style="height: 25px;" src="/assets/warning.png" alt="" srcset="">
             </div>
             <div class="section-header-text">
               <h2>Zone Danger</h2>

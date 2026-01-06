@@ -15,6 +15,7 @@ import {
 document.addEventListener('DOMContentLoaded', async () => {
   await loadDashboard();
   setupEventListeners();
+  setupTabNavigation();
 });
 
 // Charge toutes les données du dashboard
@@ -110,15 +111,17 @@ async function loadDailyChart() {
     container.innerHTML = days.map((day, index) => {
       const count = counts[index];
       const percentage = (count / maxCount) * 100;
+      // Affiche le nombre dans la barre si > 10%, sinon à droite
+      const showInside = percentage > 10;
       return `
-        <div class="flex items-center gap-3">
-          <div class="w-24 text-sm text-gray-600">${day}</div>
-          <div class="flex-1 bg-gray-200 h-8 rounded-lg overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-8 rounded-lg flex items-center px-3 text-white font-semibold text-sm transition-all"
-              style="width: ${percentage}%">
-              ${count > 0 ? count : ''}
+        <div class="chart-row">
+          <div class="chart-label">${day}</div>
+          <div class="chart-bar">
+            <div class="chart-bar-fill" style="width: ${percentage}%">
+              ${showInside && count > 0 ? count : ''}
             </div>
           </div>
+          ${!showInside && count > 0 ? `<div class="chart-count">${count}</div>` : '<div class="chart-count"></div>'}
         </div>
       `;
     }).join('');
@@ -238,7 +241,7 @@ async function loadAchievements() {
     container.innerHTML = achievements.map(achievement => `
       <div class="bg-white bg-opacity-20 backdrop-blur rounded-lg p-4 text-center">
         <div class="text-4xl mb-2">${achievement.icon}</div>
-        <div class="font-semibold">${achievement.name}</div>
+        <div class="font-semibold text-black">${achievement.name}</div>
       </div>
     `).join('');
   } catch (error) {
@@ -279,5 +282,30 @@ function setupEventListeners() {
   // Filtre des logs
   document.getElementById('logFilter').addEventListener('change', (e) => {
     loadRecentLogs(e.target.value);
+  });
+
+  // Bouton Paramètres
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    chrome.runtime.openOptionsPage();
+  });
+}
+
+// Configuration de la navigation entre tabs
+function setupTabNavigation() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetTab = button.getAttribute('data-tab');
+
+      // Retire la classe active de tous les boutons et contenus
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+
+      // Ajoute la classe active au bouton et contenu ciblés
+      button.classList.add('active');
+      document.getElementById(`tab-${targetTab}`).classList.add('active');
+    });
   });
 }

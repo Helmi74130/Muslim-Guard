@@ -9,14 +9,14 @@ function detectSuspiciousContent(customKeywords = []) {
     const title = document.title?.toLowerCase() || '';
     const fullText = title + ' ' + bodyText;
 
-    // Utilise les mots-clés personnalisés de la config
-    const keywords = customKeywords.length > 0 ? customKeywords : [
-      // Liste par défaut au cas où
-      'porn', 'xxx', 'adult', 'sex', 'nude', 'nsfw',
-      'casino', 'gambling', 'bet', 'poker',
-      'dating', 'hookup', 'meet singles',
-      'music', 'spotify', 'deezer', 'soundcloud'
-    ];
+    // Utilise uniquement les mots-clés personnalisés de la config
+    // Si la liste est vide, aucun contenu ne sera détecté
+    const keywords = customKeywords;
+
+    // Si aucun mot-clé n'est configuré, on ne bloque rien
+    if (keywords.length === 0) {
+      return { suspicious: false };
+    }
 
     // Trouve tous les mots-clés présents et leur position
     let foundKeywords = [];
@@ -58,13 +58,12 @@ function showBlockOverlay(keyword) {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #00305A;
     z-index: 2147483647;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    animation: fadeIn 0.3s ease-out;
   `;
 
   overlay.innerHTML = `
@@ -73,109 +72,89 @@ function showBlockOverlay(keyword) {
         from { opacity: 0; }
         to { opacity: 1; }
       }
-
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-      }
     </style>
 
     <div style="
-      max-width: 600px;
+      max-width: 480px;
+      width: 90%;
       text-align: center;
-      padding: 40px;
+      padding: 48px 32px;
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      animation: slideUp 0.5s ease-out;
+      border-radius: 16px;
+      animation: fadeIn 0.2s ease-out;
     ">
-      <!-- Icône d'alerte -->
-      <div style="
-        font-size: 80px;
-        margin-bottom: 20px;
-        animation: pulse 2s infinite;
-      ">🚫</div>
-
       <!-- Titre -->
       <h1 style="
-        color: #e74c3c;
-        font-size: 28px;
-        font-weight: 700;
-        margin: 0 0 15px 0;
-      ">Contenu Bloqué</h1>
+        color: #111827;
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.01em;
+      ">Contenu bloqué</h1>
 
       <!-- Message principal -->
       <p style="
-        color: #34495e;
-        font-size: 16px;
+        color: #6b7280;
+        font-size: 15px;
         line-height: 1.6;
-        margin: 0 0 25px 0;
+        margin: 0 0 32px 0;
       ">
-        Cette page contient du contenu inapproprié détecté par <strong>MuslimGuard</strong>.
+        Cette page contient du contenu inapproprié détecté par MuslimGuard.
       </p>
 
       <!-- Mot détecté -->
       <div style="
-        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-        border-left: 4px solid #e74c3c;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-bottom: 30px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 32px;
       ">
         <p style="
-          margin: 0;
-          color: #991b1b;
-          font-size: 14px;
-          font-weight: 600;
+          margin: 0 0 8px 0;
+          color: #6b7280;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-weight: 500;
         ">
-          ⚠️ Mot-clé détecté : <span style="
-            background: #dc2626;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 13px;
-          ">${keyword}</span>
+          Mot-clé détecté
         </p>
+        <span style="
+          background: #111827;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-family: 'SF Mono', Monaco, monospace;
+          font-size: 14px;
+          font-weight: 500;
+        ">${keyword}</span>
       </div>
 
       <!-- Bouton retour -->
       <button id="muslimguard-back-btn" style="
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        background: #00305A;
         color: white;
         border: none;
-        padding: 15px 40px;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 10px;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 8px;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-        transition: all 0.3s ease;
-        margin-right: 10px;
-      " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(52, 152, 219, 0.6)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(52, 152, 219, 0.4)';">
-        ← Revenir en arrière
+        transition: all 0.15s;
+        width: 100%;
+      ">
+        Revenir en arrière
       </button>
 
       <!-- Info supplémentaire -->
       <p style="
-        color: #7f8c8d;
+        color: #9ca3af;
         font-size: 12px;
-        margin-top: 25px;
+        margin-top: 24px;
         line-height: 1.5;
       ">
-        Si vous pensez qu'il s'agit d'une erreur, contactez l'administrateur.<br>
-        🛡️ <strong>MuslimGuard</strong> - Protection parentale islamique
+        Si vous pensez qu'il s'agit d'une erreur, contactez l'administrateur.
       </p>
     </div>
   `;
@@ -191,6 +170,14 @@ function showBlockOverlay(keyword) {
   if (backBtn) {
     backBtn.addEventListener('click', () => {
       window.history.back();
+    });
+
+    // Hover effect
+    backBtn.addEventListener('mouseenter', () => {
+      backBtn.style.background = '#004179';
+    });
+    backBtn.addEventListener('mouseleave', () => {
+      backBtn.style.background = '#00305A';
     });
   }
 

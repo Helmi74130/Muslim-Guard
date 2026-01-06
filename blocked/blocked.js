@@ -39,7 +39,7 @@ const BLOCK_REASONS = {
   category: 'Ce site appartient à une catégorie bloquée.',
   strict: 'Mode strict activé : seuls les sites éducatifs et islamiques sont autorisés.',
   schedule: 'Accès Internet bloqué en dehors des horaires autorisés.',
-  prayer: '🕌 C\'est l\'heure de la prière ! Internet est en pause pendant 15 minutes.'
+  prayer: 'C\'est l\'heure de la prière ! Internet est en pause pendant 15 minutes.'
 };
 
 // Initialisation

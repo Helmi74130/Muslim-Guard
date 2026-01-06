@@ -56,6 +56,10 @@ All data stored in `chrome.storage.local` (no backend server):
 - `blockedDomains/blockedKeywords/whitelistedSites`: User-customized lists
 - `blockSocialMedia/blockMusicStreaming/etc`: Category toggles
 - `prayerTimes`: Array of 5 prayer times (HH:MM format)
+- `prayerMode`: 'auto' or 'manual' - determines prayer time source
+- `prayerCity`: City name for automatic prayer time fetching (auto mode only)
+- `prayerMethod`: Calculation method ID for Aladhan API (auto mode only)
+- `lastPrayerUpdate`: Timestamp of last automatic prayer time update
 - `blockedLog`: Array of blocked URLs (max 1000, FIFO)
 - `temporaryWhitelist`: Array with `{domain, expiresAt}` for temporary access
 
@@ -101,7 +105,22 @@ import { getConfig, getValue } from './utils/storage.js';
 
 ### Prayer Time Checking
 
-Prayer times checked every minute via `chrome.alarms` (background.js:62):
+The extension supports both automatic and manual prayer time configuration.
+
+**Automatic Mode** (utils/prayerApi.js):
+- Fetches prayer times from Aladhan API (aladhan.com/api)
+- Requires user to configure: city name and calculation method
+- Updates automatically every day via `chrome.alarms.create('daily-prayer-update')`
+- Stores fetched times in `prayerTimes` array and `prayerMode: 'auto'`
+- Additional storage keys: `prayerCity`, `prayerMethod`, `lastPrayerUpdate`
+
+**Manual Mode**:
+- User manually enters 5 prayer times (Fajr, Dhuhr, Asr, Maghrib, Isha)
+- Times stored in `prayerTimes` array with `prayerMode: 'manual'`
+- No automatic updates
+
+**Prayer Time Blocking** (background.js):
+- Checked every minute via `chrome.alarms`
 - Alarm fires → `checkPrayerTime()` → compares current time ±15min against each prayer time
 - Sets global `isPrayerTime` flag
 - Navigation listener checks this flag before other blocking rules
@@ -162,6 +181,12 @@ Logs are:
 - Domain/keyword matching logic
 - Islamic sites whitelist
 
+**utils/prayerApi.js**:
+- API integration with Aladhan (aladhan.com/api)
+- Fetches daily prayer times based on city and calculation method
+- Handles automatic daily updates via chrome.alarms
+- Geocoding support for city-based prayer time retrieval
+
 ## Common Modification Patterns
 
 **Adding a new category**:
@@ -184,5 +209,8 @@ Logs are:
 - This is a Manifest V3 extension - uses service workers, not persistent background pages
 - No build process - pure JavaScript, HTML, CSS (Tailwind via CDN)
 - French language UI - all user-facing text in French
-- Designed for local-only use (no telemetry, no external API calls except Islamic sites)
+- Designed for local-only use (no telemetry)
+- External API calls limited to:
+  - Aladhan API (aladhan.com) for automatic prayer times (optional, user-configured)
+  - Islamic educational sites (whitelisted)
 - The recommended block list includes 500+ domains across 15+ categories

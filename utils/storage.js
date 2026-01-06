@@ -202,6 +202,11 @@ export const DEFAULT_CONFIG = {
   prayerTimes: ['05:30', '13:00', '16:30', '19:00', '20:30'],
   prayerPauseEnabled: true,
   prayerPauseDuration: 15, // minutes
+  prayerTimesAutoUpdate: false, // Auto-update via API
+  prayerCity: null, // Ville pour récupération automatique
+  prayerCityDisplayName: null, // Nom complet de la ville
+  prayerCalculationMethod: 3, // Muslim World League par défaut
+  prayerTimesLastUpdate: null, // Timestamp de la dernière mise à jour
   dailyLimitMinutes: 0, // 0 = désactivé
   allowedHoursStart: '00:00',
   allowedHoursEnd: '23:59',

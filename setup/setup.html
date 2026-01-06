@@ -722,28 +722,91 @@
         <input type="checkbox" id="prayerPause" checked>
         <label for="prayerPause" class="form-label" style="margin: 0;">Activer la pause pendant les prières</label>
       </div>
-      <div id="prayerInputs" class="time-grid">
-        <div class="form-group">
-          <label class="form-label">Fajr</label>
-          <input type="time" id="fajr" value="05:30">
+
+      <div id="prayerInputs">
+        <!-- Mode de configuration -->
+        <div class="radio-group" style="margin-bottom: 24px;">
+          <div class="radio-option">
+            <input type="radio" name="prayerMode" value="auto" id="prayer-auto" checked>
+            <label for="prayer-auto" class="radio-label">
+              <div class="radio-label-title">Automatique (Recommandé)</div>
+              <div class="radio-label-desc">Mise à jour quotidienne des horaires selon votre ville</div>
+            </label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="prayerMode" value="manual" id="prayer-manual">
+            <label for="prayer-manual" class="radio-label">
+              <div class="radio-label-title">Manuel</div>
+              <div class="radio-label-desc">Saisir manuellement les horaires de prière</div>
+            </label>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Dhuhr</label>
-          <input type="time" id="dhuhr" value="13:00">
+
+        <!-- Mode automatique -->
+        <div id="autoModeInputs">
+          <div class="form-group">
+            <label class="form-label">Votre ville</label>
+            <input
+              type="text"
+              id="prayerCity"
+              placeholder="Ex: Paris, France ou Tunis, Tunisie"
+            >
+            <small style="color: #64748b; font-size: 13px; margin-top: 8px; display: block;">
+              Entrez votre ville pour récupérer automatiquement les horaires de prière
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Méthode de calcul</label>
+            <select id="prayerMethod" style="width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; font-family: inherit; background: white; color: #0f172a;">
+              <option value="3" selected>Muslim World League (Europe)</option>
+              <option value="12">UOIF (France)</option>
+              <option value="2">ISNA (Amérique du Nord)</option>
+              <option value="18">Tunisie</option>
+              <option value="19">Algérie</option>
+              <option value="21">Maroc</option>
+              <option value="5">Égypte</option>
+              <option value="13">Turquie</option>
+              <option value="4">Arabie Saoudite</option>
+            </select>
+          </div>
+          <div id="prayerPreview" style="display: none; background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 16px;">
+            <div style="font-weight: 600; color: #0f172a; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Horaires récupérés</div>
+            <div id="prayerPreviewContent" style="color: #0f172a; font-size: 14px;"></div>
+          </div>
+          <button type="button" id="fetchPrayerTimes" class="btn-secondary" style="margin-top: 16px; width: 100%;">
+            Récupérer les horaires
+          </button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Asr</label>
-          <input type="time" id="asr" value="16:30">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Maghrib</label>
-          <input type="time" id="maghrib" value="19:00">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Isha</label>
-          <input type="time" id="isha" value="20:30">
+
+        <!-- Mode manuel -->
+        <div id="manualModeInputs" style="display: none;">
+          <div class="time-grid">
+            <div class="form-group">
+              <label class="form-label">Fajr</label>
+              <input type="time" id="fajr" value="05:30">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dhuhr</label>
+              <input type="time" id="dhuhr" value="13:00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asr</label>
+              <input type="time" id="asr" value="16:30">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maghrib</label>
+              <input type="time" id="maghrib" value="19:00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Isha</label>
+              <input type="time" id="isha" value="20:30">
+            </div>
+          </div>
         </div>
       </div>
+
+      <div id="prayerError" class="error-message"></div>
+
       <div class="button-group">
         <button id="prevBtn" data-action="prev" class="btn-secondary">
           ← Retour
