@@ -2,7 +2,7 @@
 
 import { getConfig, setValue, resetConfig } from '../utils/storage.js';
 import { changePin, verifyPin, generateSessionToken, verifySessionToken } from '../utils/auth.js';
-import { getRecommendedBlockList } from '../utils/lists.js';
+import { getRecommendedBlockList, CATEGORIES } from '../utils/lists.js';
 import { initializePrayerTimes } from '../utils/prayerApi.js';
 
 let config = null;
@@ -158,6 +158,7 @@ async function unlockPage() {
   await loadConfig();
   setupTabs();
   setupEventListeners();
+  initCategoryManagement();
 }
 
 // Charge la configuration
@@ -894,5 +895,252 @@ async function fetchPrayerTimesOptions() {
     fetchBtn.disabled = false;
     previewDiv.style.display = 'none';
   }
+}
+
+// ============================================
+// GESTION DES CATÉGORIES - AFFICHAGE & MODIFICATION
+// ============================================
+
+// Stockage local des domaines de catégories personnalisés
+let customCategoryDomains = {};
+
+// Stockage local des domaines supprimés (domaines par défaut qu'on veut ignorer)
+let removedCategoryDomains = {};
+
+// Initialise les gestionnaires de catégories
+function initCategoryManagement() {
+  // Charge les domaines personnalisés depuis le storage
+  loadCustomCategoryDomains();
+
+  // Ajoute les event listeners pour les boutons info
+  document.querySelectorAll('.category-info-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const category = btn.getAttribute('data-category');
+      toggleCategoryDetails(category);
+    });
+  });
+
+  // Ajoute les event listeners pour les boutons de fermeture
+  document.querySelectorAll('.category-close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const detailsDiv = btn.closest('.category-details');
+      if (detailsDiv) {
+        detailsDiv.style.display = 'none';
+      }
+    });
+  });
+
+  // Ajoute les event listeners pour les boutons d'ajout de domaine
+  document.querySelectorAll('.add-domain-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      const input = btn.previousElementSibling;
+      addDomainToCategory(category, input);
+    });
+  });
+
+  // Permet d'ajouter un domaine avec la touche Entrée
+  document.querySelectorAll('.domain-input').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const addBtn = input.nextElementSibling;
+        const category = addBtn.getAttribute('data-category');
+        addDomainToCategory(category, input);
+      }
+    });
+  });
+
+  // Ajoute les event listeners pour les boutons de restauration
+  document.querySelectorAll('.restore-defaults-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      restoreCategoryDefaults(category);
+    });
+  });
+}
+
+// Charge les domaines personnalisés et supprimés depuis le storage
+async function loadCustomCategoryDomains() {
+  try {
+    const result = await chrome.storage.local.get(['customCategoryDomains', 'removedCategoryDomains']);
+    customCategoryDomains = result.customCategoryDomains || {};
+    removedCategoryDomains = result.removedCategoryDomains || {};
+  } catch (error) {
+    console.error('Erreur lors du chargement des domaines personnalisés:', error);
+    customCategoryDomains = {};
+    removedCategoryDomains = {};
+  }
+}
+
+// Sauvegarde les domaines personnalisés et supprimés dans le storage
+async function saveCustomCategoryDomains() {
+  try {
+    await chrome.storage.local.set({
+      customCategoryDomains,
+      removedCategoryDomains
+    });
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des domaines personnalisés:', error);
+    showNotification('Erreur lors de la sauvegarde', 'error');
+  }
+}
+
+// Obtient tous les domaines d'une catégorie (par défaut + personnalisés - supprimés)
+function getCategoryDomains(category) {
+  const defaultDomains = CATEGORIES[category]?.domains || [];
+  const customDomains = customCategoryDomains[category] || [];
+  const removedDomains = removedCategoryDomains[category] || [];
+
+  // Combine domaines par défaut + personnalisés
+  let allDomains = [...new Set([...defaultDomains, ...customDomains])];
+
+  // Exclut les domaines supprimés
+  allDomains = allDomains.filter(domain => !removedDomains.includes(domain));
+
+  return allDomains.sort();
+}
+
+// Toggle l'affichage des détails d'une catégorie
+function toggleCategoryDetails(category) {
+  const detailsDiv = document.querySelector(`.category-details[data-category="${category}"]`);
+
+  if (!detailsDiv) return;
+
+  // Si déjà affiché, on masque
+  if (detailsDiv.style.display === 'block') {
+    detailsDiv.style.display = 'none';
+    return;
+  }
+
+  // Sinon, on affiche et on charge les domaines
+  detailsDiv.style.display = 'block';
+  renderCategoryDomains(category);
+}
+
+// Affiche la liste des domaines d'une catégorie
+function renderCategoryDomains(category) {
+  const domainsListDiv = document.getElementById(`domains-${category}`);
+
+  if (!domainsListDiv) return;
+
+  const domains = getCategoryDomains(category);
+  const defaultDomains = CATEGORIES[category]?.domains || [];
+
+  domainsListDiv.innerHTML = '';
+
+  if (domains.length === 0) {
+    domainsListDiv.innerHTML = '<p style="color: var(--gray-600); font-size: 0.9rem; text-align: center; padding: var(--spacing-md);">Aucun domaine dans cette catégorie</p>';
+    return;
+  }
+
+  domains.forEach(domain => {
+    const isCustom = !defaultDomains.includes(domain);
+    const tag = document.createElement('div');
+    tag.className = 'domain-tag';
+
+    // Tous les domaines ont maintenant un bouton de suppression
+    tag.innerHTML = `
+      <span class="domain-tag-text">${domain}</span>
+      <button class="remove-domain-btn" title="Supprimer ce domaine">×</button>
+    `;
+
+    // Ajoute l'event listener pour la suppression
+    const removeBtn = tag.querySelector('.remove-domain-btn');
+    removeBtn.addEventListener('click', () => {
+      removeDomainFromCategory(category, domain, isCustom);
+    });
+
+    domainsListDiv.appendChild(tag);
+  });
+}
+
+// Ajoute un domaine à une catégorie
+async function addDomainToCategory(category, inputElement) {
+  const domain = inputElement.value.trim().toLowerCase();
+
+  // Validation
+  if (!domain) {
+    showNotification('Veuillez entrer un nom de domaine', 'error');
+    return;
+  }
+
+  // Validation basique du format de domaine
+  const domainRegex = /^(\*\.)?([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}|\*\.[a-z]{2,})$/i;
+  if (!domainRegex.test(domain)) {
+    showNotification('Format de domaine invalide (ex: example.com ou *.example.com)', 'error');
+    return;
+  }
+
+  // Vérifie si le domaine existe déjà
+  const existingDomains = getCategoryDomains(category);
+  if (existingDomains.includes(domain)) {
+    showNotification('Ce domaine existe déjà dans cette catégorie', 'error');
+    return;
+  }
+
+  // Si le domaine était dans la liste des supprimés, on le retire
+  if (removedCategoryDomains[category]?.includes(domain)) {
+    removedCategoryDomains[category] = removedCategoryDomains[category].filter(d => d !== domain);
+    if (removedCategoryDomains[category].length === 0) {
+      delete removedCategoryDomains[category];
+    }
+  } else {
+    // Sinon, on l'ajoute comme domaine personnalisé
+    if (!customCategoryDomains[category]) {
+      customCategoryDomains[category] = [];
+    }
+    customCategoryDomains[category].push(domain);
+  }
+
+  // Sauvegarde et rafraîchit l'affichage
+  await saveCustomCategoryDomains();
+  renderCategoryDomains(category);
+  inputElement.value = '';
+  showNotification(`${domain} ajouté à la catégorie`, 'success');
+}
+
+// Supprime un domaine d'une catégorie
+async function removeDomainFromCategory(category, domain, isCustom) {
+  if (isCustom) {
+    // Domaine personnalisé : on le retire de customCategoryDomains
+    if (!customCategoryDomains[category]) return;
+
+    customCategoryDomains[category] = customCategoryDomains[category].filter(d => d !== domain);
+
+    // Si le tableau est vide, on supprime la clé
+    if (customCategoryDomains[category].length === 0) {
+      delete customCategoryDomains[category];
+    }
+  } else {
+    // Domaine par défaut : on l'ajoute à removedCategoryDomains
+    if (!removedCategoryDomains[category]) {
+      removedCategoryDomains[category] = [];
+    }
+
+    // Vérifie qu'il n'est pas déjà dans la liste
+    if (!removedCategoryDomains[category].includes(domain)) {
+      removedCategoryDomains[category].push(domain);
+    }
+  }
+
+  // Sauvegarde et rafraîchit l'affichage
+  await saveCustomCategoryDomains();
+  renderCategoryDomains(category);
+  showNotification(`${domain} supprimé de la catégorie`, 'success');
+}
+
+// Restaure tous les domaines par défaut d'une catégorie
+async function restoreCategoryDefaults(category) {
+  // Supprime tous les domaines marqués comme supprimés pour cette catégorie
+  if (removedCategoryDomains[category]) {
+    delete removedCategoryDomains[category];
+  }
+
+  // Sauvegarde et rafraîchit l'affichage
+  await saveCustomCategoryDomains();
+  renderCategoryDomains(category);
+  showNotification('Domaines par défaut restaurés', 'success');
 }
 

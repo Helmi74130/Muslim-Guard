@@ -1539,18 +1539,44 @@ export function getCategoryDomains(categoryKey) {
 }
 
 /**
- * Récupère toutes les catégories activées
+ * Récupère toutes les catégories activées (domaines par défaut + personnalisés - supprimés)
  */
-export function getActiveCategories(config) {
+export async function getActiveCategories(config) {
   const active = [];
 
-  if (config.blockSocialMedia) active.push(...CATEGORIES.socialMedia.domains);
-  if (config.blockMusicStreaming) active.push(...CATEGORIES.musicStreaming.domains);
-  if (config.blockVideoStreaming) active.push(...CATEGORIES.videoStreaming.domains);
-  if (config.blockDating) active.push(...CATEGORIES.dating.domains);
-  if (config.blockGaming) active.push(...CATEGORIES.gaming.domains);
-  if (config.blockAdult) active.push(...CATEGORIES.adult.domains);
-  if (config.blockReddit) active.push(...CATEGORIES.reddit.domains);
+  // Récupère les domaines personnalisés et supprimés depuis le storage
+  let customDomains = {};
+  let removedDomains = {};
+  try {
+    const result = await chrome.storage.local.get(['customCategoryDomains', 'removedCategoryDomains']);
+    customDomains = result.customCategoryDomains || {};
+    removedDomains = result.removedCategoryDomains || {};
+  } catch (error) {
+    console.error('Erreur lors du chargement des domaines personnalisés:', error);
+  }
+
+  // Fonction helper pour combiner domaines par défaut + personnalisés - supprimés
+  const getCategoryAllDomains = (categoryKey) => {
+    const defaultDomains = CATEGORIES[categoryKey]?.domains || [];
+    const customCategoryDomains = customDomains[categoryKey] || [];
+    const removedCategoryDomains = removedDomains[categoryKey] || [];
+
+    // Combine domaines par défaut + personnalisés
+    let allDomains = [...new Set([...defaultDomains, ...customCategoryDomains])];
+
+    // Exclut les domaines supprimés
+    allDomains = allDomains.filter(domain => !removedCategoryDomains.includes(domain));
+
+    return allDomains;
+  };
+
+  if (config.blockSocialMedia) active.push(...getCategoryAllDomains('socialMedia'));
+  if (config.blockMusicStreaming) active.push(...getCategoryAllDomains('musicStreaming'));
+  if (config.blockVideoStreaming) active.push(...getCategoryAllDomains('videoStreaming'));
+  if (config.blockDating) active.push(...getCategoryAllDomains('dating'));
+  if (config.blockGaming) active.push(...getCategoryAllDomains('gaming'));
+  if (config.blockAdult) active.push(...getCategoryAllDomains('adult'));
+  if (config.blockReddit) active.push(...getCategoryAllDomains('reddit'));
 
   return [...new Set(active)];
 }

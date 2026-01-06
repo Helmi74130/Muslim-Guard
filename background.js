@@ -291,7 +291,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     }
 
     // Vérifie les catégories actives
-    const activeDomains = getActiveCategories(config);
+    const activeDomains = await getActiveCategories(config);
     for (const domain of activeDomains) {
       if (matchesDomain(details.url, domain)) {
         await addBlockedLog(details.url, 'category');

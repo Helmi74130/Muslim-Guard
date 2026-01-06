@@ -422,7 +422,7 @@
 
     .checkbox-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: var(--spacing-lg);
     }
 
@@ -431,6 +431,7 @@
       align-items: center;
       gap: var(--spacing-md);
       padding: var(--spacing-lg);
+      padding-right: 60px; /* Espace pour le bouton info */
       border: 3px solid var(--gray-200);
       border-radius: var(--radius-lg);
       cursor: pointer;
@@ -438,6 +439,7 @@
       background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
       position: relative;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      min-height: 80px;
     }
 
     .checkbox-item:hover {
@@ -456,10 +458,9 @@
     }
 
     .checkbox-item input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      margin-right: 0;
-      margin-left: auto;
+      width: 22px;
+      height: 22px;
+      margin-right: var(--spacing-sm);
       cursor: pointer;
       accent-color: var(--primary-500);
       flex-shrink: 0;
@@ -470,8 +471,9 @@
       cursor: pointer;
       flex: 1;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: var(--gray-800);
+      pointer-events: none;
     }
 
     /* Couleurs spécifiques par catégorie */
@@ -539,6 +541,260 @@
       border-color: #dc2626;
       background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
       box-shadow: 0 8px 24px rgba(220, 38, 38, 0.2);
+    }
+
+    /* ============================================
+       CATEGORY DETAILS - NEW STYLES
+       ============================================ */
+
+    .category-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .category-info-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: var(--spacing-md);
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all var(--transition);
+      z-index: 2;
+    }
+
+    .category-info-btn:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-500);
+    }
+        .category-info-btn:active {
+      transform: scale(0.95);
+    }
+
+
+
+    .category-details {
+      background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      margin-top: var(--spacing-sm);
+      animation: slideDown 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+      }
+    }
+
+    .category-details-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .category-details-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--gray-800);
+    }
+
+    .category-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--gray-500);
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      transition: all var(--transition);
+    }
+
+    .category-close-btn:hover {
+      background: var(--gray-100);
+      color: var(--gray-800);
+    }
+
+    .category-domains-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+      max-height: 200px;
+      overflow-y: auto;
+      padding: var(--spacing-sm);
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+    }
+
+    .category-domains-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .category-domains-list::-webkit-scrollbar-track {
+      background: var(--gray-100);
+      border-radius: 3px;
+    }
+
+    .category-domains-list::-webkit-scrollbar-thumb {
+      background: var(--primary-300);
+      border-radius: 3px;
+    }
+
+    .domain-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-md);
+      background: linear-gradient(135deg, var(--primary-50) 0%, #f0f9ff 100%);
+      border: 1px solid var(--primary-200);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      color: var(--gray-800);
+      transition: all var(--transition);
+    }
+
+    .domain-tag:hover {
+      background: linear-gradient(135deg, var(--primary-100) 0%, #dbeafe 100%);
+      border-color: var(--primary-300);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
+    }
+
+    .domain-tag-text {
+      font-family: 'Courier New', monospace;
+      font-weight: 500;
+    }
+
+    .remove-domain-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger-500);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all var(--transition);
+      padding: 0;
+      line-height: 1;
+    }
+
+    .remove-domain-btn:hover {
+      background: var(--danger-500);
+      color: white;
+      transform: scale(1.2);
+    }
+
+    .category-add-domain {
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: center;
+      margin-top: var(--spacing-md);
+    }
+
+    .domain-input {
+      flex: 1;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-family: 'Courier New', monospace;
+      transition: all var(--transition);
+    }
+
+    .domain-input:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    .add-domain-btn {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .add-domain-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .add-domain-btn:active {
+      transform: scale(0.98);
+    }
+
+    .domain-count-badge {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: var(--spacing-xs);
+    }
+
+    .restore-defaults-btn {
+      width: 100%;
+      padding: var(--spacing-sm) var(--spacing-md);
+      margin-top: var(--spacing-md);
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+    }
+
+    .restore-defaults-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .restore-defaults-btn:active {
+      transform: scale(0.98);
     }
 
     /* ============================================
@@ -731,6 +987,12 @@
       .checkbox-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .category-info-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
     }
 
     @media (max-width: 768px) {
@@ -746,6 +1008,29 @@
         position: sticky;
         top: 0;
         z-index: 100;
+      }
+
+      .category-info-btn {
+        right: 45px;
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+      }
+
+      .category-details {
+        padding: var(--spacing-md);
+      }
+
+      .category-add-domain {
+        flex-direction: column;
+      }
+
+      .add-domain-btn {
+        width: 100%;
+      }
+
+      .domain-input {
+        width: 100%;
       }
 
       .sidebar-nav {
@@ -1712,23 +1997,35 @@
               <div class="mode-icon"></div>
               <div class="mode-label">
                 <div class="mode-name">Mode Strict</div>
-                <div class="mode-description">Bloque tout sauf sites éducatifs et islamiques</div>
+                <div class="mode-description">
+                  <strong>Bloque tout sauf sites éducatifs et islamiques</strong>
+                  <p>
+                    Tous les sites sont bloqués par défaut, à l’exception des sites explicitement autorisés dans l'onglet <b>LISTES</b>.
+                    Idéal pour un environnement très encadré.
+                  </p>
+                </div>
               </div>
             </label>
             <label class="mode-option mode-moderate">
               <input type="radio" name="protectionMode" value="moderate">
               <div class="mode-icon"></div>
               <div class="mode-label">
-                <div class="mode-name">Mode Modéré</div>
-                <div class="mode-description">Bloque contenus inappropriés selon catégories</div>
+                <div class="mode-name">Mode Par Catégories</div>
+                <div class="mode-description">
+                  <strong>Bloque contenus inappropriés selon catégories</strong>
+                  <p>Les contenus inappropriés sont bloqués selon des catégories définies (adultes, violence, jeux d’argent, etc.), tandis que les sites standards restent accessibles.</p>
+                </div>
               </div>
             </label>
             <label class="mode-option mode-permissive">
               <input type="radio" name="protectionMode" value="permissive">
               <div class="mode-icon"></div>
               <div class="mode-label">
-                <div class="mode-name">Mode Permissif</div>
-                <div class="mode-description">Bloque uniquement contenus explicites</div>
+                <div class="mode-name">Mode Personnalisé</div>
+                <div class="mode-description">
+                  <strong>Bloque uniquement contenus explicites</strong>
+                  <p>Le filtrage repose uniquement sur des listes de blocage ou d’autorisation définies manuellement dans l'onglet <b>listes</b>. Idéal pour adapter la protection à ses propres besoins.</p>
+                </div>
               </div>
             </label>
           </div>
@@ -1744,30 +2041,155 @@
 
         <div class="settings-section">
           <div class="checkbox-grid">
-            <label class="checkbox-item category-social">
-              <input type="checkbox" id="blockSocialMedia">
-              <label for="blockSocialMedia">Réseaux Sociaux</label>
-            </label>
-            <label class="checkbox-item category-music">
-              <input type="checkbox" id="blockMusicStreaming">
-              <label for="blockMusicStreaming">Streaming Musical</label>
-            </label>
-            <label class="checkbox-item category-video">
-              <input type="checkbox" id="blockVideoStreaming">
-              <label for="blockVideoStreaming">Streaming Vidéo</label>
-            </label>
-            <label class="checkbox-item category-dating">
-              <input type="checkbox" id="blockDating">
-              <label for="blockDating">Rencontres</label>
-            </label>
-            <label class="checkbox-item category-gaming">
-              <input type="checkbox" id="blockGaming">
-              <label for="blockGaming">Jeux en Ligne</label>
-            </label>
-            <label class="checkbox-item category-adult">
-              <input type="checkbox" id="blockAdult">
-              <label for="blockAdult">Contenu Adulte</label>
-            </label>
+            <!-- Réseaux Sociaux -->
+            <div class="category-card-wrapper">
+              <label class="checkbox-item category-social">
+                <input type="checkbox" id="blockSocialMedia">
+                <label for="blockSocialMedia">Réseaux Sociaux</label>
+                <button type="button" class="category-info-btn" data-category="socialMedia" title="Voir et modifier les sites">
+                  ℹ
+                </button>
+              </label>
+              <div class="category-details" data-category="socialMedia" style="display: none;">
+                <div class="category-details-header">
+                  <span class="category-details-title">Sites bloqués dans cette catégorie</span>
+                  <button type="button" class="category-close-btn">✕</button>
+                </div>
+                <div class="category-domains-list" id="domains-socialMedia"></div>
+                <div class="category-add-domain">
+                  <input type="text" class="domain-input" placeholder="Ajouter un domaine (ex: example.com)">
+                  <button type="button" class="add-domain-btn" data-category="socialMedia">Ajouter</button>
+                </div>
+                <button type="button" class="restore-defaults-btn" data-category="socialMedia">
+                  Restaurer les domaines par défaut
+                </button>
+              </div>
+            </div>
+
+            <!-- Streaming Musical -->
+            <div class="category-card-wrapper">
+              <label class="checkbox-item category-music">
+                <input type="checkbox" id="blockMusicStreaming">
+                <label for="blockMusicStreaming">Streaming Musical</label>
+                <button type="button" class="category-info-btn" data-category="musicStreaming" title="Voir et modifier les sites">
+                  ℹ
+                </button>
+              </label>
+              <div class="category-details" data-category="musicStreaming" style="display: none;">
+                <div class="category-details-header">
+                  <span class="category-details-title">Sites bloqués dans cette catégorie</span>
+                  <button type="button" class="category-close-btn">✕</button>
+                </div>
+                <div class="category-domains-list" id="domains-musicStreaming"></div>
+                <div class="category-add-domain">
+                  <input type="text" class="domain-input" placeholder="Ajouter un domaine (ex: example.com)">
+                  <button type="button" class="add-domain-btn" data-category="musicStreaming">Ajouter</button>
+                </div>
+                <button type="button" class="restore-defaults-btn" data-category="musicStreaming">
+                   Restaurer les domaines par défaut
+                </button>
+              </div>
+            </div>
+
+            <!-- Streaming Vidéo -->
+            <div class="category-card-wrapper">
+              <label class="checkbox-item category-video">
+                <input type="checkbox" id="blockVideoStreaming">
+                <label for="blockVideoStreaming">Streaming Vidéo</label>
+                <button type="button" class="category-info-btn" data-category="videoStreaming" title="Voir et modifier les sites">
+                  ℹ
+                </button>
+              </label>
+              <div class="category-details" data-category="videoStreaming" style="display: none;">
+                <div class="category-details-header">
+                  <span class="category-details-title">Sites bloqués dans cette catégorie</span>
+                  <button type="button" class="category-close-btn">✕</button>
+                </div>
+                <div class="category-domains-list" id="domains-videoStreaming"></div>
+                <div class="category-add-domain">
+                  <input type="text" class="domain-input" placeholder="Ajouter un domaine (ex: example.com)">
+                  <button type="button" class="add-domain-btn" data-category="videoStreaming">Ajouter</button>
+                </div>
+                <button type="button" class="restore-defaults-btn" data-category="videoStreaming">
+                  Restaurer les domaines par défaut
+                </button>
+              </div>
+            </div>
+
+            <!-- Rencontres -->
+            <div class="category-card-wrapper">
+              <label class="checkbox-item category-dating">
+                <input type="checkbox" id="blockDating">
+                <label for="blockDating">Rencontres</label>
+                <button type="button" class="category-info-btn" data-category="dating" title="Voir et modifier les sites">
+                  ℹ
+                </button>
+              </label>
+              <div class="category-details" data-category="dating" style="display: none;">
+                <div class="category-details-header">
+                  <span class="category-details-title">Sites bloqués dans cette catégorie</span>
+                  <button type="button" class="category-close-btn">✕</button>
+                </div>
+                <div class="category-domains-list" id="domains-dating"></div>
+                <div class="category-add-domain">
+                  <input type="text" class="domain-input" placeholder="Ajouter un domaine (ex: example.com)">
+                  <button type="button" class="add-domain-btn" data-category="dating">Ajouter</button>
+                </div>
+                <button type="button" class="restore-defaults-btn" data-category="dating">
+                   Restaurer les domaines par défaut
+                </button>
+              </div>
+            </div>
+
+            <!-- Jeux en Ligne -->
+            <div class="category-card-wrapper">
+              <label class="checkbox-item category-gaming">
+                <input type="checkbox" id="blockGaming">
+                <label for="blockGaming">Jeux en Ligne</label>
+                <button type="button" class="category-info-btn" data-category="gaming" title="Voir et modifier les sites">
+                  ℹ
+                </button>
+              </label>
+              <div class="category-details" data-category="gaming" style="display: none;">
+                <div class="category-details-header">
+                  <span class="category-details-title">Sites bloqués dans cette catégorie</span>
+                  <button type="button" class="category-close-btn">✕</button>
+                </div>
+                <div class="category-domains-list" id="domains-gaming"></div>
+                <div class="category-add-domain">
+                  <input type="text" class="domain-input" placeholder="Ajouter un domaine (ex: example.com)">
+                  <button type="button" class="add-domain-btn" data-category="gaming">Ajouter</button>
+                </div>
+                <button type="button" class="restore-defaults-btn" data-category="gaming">
+                   Restaurer les domaines par défaut
+                </button>
+              </div>
+            </div>
+
+            <!-- Contenu Adulte -->
+            <div class="category-card-wrapper">
+              <label class="checkbox-item category-adult">
+                <input type="checkbox" id="blockAdult">
+                <label for="blockAdult">Contenu Adulte</label>
+                <button type="button" class="category-info-btn" data-category="adult" title="Voir et modifier les sites">
+                  ℹ
+                </button>
+              </label>
+              <div class="category-details" data-category="adult" style="display: none;">
+                <div class="category-details-header">
+                  <span class="category-details-title">Sites bloqués dans cette catégorie</span>
+                  <button type="button" class="category-close-btn">✕</button>
+                </div>
+                <div class="category-domains-list" id="domains-adult"></div>
+                <div class="category-add-domain">
+                  <input type="text" class="domain-input" placeholder="Ajouter un domaine (ex: example.com)">
+                  <button type="button" class="add-domain-btn" data-category="adult">Ajouter</button>
+                </div>
+                <button type="button" class="restore-defaults-btn" data-category="adult">
+                   Restaurer les domaines par défaut
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
