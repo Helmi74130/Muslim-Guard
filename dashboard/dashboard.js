@@ -140,20 +140,15 @@ async function loadHourlyChart() {
 
     container.innerHTML = weeklyStats.byHour.map((count, hour) => {
       const percentage = (count / maxCount) * 100;
-      const color = percentage > 75 ? 'bg-red-500' :
-                    percentage > 50 ? 'bg-orange-500' :
-                    percentage > 25 ? 'bg-yellow-500' :
-                    'bg-green-500';
 
       return `
-        <div class="relative group cursor-pointer">
-          <div class="h-20 bg-gray-200 rounded flex items-end overflow-hidden">
-            <div class="${color} w-full rounded transition-all" style="height: ${percentage}%"></div>
+        <div class="hourly-bar">
+          <div class="hourly-column">
+            <div class="hourly-fill" style="height: ${percentage}%">
+              <span class="hourly-tooltip">${count} blocage${count > 1 ? 's' : ''}</span>
+            </div>
           </div>
-          <div class="text-xs text-center text-gray-600 mt-1">${hour}h</div>
-          <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-black px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
-            ${count} blocages
-          </div>
+          <div class="hourly-label">${hour}h</div>
         </div>
       `;
     }).join('');

@@ -537,13 +537,17 @@
     }
 
     /* ============================================
-       HOURLY CHART
+       HOURLY CHART - IMPROVED
        ============================================ */
 
     .hourly-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-      gap: var(--spacing-md);
+      grid-template-columns: repeat(24, 1fr);
+      gap: var(--spacing-sm);
+      background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+      padding: var(--spacing-xl);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
     }
 
     .hourly-bar {
@@ -552,62 +556,117 @@
       align-items: center;
       gap: var(--spacing-sm);
       cursor: pointer;
-      transition: transform var(--transition);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hourly-bar:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
     }
 
     .hourly-column {
       width: 100%;
-      height: 120px;
-      background: var(--gray-100);
-      border-radius: var(--radius-md);
-      overflow: hidden;
+      height: 150px;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border-radius: var(--radius-lg);
+      overflow: visible;
       position: relative;
+      display: flex;
+      align-items: flex-end;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 2px solid transparent;
+      transition: all var(--transition);
+    }
+
+    .hourly-bar:hover .hourly-column {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 48, 90, 0.15);
     }
 
     .hourly-fill {
       width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, #ef4444 0%, #f97316 50%, #eab308 100%);
-      border-radius: var(--radius-md);
-      transition: all var(--transition-slow);
+      background: linear-gradient(180deg,
+        #00305a 0%,
+        #004080 30%,
+        #0066cc 60%,
+        #3b82f6 100%
+      );
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      box-shadow: 0 -4px 12px rgba(0, 48, 90, 0.4);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: var(--spacing-xs);
+    }
+
+    .hourly-fill::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
     }
 
     .hourly-bar:hover .hourly-fill {
-      box-shadow: inset 0 0 0 2px white, 0 4px 12px rgba(239, 68, 68, 0.3);
+      box-shadow: 0 -6px 20px rgba(0, 48, 90, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+      filter: brightness(1.15);
     }
 
     .hourly-label {
-      font-size: 0.75rem;
-      color: var(--gray-600);
-      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--gray-700);
+      font-weight: 700;
       text-align: center;
       width: 100%;
+      transition: all var(--transition);
+    }
+
+    .hourly-bar:hover .hourly-label {
+      color: var(--primary-600);
+      transform: scale(1.1);
     }
 
     .hourly-tooltip {
       position: absolute;
-      bottom: 100%;
+      bottom: calc(100% + 12px);
       left: 50%;
-      transform: translateX(-50%);
-      background: var(--gray-800);
+      transform: translateX(-50%) translateY(10px);
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
       color: white;
       padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-md);
       font-size: 0.75rem;
+      font-weight: 600;
       white-space: nowrap;
       opacity: 0;
       pointer-events: none;
-      margin-bottom: var(--spacing-md);
-      transition: opacity var(--transition);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+    }
+
+    .hourly-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #111827;
     }
 
     .hourly-bar:hover .hourly-tooltip {
       opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     /* ============================================
@@ -782,7 +841,17 @@
       }
 
       .hourly-grid {
-        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+        grid-template-columns: repeat(12, 1fr);
+        gap: var(--spacing-xs);
+        padding: var(--spacing-lg);
+      }
+
+      .hourly-column {
+        height: 100px;
+      }
+
+      .hourly-label {
+        font-size: 0.7rem;
       }
     }
 
@@ -848,8 +917,17 @@
       }
 
       .hourly-grid {
-        grid-template-columns: repeat(6, 1fr);
-        gap: var(--spacing-sm);
+        grid-template-columns: repeat(8, 1fr);
+        gap: 6px;
+        padding: var(--spacing-md);
+      }
+
+      .hourly-column {
+        height: 80px;
+      }
+
+      .hourly-label {
+        font-size: 0.65rem;
       }
 
       .logs-table {
@@ -904,7 +982,22 @@
       }
 
       .hourly-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+        padding: var(--spacing-sm);
+      }
+
+      .hourly-column {
+        height: 60px;
+      }
+
+      .hourly-label {
+        font-size: 0.6rem;
+      }
+
+      .hourly-tooltip {
+        font-size: 0.65rem;
+        padding: 4px 8px;
       }
 
       .achievements-grid {
