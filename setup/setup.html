@@ -585,7 +585,7 @@
     <!-- Header -->
     <div class="header">
       <div class="logo-container">
-        <img src="/assets/Logo tagline.png" alt="MuslimGuard Logo">
+        <img style="height: 120px;" src="/assets/Logo-white.png" alt="MuslimGuard Logo">
       </div>
       <p class="header-subtitle">Configuration de votre contrôle parental islamique</p>
     </div>
@@ -607,7 +607,6 @@
     <!-- Step 1: Bienvenue -->
     <div id="step1" class="step-card active">
       <h2 class="step-title">
-        <span class="step-icon">👋</span>
         Bienvenue dans MuslimGuard
       </h2>
       <p class="step-description">
@@ -632,7 +631,6 @@
     <!-- Step 2: Création du PIN -->
     <div id="step2" class="step-card">
       <h2 class="step-title">
-        <span class="step-icon">🔒</span>
         Créez votre code PIN parental
       </h2>
       <p class="step-description">
@@ -670,32 +668,31 @@
     <!-- Step 3: Mode de protection -->
     <div id="step3" class="step-card">
       <h2 class="step-title">
-        <span class="step-icon">🛡️</span>
         Choisissez votre mode de protection
       </h2>
       <p class="step-description">
-        Sélectionnez le niveau de protection adapté à votre famille. Vous pourrez le modifier plus tard.
+        Sélectionnez le niveau de protection adapté à votre famille. Vous pouvez basculer librement entre les différents modes de protection plus tard à tout moment depuis les paramètres de l’extension.
       </p>
       <div class="radio-group">
         <div class="radio-option">
           <input type="radio" name="mode" value="strict" id="mode-strict">
           <label for="mode-strict" class="radio-label">
-            <div class="radio-label-title">🔴 Mode Strict</div>
-            <div class="radio-label-desc">Bloque tout sauf les sites sur liste blanche (éducatif et islamique).</div>
+            <div class="radio-label-title">Mode Strict</div>
+            <div class="radio-label-desc">Tous les sites sont bloqués, sauf ceux présents sur une liste que vous autorisez</div>
           </label>
         </div>
         <div class="radio-option">
           <input type="radio" name="mode" value="moderate" id="mode-moderate" checked>
           <label for="mode-moderate" class="radio-label">
-            <div class="radio-label-title">🟡 Mode Modéré (Recommandé)</div>
-            <div class="radio-label-desc">Bloque les contenus inappropriés selon les catégories activées.</div>
+            <div class="radio-label-title">Mode Catégories</div>
+            <div class="radio-label-desc">Les contenus sont bloqués selon des catégories définies (adultes, violence, jeux d’argent, etc.).</div>
           </label>
         </div>
         <div class="radio-option">
           <input type="radio" name="mode" value="permissive" id="mode-permissive">
           <label for="mode-permissive" class="radio-label">
-            <div class="radio-label-title">🟢 Mode Permissif</div>
-            <div class="radio-label-desc">Bloque uniquement les contenus explicitement inappropriés.</div>
+            <div class="radio-label-title">Mode Personnalisé</div>
+            <div class="radio-label-desc">Seuls les sites ou contenus explicitement définis par l’utilisateur sont bloqués.</div>
           </label>
         </div>
       </div>

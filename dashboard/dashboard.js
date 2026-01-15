@@ -64,7 +64,12 @@ async function loadTopSites() {
     const container = document.getElementById('topSites');
 
     if (topSites.length === 0) {
-      container.innerHTML = '<p class="text-gray-500 text-center py-4">Aucun site bloqué cette semaine</p>';
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📊</div>
+          <div>Aucun site bloqué cette semaine</div>
+        </div>
+      `;
       return;
     }
 
@@ -72,19 +77,24 @@ async function loadTopSites() {
 
     container.innerHTML = topSites.map((site, index) => {
       const percentage = (site.count / maxCount) * 100;
+      const rank = index + 1;
+
+      // Classes spéciales pour le top 3
+      let rankClass = 'site-rank';
+      if (rank === 1) rankClass += ' top-1';
+      else if (rank === 2) rankClass += ' top-2';
+      else if (rank === 3) rankClass += ' top-3';
+
       return `
-        <div class="flex items-center gap-3">
-          <div class="text-lg font-bold text-gray-400 w-6">${index + 1}</div>
-          <div class="flex-1">
-            <div class="flex items-center justify-between mb-1">
-              <span class="font-semibold text-gray-800">${site.domain}</span>
-              <span class="text-sm text-gray-600">${site.count} fois</span>
-            </div>
-            <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
-              <div class="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full transition-all"
-                style="width: ${percentage}%"></div>
+        <div class="site-item">
+          <div class="${rankClass}">${rank}</div>
+          <div class="site-info">
+            <div class="site-domain">${site.domain}</div>
+            <div class="site-bar">
+              <div class="site-bar-fill" style="width: ${percentage}%"></div>
             </div>
           </div>
+          <div class="site-count">${site.count}</div>
         </div>
       `;
     }).join('');
@@ -111,17 +121,15 @@ async function loadDailyChart() {
     container.innerHTML = days.map((day, index) => {
       const count = counts[index];
       const percentage = (count / maxCount) * 100;
-      // Affiche le nombre dans la barre si > 10%, sinon à droite
-      const showInside = percentage > 10;
+
       return `
         <div class="chart-row">
-          <div class="chart-label">${day}</div>
           <div class="chart-bar">
-            <div class="chart-bar-fill" style="width: ${percentage}%">
-              ${showInside && count > 0 ? count : ''}
+            <div class="chart-bar-fill" style="height: ${percentage}%">
+              <span class="chart-count">${count} blocage${count > 1 ? 's' : ''}</span>
             </div>
           </div>
-          ${!showInside && count > 0 ? `<div class="chart-count">${count}</div>` : '<div class="chart-count"></div>'}
+          <div class="chart-label">${day}</div>
         </div>
       `;
     }).join('');

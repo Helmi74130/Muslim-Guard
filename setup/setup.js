@@ -9,6 +9,46 @@ const totalSteps = 5;
 
 // Navigation entre les étapes
 function nextStep() {
+  // Validation de l'étape 4 (horaires de prière)
+  if (currentStep === 4) {
+    const prayerPauseChecked = document.getElementById('prayerPause')?.checked;
+    const prayerErrorDiv = document.getElementById('prayerError');
+
+    // Si la pause prière est activée, on doit valider
+    if (prayerPauseChecked) {
+      const prayerModeAuto = document.getElementById('prayer-auto')?.checked;
+
+      // Validation pour le mode automatique
+      if (prayerModeAuto) {
+        const cityInput = document.getElementById('prayerCity');
+        const city = cityInput?.value.trim();
+        const prayerPreview = document.getElementById('prayerPreview');
+        const isPreviewVisible = prayerPreview?.style.display !== 'none';
+
+        // Vérifier si la ville est renseignée
+        if (!city) {
+          prayerErrorDiv.textContent = '⚠️ Veuillez entrer une ville avant de continuer';
+          prayerErrorDiv.style.display = 'block';
+          cityInput?.focus();
+          return; // Empêche de passer à l'étape suivante
+        }
+
+        // Vérifier si les horaires ont été récupérés
+        if (!isPreviewVisible) {
+          prayerErrorDiv.textContent = '⚠️ Veuillez cliquer sur "Récupérer les horaires" avant de continuer';
+          prayerErrorDiv.style.display = 'block';
+          return; // Empêche de passer à l'étape suivante
+        }
+      }
+    }
+
+    // Si validation OK, cacher le message d'erreur
+    if (prayerErrorDiv) {
+      prayerErrorDiv.style.display = 'none';
+      prayerErrorDiv.textContent = '';
+    }
+  }
+
   if (currentStep < totalSteps) {
     // Cache l'étape actuelle
     document.getElementById(`step${currentStep}`).classList.remove('active');

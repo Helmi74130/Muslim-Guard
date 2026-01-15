@@ -798,7 +798,228 @@
     }
 
     /* ============================================
-       TEXTAREA
+       LIST MANAGEMENT - shadcn/ui style
+       ============================================ */
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .list-count-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      background: #f1f5f9;
+      color: #475569;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+    }
+
+    .list-count-badge.success {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+
+    .list-input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .list-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-family: 'Courier New', monospace;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .list-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px #eff6ff;
+    }
+
+    .list-add-btn {
+      padding: 8px 16px;
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .list-add-btn:hover {
+      background: #1e293b;
+    }
+
+    .list-tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: var(--spacing-lg);
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      min-height: 120px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .list-tags-container.success {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .list-tags-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .list-tags-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .list-tags-container::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .list-tags-container::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .list-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-family: 'Courier New', monospace;
+      color: #0f172a;
+      transition: all 0.2s;
+    }
+
+    .list-tag:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .list-tags-container.success .list-tag {
+      background: white;
+      border-color: #bbf7d0;
+      color: #15803d;
+    }
+
+    .list-tags-container.success .list-tag:hover {
+      border-color: #86efac;
+    }
+
+    .list-tag-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+      transition: all 0.2s;
+    }
+
+    .list-tag-remove:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .list-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .list-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      color: #0f172a;
+    }
+
+    .list-action-btn:hover {
+      background: #f9fafb;
+      border-color: #cbd5e1;
+    }
+
+    .list-action-btn.secondary {
+      background: white;
+      border-color: #e5e7eb;
+    }
+
+    .list-action-btn.secondary:hover {
+      background: #f9fafb;
+      border-color: #cbd5e1;
+    }
+
+    .list-action-btn.danger-outline {
+      color: #dc2626;
+      border-color: #fecaca;
+      background: white;
+    }
+
+    .list-action-btn.danger-outline:hover {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+
+    .list-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-2xl);
+      color: #94a3b8;
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
+    .list-empty-icon {
+      font-size: 2rem;
+      margin-bottom: var(--spacing-sm);
+      opacity: 0.5;
+    }
+
+    /* ============================================
+       TEXTAREA (kept for backward compatibility)
        ============================================ */
 
     .code-textarea {
@@ -1945,7 +2166,7 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <img src="/assets/Logo tagline.png" alt="" srcset="">
+          <img src="/assets/Logofb.png" alt="" srcset="">
         </div>
         <div class="sidebar-title">
           <h2>Paramètres</h2>
@@ -2210,13 +2431,34 @@
             <div class="section-header-text">
               <h2>Domaines Bloqués</h2>
             </div>
+            <div class="list-count-badge" id="blockedDomainsCount">0 domaines</div>
           </div>
-          <p class="section-description">Un domaine par ligne. Wildcards supportés: *.youtube.com</p>
-          <textarea id="blockedDomains" class="code-textarea"
-            placeholder="youtube.com&#10;tiktok.com&#10;*.instagram.com"></textarea>
-          <button id="loadRecommended" class="action-button btn-primary">
-            <span>Charger la liste (900+ sites)</span>
-          </button>
+          <p class="section-description">Wildcards supportés: *.youtube.com</p>
+
+          <div class="list-input-group">
+            <input
+              type="text"
+              id="blockedDomainsInput"
+              class="list-input"
+              placeholder="Entrer un domaine (ex: youtube.com)"
+            >
+            <button id="addBlockedDomain" class="list-add-btn">Ajouter</button>
+          </div>
+
+          <div class="list-tags-container" id="blockedDomainsTags">
+            <!-- Tags générés par JS -->
+          </div>
+
+          <div class="list-actions">
+            <button id="loadRecommended" class="list-action-btn secondary">
+              
+              <span>Charger la liste par défaut (+800 sites)</span>
+            </button>
+            <button id="clearBlockedDomains" class="list-action-btn danger-outline">
+              
+              <span>Tout supprimer</span>
+            </button>
+          </div>
         </div>
 
         <!-- Mots-clés à Bloquer dans les URLs -->
@@ -2225,12 +2467,34 @@
             <div class="section-header-text">
               <h2>Mots-clés à Bloquer (URLs)</h2>
             </div>
+            <div class="list-count-badge" id="blockedKeywordsCount">0 mots-clés</div>
           </div>
-          <p class="section-description">Bloque les URLs contenant ces mots (insensible à la casse). Un mot par ligne.</p>
-          <textarea id="blockedKeywords" class="code-textarea" placeholder="music&#10;dating&#10;casino"></textarea>
-          <button id="loadRecommendedKeywords" class="action-button btn-primary">
-            <span>Charger la liste (200+ mots-clés)</span>
-          </button>
+          <p class="section-description">Bloque les URLs contenant ces mots (insensible à la casse)</p>
+
+          <div class="list-input-group">
+            <input
+              type="text"
+              id="blockedKeywordsInput"
+              class="list-input"
+              placeholder="Entrer un mot-clé (ex: casino)"
+            >
+            <button id="addBlockedKeyword" class="list-add-btn">Ajouter</button>
+          </div>
+
+          <div class="list-tags-container" id="blockedKeywordsTags">
+            <!-- Tags générés par JS -->
+          </div>
+
+          <div class="list-actions">
+            <button id="loadRecommendedKeywords" class="list-action-btn secondary">
+              
+              <span>Charger la liste par défaut (200+ mots-clés)</span>
+            </button>
+            <button id="clearBlockedKeywords" class="list-action-btn danger-outline">
+              
+              <span>Tout supprimer</span>
+            </button>
+          </div>
         </div>
 
         <!-- Mots-clés de Détection de Contenu dans les Pages -->
@@ -2239,16 +2503,36 @@
             <div class="section-header-text">
               <h2>Détection de Contenu dans les Pages</h2>
             </div>
+            <div class="list-count-badge" id="contentKeywordsCount">0 mots-clés</div>
           </div>
           <p class="section-description">
-            <strong>Analyse le contenu des pages chargées</strong><br>
-            Si un de ces mots est détecté dans le texte de la page, un overlay de blocage apparaît.<br>
-            Un mot-clé par ligne. Ajoutez vos propres mots personnalisés !
+            <strong>Analyse le contenu des pages chargées.</strong> Si un de ces mots est détecté dans le texte de la page, un overlay de blocage apparaît.
           </p>
-          <textarea id="contentDetectionKeywords" class="code-textarea" placeholder="porn&#10;music&#10;fortnite&#10;tiktok&#10;(ajoutez vos mots...)"></textarea>
-          <button id="loadRecommendedContentKeywords" class="action-button btn-primary">
-            <span>Charger les mots-clés</span>
-          </button>
+
+          <div class="list-input-group">
+            <input
+              type="text"
+              id="contentDetectionKeywordsInput"
+              class="list-input"
+              placeholder="Entrer un mot-clé (ex: porn)"
+            >
+            <button id="addContentKeyword" class="list-add-btn">Ajouter</button>
+          </div>
+
+          <div class="list-tags-container" id="contentKeywordsTags">
+            <!-- Tags générés par JS -->
+          </div>
+
+          <div class="list-actions">
+            <button id="loadRecommendedContentKeywords" class="list-action-btn secondary">
+              
+              <span>Charger les mots-clés par défaut</span>
+            </button>
+            <button id="clearContentKeywords" class="list-action-btn danger-outline">
+              
+              <span>Tout supprimer</span>
+            </button>
+          </div>
         </div>
 
         <!-- Whitelist -->
@@ -2257,9 +2541,30 @@
             <div class="section-header-text">
               <h2>Sites Toujours Autorisés</h2>
             </div>
+            <div class="list-count-badge success" id="whitelistedSitesCount">0 sites</div>
           </div>
           <p class="section-description">Ces sites ne seront jamais bloqués</p>
-          <textarea id="whitelistedSites" class="code-textarea" placeholder="quran.com&#10;..."></textarea>
+
+          <div class="list-input-group">
+            <input
+              type="text"
+              id="whitelistedSitesInput"
+              class="list-input"
+              placeholder="Entrer un domaine (ex: quran.com)"
+            >
+            <button id="addWhitelistedSite" class="list-add-btn">Ajouter</button>
+          </div>
+
+          <div class="list-tags-container success" id="whitelistedSitesTags">
+            <!-- Tags générés par JS -->
+          </div>
+
+          <div class="list-actions">
+            <button id="clearWhitelistedSites" class="list-action-btn danger-outline">
+              
+              <span>Tout supprimer</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2301,7 +2606,7 @@
               <label class="prayer-mode-btn">
                 <input type="radio" name="prayerModeOptions" value="auto" id="prayer-auto-options">
                 <div class="prayer-mode-btn-content">
-                  <span class="prayer-mode-icon">🌍</span>
+                  <img src="/assets/auto.png" style="height: 50px;">
                   <span class="prayer-mode-text">Automatique</span>
                   <span class="prayer-mode-desc">Mise à jour quotidienne</span>
                 </div>
@@ -2309,7 +2614,7 @@
               <label class="prayer-mode-btn">
                 <input type="radio" name="prayerModeOptions" value="manual" id="prayer-manual-options">
                 <div class="prayer-mode-btn-content">
-                  <span class="prayer-mode-icon">✋</span>
+                  <img src="/assets/hand.png" style="height: 50px;">
                   <span class="prayer-mode-text">Manuel</span>
                   <span class="prayer-mode-desc">Configuration manuelle</span>
                 </div>

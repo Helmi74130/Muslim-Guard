@@ -8,6 +8,100 @@ import { initializePrayerTimes } from '../utils/prayerApi.js';
 let config = null;
 let isAuthenticated = false;
 
+// ============================================
+// HELPER FUNCTIONS POUR SYSTÈME DE TAGS
+// ============================================
+
+function renderTags(containerId, items, counterId, label) {
+  const container = document.getElementById(containerId);
+  const counter = document.getElementById(counterId);
+
+  if (!container) return;
+
+  // Mise à jour du compteur
+  if (counter) {
+    counter.textContent = `${items.length} ${label}`;
+  }
+
+  // Vider le conteneur
+  container.innerHTML = '';
+
+  // Si vide, afficher message
+  if (items.length === 0) {
+    container.innerHTML = '<div class="list-empty-state"><div class="list-empty-icon">📝</div><div>Aucun élément pour le moment</div></div>';
+    return;
+  }
+
+  // Créer les tags
+  items.forEach(item => {
+    const tag = document.createElement('div');
+    tag.className = 'list-tag';
+    tag.innerHTML = `
+      <span>${item}</span>
+      <button class="list-tag-remove" data-item="${item}">×</button>
+    `;
+
+    // Event listener pour supprimer
+    const removeBtn = tag.querySelector('.list-tag-remove');
+    removeBtn.addEventListener('click', () => {
+      removeTag(containerId, item, counterId, label);
+    });
+
+    container.appendChild(tag);
+  });
+}
+
+function removeTag(containerId, item, counterId, label) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Récupérer les items actuels
+  const items = getTagsArray(containerId);
+
+  // Filtrer l'item à supprimer
+  const filtered = items.filter(i => i !== item);
+
+  // Re-render
+  renderTags(containerId, filtered, counterId, label);
+}
+
+function addTag(containerId, item, counterId, label) {
+  if (!item || !item.trim()) return;
+
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Récupérer les items actuels
+  const items = getTagsArray(containerId);
+
+  // Vérifier si l'item existe déjà
+  if (items.includes(item.trim())) {
+    showNotification('Cet élément existe déjà', 'warning');
+    return;
+  }
+
+  // Ajouter le nouvel item
+  items.push(item.trim());
+
+  // Re-render
+  renderTags(containerId, items, counterId, label);
+
+  showNotification('Élément ajouté', 'success');
+}
+
+function getTagsArray(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return [];
+
+  const tags = container.querySelectorAll('.list-tag span');
+  return Array.from(tags).map(tag => tag.textContent.trim());
+}
+
+function clearAllTags(containerId, counterId, label) {
+  renderTags(containerId, [], counterId, label);
+  showNotification('Liste vidée', 'success');
+}
+
 // Chargement initial
 document.addEventListener('DOMContentLoaded', async () => {
   await checkAuthentication();
@@ -201,18 +295,11 @@ function populateFields() {
   const blockAdult = document.getElementById('blockAdult');
   if (blockAdult) blockAdult.checked = config.blockAdult;
 
-  // Listes
-  const blockedDomains = document.getElementById('blockedDomains');
-  if (blockedDomains) blockedDomains.value = config.blockedDomains.join('\n');
-
-  const blockedKeywords = document.getElementById('blockedKeywords');
-  if (blockedKeywords) blockedKeywords.value = config.blockedKeywords.join('\n');
-
-  const contentDetectionKeywords = document.getElementById('contentDetectionKeywords');
-  if (contentDetectionKeywords) contentDetectionKeywords.value = (config.contentDetectionKeywords || []).join('\n');
-
-  const whitelistedSites = document.getElementById('whitelistedSites');
-  if (whitelistedSites) whitelistedSites.value = config.whitelistedSites.join('\n');
+  // Listes - Nouveau système de tags
+  renderTags('blockedDomainsTags', config.blockedDomains, 'blockedDomainsCount', 'domaines');
+  renderTags('blockedKeywordsTags', config.blockedKeywords, 'blockedKeywordsCount', 'mots-clés');
+  renderTags('contentKeywordsTags', config.contentDetectionKeywords || [], 'contentKeywordsCount', 'mots-clés');
+  renderTags('whitelistedSitesTags', config.whitelistedSites, 'whitelistedSitesCount', 'sites');
 
   // Horaires
   const prayerPauseEnabled = document.getElementById('prayerPauseEnabled');
@@ -354,6 +441,114 @@ function setupEventListeners() {
   const saveBtn = document.getElementById('saveBtn');
   if (saveBtn) saveBtn.addEventListener('click', saveConfig);
 
+  // ============================================
+  // LISTES - NOUVEAUX BOUTONS AJOUTER
+  // ============================================
+
+  // Domaines bloqués
+  const addBlockedDomainBtn = document.getElementById('addBlockedDomain');
+  const blockedDomainsInput = document.getElementById('blockedDomainsInput');
+  if (addBlockedDomainBtn && blockedDomainsInput) {
+    addBlockedDomainBtn.addEventListener('click', () => {
+      addTag('blockedDomainsTags', blockedDomainsInput.value, 'blockedDomainsCount', 'domaines');
+      blockedDomainsInput.value = '';
+    });
+    blockedDomainsInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTag('blockedDomainsTags', blockedDomainsInput.value, 'blockedDomainsCount', 'domaines');
+        blockedDomainsInput.value = '';
+      }
+    });
+  }
+
+  // Mots-clés bloqués
+  const addBlockedKeywordBtn = document.getElementById('addBlockedKeyword');
+  const blockedKeywordsInput = document.getElementById('blockedKeywordsInput');
+  if (addBlockedKeywordBtn && blockedKeywordsInput) {
+    addBlockedKeywordBtn.addEventListener('click', () => {
+      addTag('blockedKeywordsTags', blockedKeywordsInput.value, 'blockedKeywordsCount', 'mots-clés');
+      blockedKeywordsInput.value = '';
+    });
+    blockedKeywordsInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTag('blockedKeywordsTags', blockedKeywordsInput.value, 'blockedKeywordsCount', 'mots-clés');
+        blockedKeywordsInput.value = '';
+      }
+    });
+  }
+
+  // Mots-clés de détection de contenu
+  const addContentKeywordBtn = document.getElementById('addContentKeyword');
+  const contentKeywordsInput = document.getElementById('contentDetectionKeywordsInput');
+  if (addContentKeywordBtn && contentKeywordsInput) {
+    addContentKeywordBtn.addEventListener('click', () => {
+      addTag('contentKeywordsTags', contentKeywordsInput.value, 'contentKeywordsCount', 'mots-clés');
+      contentKeywordsInput.value = '';
+    });
+    contentKeywordsInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTag('contentKeywordsTags', contentKeywordsInput.value, 'contentKeywordsCount', 'mots-clés');
+        contentKeywordsInput.value = '';
+      }
+    });
+  }
+
+  // Sites whitelistés
+  const addWhitelistedSiteBtn = document.getElementById('addWhitelistedSite');
+  const whitelistedSitesInput = document.getElementById('whitelistedSitesInput');
+  if (addWhitelistedSiteBtn && whitelistedSitesInput) {
+    addWhitelistedSiteBtn.addEventListener('click', () => {
+      addTag('whitelistedSitesTags', whitelistedSitesInput.value, 'whitelistedSitesCount', 'sites');
+      whitelistedSitesInput.value = '';
+    });
+    whitelistedSitesInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addTag('whitelistedSitesTags', whitelistedSitesInput.value, 'whitelistedSitesCount', 'sites');
+        whitelistedSitesInput.value = '';
+      }
+    });
+  }
+
+  // ============================================
+  // BOUTONS "TOUT SUPPRIMER"
+  // ============================================
+
+  const clearBlockedDomainsBtn = document.getElementById('clearBlockedDomains');
+  if (clearBlockedDomainsBtn) {
+    clearBlockedDomainsBtn.addEventListener('click', () => {
+      if (confirm('Voulez-vous vraiment supprimer tous les domaines bloqués ?')) {
+        clearAllTags('blockedDomainsTags', 'blockedDomainsCount', 'domaines');
+      }
+    });
+  }
+
+  const clearBlockedKeywordsBtn = document.getElementById('clearBlockedKeywords');
+  if (clearBlockedKeywordsBtn) {
+    clearBlockedKeywordsBtn.addEventListener('click', () => {
+      if (confirm('Voulez-vous vraiment supprimer tous les mots-clés bloqués ?')) {
+        clearAllTags('blockedKeywordsTags', 'blockedKeywordsCount', 'mots-clés');
+      }
+    });
+  }
+
+  const clearContentKeywordsBtn = document.getElementById('clearContentKeywords');
+  if (clearContentKeywordsBtn) {
+    clearContentKeywordsBtn.addEventListener('click', () => {
+      if (confirm('Voulez-vous vraiment supprimer tous les mots-clés de détection de contenu ?')) {
+        clearAllTags('contentKeywordsTags', 'contentKeywordsCount', 'mots-clés');
+      }
+    });
+  }
+
+  const clearWhitelistedSitesBtn = document.getElementById('clearWhitelistedSites');
+  if (clearWhitelistedSitesBtn) {
+    clearWhitelistedSitesBtn.addEventListener('click', () => {
+      if (confirm('Voulez-vous vraiment supprimer tous les sites whitelistés ?')) {
+        clearAllTags('whitelistedSitesTags', 'whitelistedSitesCount', 'sites');
+      }
+    });
+  }
+
   // Charger liste recommandée de domaines
   const loadRecommended = document.getElementById('loadRecommended');
   if (loadRecommended) loadRecommended.addEventListener('click', loadRecommendedList);
@@ -420,17 +615,13 @@ async function saveConfig() {
     const blockDating = document.getElementById('blockDating');
     const blockGaming = document.getElementById('blockGaming');
     const blockAdult = document.getElementById('blockAdult');
-    const blockedDomains = document.getElementById('blockedDomains');
-    const blockedKeywords = document.getElementById('blockedKeywords');
-    const contentDetectionKeywords = document.getElementById('contentDetectionKeywords');
-    const whitelistedSites = document.getElementById('whitelistedSites');
     const prayerPauseEnabled = document.getElementById('prayerPauseEnabled');
     const scheduleEnabled = document.getElementById('scheduleEnabled');
     const allowedHoursStart = document.getElementById('allowedHoursStart');
     const allowedHoursEnd = document.getElementById('allowedHoursEnd');
     const blockPageMessage = document.getElementById('blockPageMessage');
 
-    if (!protectionModeInput || !blockSocialMedia || !blockedDomains) {
+    if (!protectionModeInput || !blockSocialMedia) {
       console.error('Critical form elements not found');
       showNotification('Erreur: Éléments du formulaire non trouvés', 'error');
       return;
@@ -446,23 +637,11 @@ async function saveConfig() {
       blockGaming: blockGaming?.checked || false,
       blockAdult: blockAdult?.checked || false,
 
-      // Listes
-      blockedDomains: blockedDomains.value
-        .split('\n')
-        .map(d => d.trim())
-        .filter(d => d),
-      blockedKeywords: (blockedKeywords?.value || '')
-        .split('\n')
-        .map(k => k.trim())
-        .filter(k => k),
-      contentDetectionKeywords: (contentDetectionKeywords?.value || '')
-        .split('\n')
-        .map(k => k.trim())
-        .filter(k => k),
-      whitelistedSites: (whitelistedSites?.value || '')
-        .split('\n')
-        .map(s => s.trim())
-        .filter(s => s),
+      // Listes - Nouveau système de tags
+      blockedDomains: getTagsArray('blockedDomainsTags'),
+      blockedKeywords: getTagsArray('blockedKeywordsTags'),
+      contentDetectionKeywords: getTagsArray('contentKeywordsTags'),
+      whitelistedSites: getTagsArray('whitelistedSitesTags'),
 
       // Horaires de prière - gestion selon le mode
       prayerPauseEnabled: prayerPauseEnabled?.checked || false,
@@ -514,52 +693,33 @@ async function saveConfig() {
 
 // Charge la liste recommandée de domaines
 function loadRecommendedList() {
-  const blockedDomainsEl = document.getElementById('blockedDomains');
-  if (!blockedDomainsEl) {
-    console.error('blockedDomains element not found');
-    showNotification('Erreur: Élément non trouvé', 'error');
-    return;
-  }
-
   const recommended = getRecommendedBlockList();
-  const current = blockedDomainsEl.value
-    .split('\n')
-    .map(d => d.trim())
-    .filter(d => d);
+  const current = getTagsArray('blockedDomainsTags');
 
   // Combine les listes sans doublons
   const combined = [...new Set([...current, ...recommended])];
 
-  blockedDomainsEl.value = combined.join('\n');
+  // Re-render avec la liste combinée
+  renderTags('blockedDomainsTags', combined, 'blockedDomainsCount', 'domaines');
 
-  showNotification(`${recommended.length} sites ajoutés à la liste`, 'success');
+  showNotification(`${recommended.length} sites ajoutés à la liste (Total: ${combined.length})`, 'success');
 }
 
 // Charge la liste recommandée de mots-clés (URLs)
 async function loadRecommendedKeywords() {
   try {
-    const blockedKeywordsEl = document.getElementById('blockedKeywords');
-    if (!blockedKeywordsEl) {
-      console.error('blockedKeywords element not found');
-      showNotification('Erreur: Élément non trouvé', 'error');
-      return;
-    }
-
     // Charge la liste par défaut depuis storage.js
     const { DEFAULT_CONFIG } = await import('../utils/storage.js');
     const recommended = DEFAULT_CONFIG.blockedKeywords || [];
-
-    const current = blockedKeywordsEl.value
-      .split('\n')
-      .map(k => k.trim())
-      .filter(k => k);
+    const current = getTagsArray('blockedKeywordsTags');
 
     // Combine les listes sans doublons (insensible à la casse)
     const currentLower = current.map(k => k.toLowerCase());
     const newKeywords = recommended.filter(k => !currentLower.includes(k.toLowerCase()));
     const combined = [...current, ...newKeywords];
 
-    blockedKeywordsEl.value = combined.join('\n');
+    // Re-render avec la liste combinée
+    renderTags('blockedKeywordsTags', combined, 'blockedKeywordsCount', 'mots-clés');
 
     showNotification(`${newKeywords.length} nouveaux mots-clés ajoutés (Total: ${combined.length})`, 'success');
   } catch (error) {
@@ -571,28 +731,18 @@ async function loadRecommendedKeywords() {
 // Charge la liste recommandée de mots-clés (Détection de contenu)
 async function loadRecommendedContentKeywords() {
   try {
-    const contentDetectionKeywordsEl = document.getElementById('contentDetectionKeywords');
-    if (!contentDetectionKeywordsEl) {
-      console.error('contentDetectionKeywords element not found');
-      showNotification('Erreur: Élément non trouvé', 'error');
-      return;
-    }
-
     // Charge la liste par défaut depuis storage.js
     const { DEFAULT_CONFIG } = await import('../utils/storage.js');
     const recommended = DEFAULT_CONFIG.contentDetectionKeywords || [];
-
-    const current = contentDetectionKeywordsEl.value
-      .split('\n')
-      .map(k => k.trim())
-      .filter(k => k);
+    const current = getTagsArray('contentKeywordsTags');
 
     // Combine les listes sans doublons (insensible à la casse)
     const currentLower = current.map(k => k.toLowerCase());
     const newKeywords = recommended.filter(k => !currentLower.includes(k.toLowerCase()));
     const combined = [...current, ...newKeywords];
 
-    contentDetectionKeywordsEl.value = combined.join('\n');
+    // Re-render avec la liste combinée
+    renderTags('contentKeywordsTags', combined, 'contentKeywordsCount', 'mots-clés');
 
     showNotification(`${newKeywords.length} nouveaux mots-clés ajoutés (Total: ${combined.length})`, 'success');
   } catch (error) {
