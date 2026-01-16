@@ -121,16 +121,19 @@ async function checkPrayerTime() {
       const [hours, minutes] = prayerTime.split(':').map(Number);
       const prayerMinutes = hours * 60 + minutes;
 
-      // ±15 minutes autour de l'heure de prière
-      const diff = Math.abs(currentMinutes - prayerMinutes);
-      if (diff <= config.prayerPauseDuration) {
+      // Vérifie si on est dans la plage de blocage (avant ou après la prière)
+      const diff = currentMinutes - prayerMinutes;
+      const isBeforePrayer = diff < 0 && Math.abs(diff) <= config.prayerPauseBefore;
+      const isAfterPrayer = diff >= 0 && diff <= config.prayerPauseAfter;
+
+      if (isBeforePrayer || isAfterPrayer) {
         isPrayerTime = true;
 
         // N'affiche la notification que si elle n'a pas déjà été affichée aujourd'hui
         if (!notifiedPrayers.prayers.includes(prayerTime)) {
           notifiedPrayers.prayers.push(prayerTime);
           await chrome.storage.local.set({ notifiedPrayers });
-          showPrayerNotification(prayerTime);
+          showPrayerNotification(prayerTime, config.prayerPauseBefore, config.prayerPauseAfter);
         }
         return;
       }
@@ -145,12 +148,13 @@ async function checkPrayerTime() {
 /**
  * Affiche une notification pour la prière
  */
-function showPrayerNotification(prayerTime) {
+function showPrayerNotification(prayerTime, pauseBefore, pauseAfter) {
+  const totalDuration = pauseBefore + pauseAfter;
   chrome.notifications.create({
     type: 'basic',
     iconUrl: 'assets/icon-128.png',
     title: '🕌 C\'est l\'heure de la prière',
-    message: `Il est ${prayerTime}. Internet est en pause pendant 15 minutes.`,
+    message: `Prière à ${prayerTime}. Internet est en pause (${pauseBefore} min avant, ${pauseAfter} min après).`,
     priority: 2
   });
 }

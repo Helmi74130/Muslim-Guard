@@ -305,6 +305,22 @@ function populateFields() {
   const prayerPauseEnabled = document.getElementById('prayerPauseEnabled');
   if (prayerPauseEnabled) prayerPauseEnabled.checked = config.prayerPauseEnabled;
 
+  // Durées de pause avant/après
+  const prayerPauseBefore = document.getElementById('prayerPauseBefore');
+  if (prayerPauseBefore) prayerPauseBefore.value = config.prayerPauseBefore || 5;
+
+  const prayerPauseAfter = document.getElementById('prayerPauseAfter');
+  if (prayerPauseAfter) prayerPauseAfter.value = config.prayerPauseAfter || 20;
+
+  // Mise à jour du résumé des durées
+  updatePrayerPauseSummary();
+
+  // Afficher/masquer la config de durée selon si la pause est activée
+  const durationConfig = document.getElementById('prayerPauseDurationConfig');
+  if (durationConfig) {
+    durationConfig.style.display = config.prayerPauseEnabled ? 'block' : 'none';
+  }
+
   // Mode de configuration des horaires de prière
   const isAutoMode = config.prayerTimesAutoUpdate;
   const prayerAutoOptions = document.getElementById('prayer-auto-options');
@@ -602,6 +618,18 @@ function setupEventListeners() {
       fetchPrayerTimesOptions();
     }
   });
+
+  // Listeners pour les durées de pause prière
+  document.getElementById('prayerPauseBefore')?.addEventListener('change', updatePrayerPauseSummary);
+  document.getElementById('prayerPauseAfter')?.addEventListener('change', updatePrayerPauseSummary);
+
+  // Listener pour afficher/masquer la config de durée quand on active/désactive la pause
+  document.getElementById('prayerPauseEnabled')?.addEventListener('change', (e) => {
+    const durationConfig = document.getElementById('prayerPauseDurationConfig');
+    if (durationConfig) {
+      durationConfig.style.display = e.target.checked ? 'block' : 'none';
+    }
+  });
 }
 
 // Sauvegarde la configuration
@@ -645,6 +673,8 @@ async function saveConfig() {
 
       // Horaires de prière - gestion selon le mode
       prayerPauseEnabled: prayerPauseEnabled?.checked || false,
+      prayerPauseBefore: parseInt(document.getElementById('prayerPauseBefore')?.value) || 5,
+      prayerPauseAfter: parseInt(document.getElementById('prayerPauseAfter')?.value) || 20,
     };
 
     // Gestion des horaires de prière selon le mode
@@ -1294,3 +1324,21 @@ async function restoreCategoryDefaults(category) {
   showNotification('Domaines par défaut restaurés', 'success');
 }
 
+// Met à jour le résumé des durées de pause prière
+function updatePrayerPauseSummary() {
+  const beforeSelect = document.getElementById('prayerPauseBefore');
+  const afterSelect = document.getElementById('prayerPauseAfter');
+  const summaryEl = document.getElementById('prayerPauseSummary');
+
+  if (!beforeSelect || !afterSelect || !summaryEl) return;
+
+  const before = parseInt(beforeSelect.value) || 0;
+  const after = parseInt(afterSelect.value) || 0;
+  const total = before + after;
+
+  if (total === 0) {
+    summaryEl.textContent = 'Aucune pause configurée';
+  } else {
+    summaryEl.textContent = `Pause totale : ${total} min (${before} min avant + ${after} min après chaque prière)`;
+  }
+}

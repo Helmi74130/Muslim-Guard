@@ -39,7 +39,7 @@ const BLOCK_REASONS = {
   category: 'Ce site appartient à une catégorie bloquée.',
   strict: 'Mode strict activé : seuls les sites éducatifs et islamiques sont autorisés.',
   schedule: 'Accès Internet bloqué en dehors des horaires autorisés.',
-  prayer: 'C\'est l\'heure de la prière ! Internet est en pause pendant 15 minutes.'
+  prayer: 'C\'est l\'heure de la prière ! Internet est en pause.'
 };
 
 // Initialisation
@@ -51,23 +51,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Charge la raison du blocage depuis l'URL
-function loadBlockReason() {
+async function loadBlockReason() {
   const urlParams = new URLSearchParams(window.location.search);
   const reason = urlParams.get('reason') || 'domain';
   const blockedUrl = urlParams.get('url') || document.referrer || 'URL non disponible';
 
   // Affiche la raison
-  const reasonText = BLOCK_REASONS[reason] || BLOCK_REASONS.domain;
+  let reasonText = BLOCK_REASONS[reason] || BLOCK_REASONS.domain;
+
+  // Si c'est l'heure de prière, affiche les durées configurées
+  if (reason === 'prayer') {
+    try {
+      const response = await chrome.runtime.sendMessage({ action: 'getConfig' });
+      const config = response?.config;
+      if (config) {
+        const before = config.prayerPauseBefore || 5;
+        const after = config.prayerPauseAfter || 20;
+        reasonText = `C'est l'heure de la prière ! Internet est en pause (${before} min avant, ${after} min après).`;
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de la config:', error);
+    }
+
+    const reasonBox = document.getElementById('reasonBox');
+    reasonBox.className = 'bg-green-50 border-l-4 border-green-500 p-4 mb-4';
+  }
+
   document.getElementById('reasonText').textContent = reasonText;
 
   // Affiche l'URL
   document.getElementById('blockedUrl').textContent = blockedUrl;
-
-  // Si c'est l'heure de prière, met en évidence
-  if (reason === 'prayer') {
-    const reasonBox = document.getElementById('reasonBox');
-    reasonBox.className = 'bg-green-50 border-l-4 border-green-500 p-4 mb-4';
-  }
 }
 
 // Charge un verset aléatoire

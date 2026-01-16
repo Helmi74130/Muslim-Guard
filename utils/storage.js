@@ -201,7 +201,8 @@ export const DEFAULT_CONFIG = {
   // Scheduling
   prayerTimes: ['05:30', '13:00', '16:30', '19:00', '20:30'],
   prayerPauseEnabled: true,
-  prayerPauseDuration: 15, // minutes
+  prayerPauseBefore: 5, // minutes avant l'heure de prière
+  prayerPauseAfter: 20, // minutes après l'heure de prière
   prayerTimesAutoUpdate: false, // Auto-update via API
   prayerCity: null, // Ville pour récupération automatique
   prayerCityDisplayName: null, // Nom complet de la ville
