@@ -17,174 +17,44 @@ export const DEFAULT_CONFIG = {
 
   // Listes de blocage
   blockedDomains: [],
-  blockedKeywords: [
-    'porn',
-    'porno',
-    'pornographie',
-    'xxx',
-    'sexe',
-    'nude',
-    'nudo',
-    'webcam',
-    'cams',
-    'erotic',
-    'érotique',
-    'sexy',
-    'nude',
-    'nues',
-    'amateur',
-    'couple',
-    'amateur',
-    'lesbian',
-    'trans',
-    'casino',
-    'gambling',
-    'poker',
-    'blackjack',
-    'roulette',
-    'slot',
-    'slots',
-    'machine à sous',
-    'betting',
-    'bet',
-    'bingo',
-    'loto',
-    'loterie',
-    'hippodrome',
-    'music',
-    'musique',
-    'spotify',
-    'soundcloud',
-    'deezer',
-    'youtube music',
-    'song',
-    'songs',
-    'chanson',
-    'chansons',
-    'hip hop',
-    'rap',
-    'techno',
-    'disco',
-    'club',
-    'nightclub',
-    'concert',
-    'dating',
-    'rencontre',
-    'rencontres',
-    'tinder',
-    'bumble',
-    'badoo',
-    'meetic',
-    'match',
-    'hookup',
-    'flirt',
-    'single',
-    'couple',
-    'love',
-    'amour',
-    'alcool',
-    'alcohol',
-    'biere',
-    'vodka',
-    'whisky',
-    'cannabis',
-    'weed',
-    'marijuana',
-    'drogue',
-    'drug',
-    'drugs',
-    'cocaine',
-    'heroin',
-    'meth',
-    'ecstasy',
-    'mdma',
-    'lsd',
-    'trip',
-    'movie',
-    'films',
-    'cinema',
-    'cinéma',
-    'series',
-    'série',
-    'streaming',
-    'netflix',
-    'hbo',
-    'disney+',
-    'prime video',
-    'torrent',
-    'pirate',
-    'download',
-    'télécharger',
-    'game',
-    'jeu',
-    'jeux',
-    'gaming',
-    'fortnite',
-    'pubg',
-    'gta',
-    'call of duty',
-    'valorant',
-    'cs go',
-    'steam',
-    'twitch',
-    'youtube gaming',
-    'facebook',
-    'instagram',
-    'tiktok',
-    'snapchat',
-    'twitter',
-    'x.com',
-    'telegram',
-    'discord',
-    'whatsapp web',
-    'viber',
-    'violence',
-    'gore',
-    'violent',
-    'brutal',
-    'war games',
-    'jeux de guerre',
-    'terrorisme',
-    'terrorist',
-    'bikini',
-    'lingerie',
-    'swimwear',
-    'maillot',
-    'fashion model',
-    'mannequin',
-    'shopping',
-    'luxury',
-    'luxe',
-    'gucci',
-    'louis vuitton',
-    'fashion',
-    'designer',
-    'atheism',
-    'athéisme',
-    'anti-islam',
-    'islamophobic',
-    'critique islam',
-    'apostasy',
-    'apostasie',
-    'gossip',
-    'potins',
-    'celebrity',
-    'célébrité',
-    'scandal',
-    'scandale',
-    'trashy',
-    'vulgar',
-    'vulgaire',
-    'curse',
-    'swear',
-    'insult'],
 
-  // Mots-clés pour la détection de contenu dans les pages (content.js)
-  contentDetectionKeywords: [
-    'porn', 'xxx', 'sex', 'nude',
-    'casino', 'gambling', 'poker',
-    'dating', 'hookup', 'meet singles',
-    'music', 'spotify', 'deezer', 'soundcloud'
+  // Mots-clés pour bloquer les URLs (vérifiés dans background.js)
+  // IMPORTANT: Liste vide par défaut - l'utilisateur doit les ajouter manuellement ou via bouton "Charger la liste par défaut"
+  blockedKeywordsUrl: [],
+
+  // Mots-clés pour détecter le contenu dans les pages (vérifiés dans content.js)
+  // IMPORTANT: Liste vide par défaut - l'utilisateur doit les ajouter manuellement ou via bouton "Charger la liste par défaut"
+  blockedKeywordsContent: [],
+
+  // Listes recommandées (chargées via bouton dans les options, non utilisées par défaut)
+  recommendedKeywordsUrl: [
+    'porn', 'porno', 'pornographie', 'xxx', 'sexe', 'nude', 'nudo',
+    'webcam', 'cams', 'erotic', 'érotique', 'sexy', 'amateur',
+    'lesbian', 'trans', 'casino', 'gambling', 'poker', 'blackjack',
+    'roulette', 'slot', 'slots', 'betting', 'bet', 'bingo', 'loto',
+    'dating', 'rencontre', 'tinder', 'bumble', 'badoo', 'meetic',
+    'hookup', 'flirt', 'alcool', 'alcohol', 'biere', 'vodka', 'whisky',
+    'cannabis', 'weed', 'marijuana', 'drogue', 'drug', 'drugs',
+    'cocaine', 'heroin', 'meth', 'ecstasy', 'mdma', 'lsd'
+  ],
+
+  recommendedKeywordsContent: [
+    'music', 'musique', 'spotify', 'soundcloud', 'deezer', 'youtube music',
+    'song', 'chanson', 'hip hop', 'rap', 'techno', 'disco', 'club',
+    'nightclub', 'concert', 'movie', 'films', 'cinema', 'cinéma',
+    'series', 'série', 'streaming', 'netflix', 'hbo', 'disney+',
+    'prime video', 'torrent', 'pirate', 'download', 'télécharger',
+    'game', 'jeu', 'jeux', 'gaming', 'fortnite', 'pubg', 'gta',
+    'call of duty', 'valorant', 'cs go', 'steam', 'twitch',
+    'youtube gaming', 'facebook', 'instagram', 'tiktok', 'snapchat',
+    'twitter', 'x.com', 'telegram', 'discord', 'whatsapp web', 'viber',
+    'violence', 'gore', 'violent', 'brutal', 'war games', 'jeux de guerre',
+    'terrorisme', 'terrorist', 'bikini', 'lingerie', 'swimwear', 'maillot',
+    'fashion model', 'mannequin', 'shopping', 'luxury', 'luxe', 'gucci',
+    'louis vuitton', 'fashion', 'designer', 'atheism', 'athéisme',
+    'anti-islam', 'islamophobic', 'critique islam', 'apostasy', 'apostasie',
+    'gossip', 'potins', 'celebrity', 'célébrité', 'scandal', 'scandale',
+    'trashy', 'vulgar', 'vulgaire', 'curse', 'swear', 'insult'
   ],
 
   whitelistedSites: ['quran.com', 'coran-en-ligne.com'],
@@ -240,7 +110,30 @@ export const DEFAULT_CONFIG = {
   temporaryWhitelist: [], // {domain, expiresAt}
   guestModeActive: false,
   alertsEnabled: true,
-  bypassDetection: true
+  bypassDetection: true,
+
+  // ===== SYSTÈME FREEMIUM =====
+
+  // Informations d'abonnement (synced depuis backend)
+  userPlan: 'trial', // 'free' | 'premium' | 'trial'
+  subscriptionStatus: null, // 'active' | 'trialing' | 'canceled' | 'unpaid'
+  planName: null, // 'free' | 'MuslimGuard Premium'
+  stripeCustomerId: null,
+  stripeSubscriptionId: null,
+  subscriptionExpiresAt: null,
+  lastSyncTimestamp: null,
+
+  // Période d'essai Premium (7 jours)
+  trialStartDate: null,
+  trialEndDate: null,
+
+  // Migration des données
+  quotaMigrationDone: false,
+  keywordsMigrationDone: false,
+
+  // Personnalisation des catégories (Premium uniquement)
+  customCategoryDomains: {}, // { categoryName: [domains] }
+  removedCategoryDomains: {} // { categoryName: [domains] }
 };
 
 /**
@@ -422,5 +315,72 @@ export async function cleanOldLogs() {
   } catch (error) {
     console.error('Erreur lors du nettoyage des logs:', error);
     return false;
+  }
+}
+
+/**
+ * Met à jour l'utilisation des quotas
+ * @param {string} type - Type de quota
+ * @param {number} count - Nouveau nombre d'éléments
+ */
+export async function updateQuotaUsage(type, count) {
+  try {
+    const config = await getConfig();
+    const quotaUsage = config.quotaUsage || {};
+
+    quotaUsage[type] = count;
+
+    await setValue('quotaUsage', quotaUsage);
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du quota:', error);
+    return false;
+  }
+}
+
+/**
+ * Retourne le statut de tous les quotas
+ * @returns {Promise<Object>} Objet avec le statut de tous les quotas
+ */
+export async function getQuotaStatus() {
+  try {
+    const config = await getConfig();
+    const plan = config.userPlan || 'free';
+
+    const status = {
+      plan,
+      isPremium: plan === 'premium' || plan === 'trial',
+      quotas: {
+        blockedDomains: {
+          used: (config.blockedDomains || []).length,
+          limit: plan === 'premium' || plan === 'trial' ? Infinity : 10
+        },
+        blockedKeywordsUrl: {
+          used: (config.blockedKeywordsUrl || []).length,
+          limit: plan === 'premium' || plan === 'trial' ? Infinity : 10
+        },
+        blockedKeywordsContent: {
+          used: (config.blockedKeywordsContent || []).length,
+          limit: plan === 'premium' || plan === 'trial' ? Infinity : 10
+        },
+        whitelistedSites: {
+          used: (config.whitelistedSites || []).length,
+          limit: plan === 'premium' || plan === 'trial' ? Infinity : 10
+        }
+      }
+    };
+
+    // Ajouter les quotas restants
+    for (const key in status.quotas) {
+      const quota = status.quotas[key];
+      quota.remaining =
+        quota.limit === Infinity ? Infinity : Math.max(0, quota.limit - quota.used);
+      quota.percentage = quota.limit === Infinity ? 0 : Math.round((quota.used / quota.limit) * 100);
+    }
+
+    return status;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du statut des quotas:', error);
+    return null;
   }
 }

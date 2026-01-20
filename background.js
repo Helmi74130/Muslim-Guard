@@ -9,6 +9,12 @@ import {
   isWhitelisted
 } from './utils/lists.js';
 import { updatePrayerTimesFromCity } from './utils/prayerApi.js';
+import {
+  syncUserSubscription,
+  enforceQuotasOnLoad,
+  migrateKeywords,
+  verifyQuotaIntegrity
+} from './utils/quotaManager.js';
 
 // État global
 let config = null;
@@ -22,6 +28,24 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     // Première installation
     await setValue('installDate', Date.now());
 
+    // Activer l'essai Premium de 7 jours pour les nouveaux utilisateurs
+    const trialStartDate = Date.now();
+    const trialEndDate = trialStartDate + 7 * 24 * 60 * 60 * 1000;
+
+    await chrome.storage.local.set({
+      userPlan: 'trial',
+      trialStartDate,
+      trialEndDate,
+      lastSyncTimestamp: Date.now()
+    });
+
+    // Créer une alarme pour notifier 1 jour avant la fin de l'essai
+    chrome.alarms.create('trial-expiring-soon', {
+      when: trialEndDate - 24 * 60 * 60 * 1000
+    });
+
+    console.log('Essai Premium de 7 jours activé pour le nouvel utilisateur');
+
     // Ouvre la page de setup
     const setupComplete = await isSetupComplete();
     if (!setupComplete) {
@@ -29,8 +53,52 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
   }
 
+  if (details.reason === 'update') {
+    // Mise à jour de l'extension
+    const { quotaMigrationDone } = await chrome.storage.local.get('quotaMigrationDone');
+
+    if (!quotaMigrationDone) {
+      // Première migration - Offrir essai Premium 7 jours aux utilisateurs existants
+      const trialStartDate = Date.now();
+      const trialEndDate = trialStartDate + 7 * 24 * 60 * 60 * 1000;
+
+      await chrome.storage.local.set({
+        userPlan: 'trial',
+        trialStartDate,
+        trialEndDate,
+        quotaMigrationDone: true,
+        lastSyncTimestamp: Date.now()
+      });
+
+      // Migrer les mots-clés de l'ancienne liste unique vers 2 listes séparées
+      await migrateKeywords();
+
+      // Notification
+      chrome.notifications.create('trial-started', {
+        type: 'basic',
+        iconUrl: 'icons/icon128.png',
+        title: 'MuslimGuard Premium - Essai gratuit !',
+        message:
+          '🎉 Profitez de 7 jours d\'essai Premium GRATUIT pour tester toutes les fonctionnalités avancées !'
+      });
+
+      // Alarme pour notifier 1 jour avant la fin
+      chrome.alarms.create('trial-expiring-soon', {
+        when: trialEndDate - 24 * 60 * 60 * 1000
+      });
+
+      console.log('Migration vers système freemium effectuée - Essai Premium activé');
+    }
+  }
+
   // Charge la config
   await loadConfig();
+
+  // Synchronise l'abonnement avec le backend
+  await syncUserSubscription();
+
+  // Applique les quotas si nécessaire
+  await enforceQuotasOnLoad();
 
   // Initialise les alarmes
   setupAlarms();
@@ -41,6 +109,13 @@ chrome.runtime.onInstalled.addListener(async (details) => {
  */
 chrome.runtime.onStartup.addListener(async () => {
   await loadConfig();
+
+  // Synchroniser l'abonnement avec le backend
+  await syncUserSubscription();
+
+  // Appliquer les quotas
+  await enforceQuotasOnLoad();
+
   setupAlarms();
 });
 
@@ -71,6 +146,12 @@ function setupAlarms() {
   // Met à jour les horaires de prière quotidiennement (toutes les 24h)
   chrome.alarms.create('updatePrayerTimes', { periodInMinutes: 1440 });
 
+  // Synchronise l'abonnement avec le backend toutes les heures
+  chrome.alarms.create('sync-subscription', { periodInMinutes: 60 });
+
+  // Vérifie l'intégrité des quotas quotidiennement
+  chrome.alarms.create('verify-quota-integrity', { periodInMinutes: 1440 });
+
   // Mise à jour immédiate au démarrage si nécessaire
   updatePrayerTimesIfNeeded();
 }
@@ -87,6 +168,24 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     await resetDailyStats();
   } else if (alarm.name === 'updatePrayerTimes') {
     await updatePrayerTimesIfNeeded();
+  } else if (alarm.name === 'sync-subscription') {
+    // Synchronisation périodique de l'abonnement
+    await syncUserSubscription();
+    await enforceQuotasOnLoad();
+  } else if (alarm.name === 'verify-quota-integrity') {
+    // Vérification quotidienne de l'intégrité des quotas
+    await verifyQuotaIntegrity();
+  } else if (alarm.name === 'trial-expiring-soon') {
+    // Notification 24h avant la fin de l'essai
+    chrome.notifications.create('trial-ending', {
+      type: 'basic',
+      iconUrl: 'icons/icon128.png',
+      title: 'MuslimGuard - Essai se termine demain',
+      message:
+        'Votre essai Premium se termine demain. Abonnez-vous pour conserver toutes les fonctionnalités !',
+      buttons: [{ title: 'Voir les offres' }],
+      requireInteraction: true
+    });
   }
 });
 
@@ -306,8 +405,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
       }
     }
 
-    // Vérifie les mots-clés suspects
-    const keywordCheck = containsSuspiciousKeywords(details.url, config.blockedKeywords);
+    // Vérifie les mots-clés suspects dans l'URL
+    const keywordCheck = containsSuspiciousKeywords(details.url, config.blockedKeywordsUrl || []);
     if (keywordCheck.blocked) {
       await addBlockedLog(details.url, `keyword:${keywordCheck.keyword}`);
       chrome.tabs.update(details.tabId, {
@@ -360,6 +459,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       } else if (message.action === 'addTempWhitelist') {
         await addTemporaryWhitelist(message.domain, message.minutes);
         sendResponse({ success: true });
+      } else if (message.action === 'enforceQuotas') {
+        // Force l'application des quotas (tronquer si nécessaire)
+        await enforceQuotasOnLoad();
+        await loadConfig(); // Recharge la config pour avoir les nouvelles valeurs
+
+        // Notifier la page des options de recharger sa config (si ouverte)
+        try {
+          const tabs = await chrome.tabs.query({ url: chrome.runtime.getURL('options/options.html') });
+          for (const tab of tabs) {
+            await chrome.tabs.sendMessage(tab.id, { action: 'reloadOptionsConfig' });
+          }
+        } catch (e) {
+          // Pas grave si la page des options n'est pas ouverte
+        }
+
+        sendResponse({ success: true });
+      } else if (message.action === 'migrateKeywords') {
+        // Force la migration des mots-clés
+        await migrateKeywords();
+        await loadConfig();
+
+        // Notifier la page des options de recharger sa config (si ouverte)
+        try {
+          const tabs = await chrome.tabs.query({ url: chrome.runtime.getURL('options/options.html') });
+          for (const tab of tabs) {
+            await chrome.tabs.sendMessage(tab.id, { action: 'reloadOptionsConfig' });
+          }
+        } catch (e) {
+          // Pas grave si la page des options n'est pas ouverte
+        }
+
+        sendResponse({ success: true });
       }
     } catch (error) {
       console.error('Erreur dans le gestionnaire de messages:', error);
@@ -368,6 +499,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   })();
 
   return true; // Indique qu'on va répondre de manière asynchrone
+});
+
+/**
+ * Détecte automatiquement quand l'utilisateur se connecte sur muslim-guard.com
+ */
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  try {
+    // Ne traiter que les pages complètement chargées
+    if (changeInfo.status !== 'complete') return;
+
+    // Vérifier si c'est le site muslim-guard.com
+    if (!tab.url || !tab.url.includes('muslim-guard.com')) return;
+
+    console.log('Site MuslimGuard détecté, tentative de synchronisation...');
+
+    // Attendre 2 secondes pour que les cookies soient bien définis
+    setTimeout(async () => {
+      const result = await syncUserSubscription();
+
+      // Si l'utilisateur vient de passer en Premium, afficher une notification
+      if (result.plan === 'premium' && result.changed) {
+        chrome.notifications.create('premium-activated', {
+          type: 'basic',
+          iconUrl: 'icons/icon128.png',
+          title: '✅ Compte Premium activé !',
+          message: 'Votre abonnement Premium a été détecté. Toutes les fonctionnalités sont débloquées !'
+        });
+
+        // Recharger la config
+        await loadConfig();
+      } else if (result.offline) {
+        console.warn('Impossible de synchroniser : backend inaccessible');
+      }
+    }, 2000);
+  } catch (error) {
+    console.error('Erreur lors de la détection de connexion:', error);
+  }
 });
 
 /**
@@ -421,4 +589,21 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local' && changes.protectionEnabled) {
     updateIcon();
   }
+});
+
+/**
+ * Gestionnaire de clics sur les boutons des notifications
+ */
+chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
+  if (
+    notificationId === 'trial-ending' ||
+    notificationId === 'trial-expired' ||
+    notificationId === 'downgrade-notification'
+  ) {
+    // Ouvrir la page pricing
+    chrome.tabs.create({ url: 'https://www.muslim-guard.com/pricing' });
+  }
+
+  // Fermer la notification
+  chrome.notifications.clear(notificationId);
 });

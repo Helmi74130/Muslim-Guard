@@ -41,7 +41,7 @@ The extension implements blocking through three complementary mechanisms:
 
 ### Data Storage Architecture
 
-All data stored in `chrome.storage.local` (no backend server):
+All data stored in `chrome.storage.local`:
 
 **Key storage patterns**:
 - `DEFAULT_CONFIG` in utils/storage.js defines all default values
@@ -53,7 +53,9 @@ All data stored in `chrome.storage.local` (no backend server):
 - `parentPinHash/parentPinSalt`: Authentication credentials
 - `protectionEnabled`: Master toggle for all blocking
 - `protectionMode`: 'strict'/'moderate'/'permissive' determines blocking intensity
-- `blockedDomains/blockedKeywords/whitelistedSites`: User-customized lists
+- `blockedDomains/whitelistedSites`: User-customized lists
+- `blockedKeywordsUrl`: Keywords to block in URLs (checked in background.js)
+- `blockedKeywordsContent`: Keywords to detect in page content (checked in content.js)
 - `blockSocialMedia/blockMusicStreaming/etc`: Category toggles
 - `prayerTimes`: Array of 5 prayer times (HH:MM format)
 - `prayerMode`: 'auto' or 'manual' - determines prayer time source
@@ -62,6 +64,16 @@ All data stored in `chrome.storage.local` (no backend server):
 - `lastPrayerUpdate`: Timestamp of last automatic prayer time update
 - `blockedLog`: Array of blocked URLs (max 1000, FIFO)
 - `temporaryWhitelist`: Array with `{domain, expiresAt}` for temporary access
+
+**Freemium System** (v2.0.0+):
+- `userPlan`: 'free' | 'premium' | 'trial' - Current subscription plan
+- `subscriptionStatus`: 'active' | 'trialing' | 'canceled' | 'unpaid' - Stripe status
+- `planName`: Plan display name
+- `stripeCustomerId`: Stripe customer ID
+- `trialStartDate/trialEndDate`: Trial period timestamps (7 days)
+- `lastSyncTimestamp`: Last backend sync time
+- `quotaMigrationDone/keywordsMigrationDone`: Migration flags
+- `customCategoryDomains/removedCategoryDomains`: Premium category customization
 
 ### Module System (ES6)
 
@@ -128,15 +140,22 @@ The extension supports both automatic and manual prayer time configuration.
 
 ### Keyword Matching
 
+**Two separate keyword lists** (v2.0.0+):
+- `blockedKeywordsUrl`: Keywords checked in URLs during navigation (background.js)
+- `blockedKeywordsContent`: Keywords detected in page content (content.js)
+- Separate quotas for Free tier: 10 URL keywords + 10 content keywords
+
 **URL keyword matching** (utils/lists.js:1513-1531):
 - Uses word boundary regex (`\b${keyword}\b`) for whole-word matching
 - Prevents false positives (e.g., "assassin" won't match "ass")
 - Case-insensitive matching
+- Checked during navigation in background.js
 
 **Content keyword matching** (content.js:6-42):
 - Scans `document.title` + `document.body.innerText`
 - Returns first occurrence by position
 - Used to show specific detected keyword in block overlay
+- Uses `blockedKeywordsContent` array with fallback to legacy `contentDetectionKeywords`
 
 ### Domain Matching with Wildcards
 
@@ -168,10 +187,16 @@ Logs are:
 ## Critical Files
 
 **background.js**: Service worker orchestrating all blocking logic and periodic tasks
+- Sync with backend every hour (`sync-subscription` alarm)
+- Trial expiration handling
+- Uses `blockedKeywordsUrl` for navigation blocking
 
 **content.js**: In-page content scanner with overlay blocker
+- Uses `blockedKeywordsContent` for page scanning
 
 **utils/storage.js**: Single source of truth for config defaults and storage operations
+- Defines freemium-related storage keys
+- Helper functions: `updateQuotaUsage()`, `getQuotaStatus()`
 
 **utils/auth.js**: PIN hashing, verification, session management
 
@@ -186,6 +211,26 @@ Logs are:
 - Fetches daily prayer times based on city and calculation method
 - Handles automatic daily updates via chrome.alarms
 - Geocoding support for city-based prayer time retrieval
+
+**utils/quotaManager.js** (v2.0.0+):
+- Core freemium quota management (~600 lines)
+- Functions: `syncUserSubscription()`, `canAddItem()`, `getRemainingQuota()`, `handleDowngrade()`
+- Keyword migration logic (`migrateKeywords()`)
+- Enforces limits: 10 domains, 10 URL keywords, 10 content keywords, 10 whitelisted sites, 3 categories (Free)
+- Premium: unlimited everything
+
+**utils/api.js** (v2.0.0+):
+- Backend API helper for `https://www.muslim-guard.com/api/team`
+- Fetches subscription status from Stripe
+
+**components/quotaBar.js + quotaBar.html**:
+- Displays 5 quota progress bars (domains, URL keywords, content keywords, whitelist, categories)
+- Shows trial banner and plan badge
+- Hidden for Premium users
+
+**components/upgradeModal.js + upgradeModal.html**:
+- Premium upgrade modal with pricing (4.99€/month, 39.99€/year)
+- Triggered when quota limits reached
 
 ## Common Modification Patterns
 
@@ -204,13 +249,60 @@ Logs are:
 - Change `prayerPauseDuration` in DEFAULT_CONFIG (currently 15 minutes)
 - Used in background.js:106 as `diff <= config.prayerPauseDuration`
 
+## Freemium System (v2.0.0+)
+
+### Quota Limits
+
+**Free Tier**:
+- 10 blocked domains
+- 10 URL keywords (`blockedKeywordsUrl`)
+- 10 content keywords (`blockedKeywordsContent`)
+- 10 whitelisted sites
+- 3 active categories (user's choice)
+- Prayer mode: manual only
+
+**Premium Tier**:
+- Unlimited everything
+- Automatic prayer mode enabled
+- Category domain customization
+
+**Trial Period**:
+- All users (new + existing) get 7-day Premium trial
+- Notification sent 24h before expiration
+- Auto-downgrade to Free if not subscribed
+
+### Backend Integration
+
+**Sync Schedule**:
+- Hourly sync with `https://www.muslim-guard.com/api/team`
+- Fetches Stripe subscription status
+- Offline mode: preserves last known state with warning
+
+**Quota Enforcement**:
+- Checked before adding items in `options/options.js`
+- Modal shown when limit reached
+- Downgrade truncates data (keeps first 10 items, disables excess categories)
+
+### Key Functions
+
+**In utils/quotaManager.js**:
+- `canAddItem(type, currentCount)`: Returns `{allowed, limit, remaining}`
+- `syncUserSubscription()`: Syncs with backend, returns plan status
+- `handleDowngrade()`: Truncates lists and disables Premium features
+- `migrateKeywords()`: Splits legacy `blockedKeywords` into URL/Content lists
+
+**In options/options.js**:
+- `loadFreemiumComponents()`: Loads quota bar and upgrade modal HTML (fixes CSP)
+- `checkQuotaBeforeAddingDomain/KeywordUrl/KeywordContent/Whitelist()`: Pre-add validation
+
 ## Important Notes
 
 - This is a Manifest V3 extension - uses service workers, not persistent background pages
 - No build process - pure JavaScript, HTML, CSS (Tailwind via CDN)
 - French language UI - all user-facing text in French
-- Designed for local-only use (no telemetry)
-- External API calls limited to:
+- External API calls:
   - Aladhan API (aladhan.com) for automatic prayer times (optional, user-configured)
+  - Muslim-Guard backend (muslim-guard.com/api/team) for subscription sync
   - Islamic educational sites (whitelisted)
 - The recommended block list includes 500+ domains across 15+ categories
+- CSP compliance: All component loading done via ES6 modules, no inline scripts

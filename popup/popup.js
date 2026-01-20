@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadData();
   setupEventListeners();
   updateNextPrayer();
+  await loadPlanBanner(); // Charge le bandeau du plan
+  await checkLoginStatus(); // Vérifie si l'utilisateur doit se connecter
 
   // Met à jour la prochaine prière toutes les minutes
   setInterval(updateNextPrayer, 60000);
@@ -300,4 +302,83 @@ async function toggleProtection(enabled) {
 // Affiche une notification temporaire
 function showNotification(message) {
   // Note: Dans un popup, on peut juste logger ou utiliser une alerte discrète
+}
+
+/**
+ * Charge et affiche le bandeau de plan
+ */
+async function loadPlanBanner() {
+  try {
+    const userPlan = await getValue('userPlan') || 'free';
+    const trialEndDate = await getValue('trialEndDate');
+
+    const banner = document.getElementById('planBanner');
+    const icon = document.getElementById('planIcon');
+    const title = document.getElementById('planTitle');
+    const subtitle = document.getElementById('planSubtitle');
+    const upgradeBtn = document.getElementById('upgradePlanBtn');
+
+    // Masquer le bandeau pour les utilisateurs Premium
+    if (userPlan === 'premium') {
+      banner.classList.add('hidden');
+      return;
+    }
+
+    // Afficher le bandeau pour Free et Trial
+    banner.classList.remove('hidden');
+
+    if (userPlan === 'trial') {
+      // Mode Essai
+      const now = Date.now();
+      const daysRemaining = Math.ceil((trialEndDate - now) / (1000 * 60 * 60 * 24));
+
+      banner.className = 'trial';
+      icon.textContent = '🎉';
+      title.textContent = `Essai Premium`;
+      subtitle.textContent = `${daysRemaining} jour${daysRemaining > 1 ? 's' : ''} restant${daysRemaining > 1 ? 's' : ''}`;
+      upgradeBtn.textContent = '✨ S\'abonner';
+    } else {
+      // Mode Gratuit
+      banner.className = '';
+      icon.textContent = '🔓';
+      title.textContent = 'Version Gratuite';
+      subtitle.textContent = 'Quotas limités';
+      upgradeBtn.textContent = '✨ Upgrade';
+    }
+
+    // Event listener pour le bouton upgrade
+    upgradeBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: 'https://www.muslim-guard.com/pricing' });
+    });
+  } catch (error) {
+    console.error('Erreur lors du chargement du bandeau de plan:', error);
+  }
+}
+
+/**
+ * Vérifie si l'utilisateur doit se connecter et affiche le prompt
+ */
+async function checkLoginStatus() {
+  try {
+    const userPlan = await getValue('userPlan') || 'free';
+    const loginPrompt = document.getElementById('loginPrompt');
+    const loginButton = document.getElementById('loginButton');
+
+    // Afficher le bouton de connexion uniquement pour les utilisateurs Free
+    if (userPlan === 'free') {
+      loginPrompt.classList.remove('hidden');
+
+      // Event listener pour le bouton de connexion
+      loginButton.addEventListener('click', () => {
+        chrome.tabs.create({
+          url: 'https://www.muslim-guard.com/login?redirect=/dashboard'
+        });
+        window.close();
+      });
+    } else {
+      loginPrompt.classList.add('hidden');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification du statut de connexion:', error);
+  }
 }

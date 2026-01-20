@@ -209,7 +209,14 @@ async function init() {
           return;
         }
 
-        if (config.contentDetectionKeywords && Array.isArray(config.contentDetectionKeywords)) {
+        // Utilise blockedKeywordsContent au lieu de contentDetectionKeywords
+        if (config.blockedKeywordsContent && Array.isArray(config.blockedKeywordsContent)) {
+          customKeywords = config.blockedKeywordsContent;
+        } else if (
+          config.contentDetectionKeywords &&
+          Array.isArray(config.contentDetectionKeywords)
+        ) {
+          // Fallback pour compatibilité avec ancienne version
           customKeywords = config.contentDetectionKeywords;
         }
       }

@@ -1,0 +1,227 @@
+<!-- Section Quotas (affichée uniquement pour les utilisateurs Free) -->
+<div id="quota-section" class="quota-section" style="display: none;">
+  <!-- Header compact -->
+  <div class="quota-header">
+    <h3 class="quota-title">Quotas <span class="plan-badge" id="plan-badge">Gratuit</span></h3>
+    <span id="trial-days-badge" class="trial-badge" style="display: none;">🎉 <span id="trial-days-remaining">7j</span></span>
+  </div>
+
+  <!-- Liste des quotas en grille -->
+  <div class="quota-grid">
+    <!-- Domaines -->
+    <div class="quota-item">
+      <div class="quota-row">
+        <span class="quota-label">Domaines</span>
+        <span class="quota-count" id="quota-domains-count">0/10</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-fill" id="quota-domains-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Mots-clés URL -->
+    <div class="quota-item">
+      <div class="quota-row">
+        <span class="quota-label">Mots-clés URL</span>
+        <span class="quota-count" id="quota-keywords-url-count">0/10</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-fill" id="quota-keywords-url-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Mots-clés Contenu -->
+    <div class="quota-item">
+      <div class="quota-row">
+        <span class="quota-label">Mots-clés Contenu</span>
+        <span class="quota-count" id="quota-keywords-content-count">0/10</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-fill" id="quota-keywords-content-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Sites autorisés -->
+    <div class="quota-item">
+      <div class="quota-row">
+        <span class="quota-label">Sites autorisés</span>
+        <span class="quota-count" id="quota-whitelist-count">0/10</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-fill" id="quota-whitelist-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Catégories -->
+    <div class="quota-item">
+      <div class="quota-row">
+        <span class="quota-label">Catégories</span>
+        <span class="quota-count" id="quota-categories-count">0/3</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-fill" id="quota-categories-fill" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning global (affiché seulement si un quota > 80%) -->
+  <p class="quota-warning" id="quota-global-warning" style="display: none;">
+    ⚠️ <span id="quota-warning-text">Certains quotas sont presque pleins</span>
+  </p>
+
+  <!-- Bouton Upgrade compact -->
+  <button id="upgrade-button" class="upgrade-button">
+    ✨ Passer à Premium
+  </button>
+</div>
+
+<style>
+  /* Section Quotas - Design compact */
+  .quota-section {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+  }
+
+  /* Header compact */
+  .quota-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .quota-title {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .plan-badge {
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .plan-badge.premium {
+    background: #fbbf24;
+    color: white;
+  }
+
+  .plan-badge.trial {
+    background: #8b5cf6;
+    color: white;
+  }
+
+  /* Trial badge compact */
+  .trial-badge {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* Grille de quotas 2x3 */
+  .quota-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 12px;
+    margin-bottom: 8px;
+  }
+
+  /* Quota Item compact */
+  .quota-item {
+    /* Pas de padding ni border */
+  }
+
+  .quota-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+
+  .quota-label {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .quota-count {
+    color: #374151;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+
+  /* Barre de progression mini */
+  .quota-bar {
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .quota-fill {
+    height: 100%;
+    background: #10b981;
+    border-radius: 2px;
+    transition: width 0.3s ease, background 0.3s ease;
+  }
+
+  .quota-fill.warning {
+    background: #f59e0b;
+  }
+
+  .quota-fill.danger {
+    background: #ef4444;
+  }
+
+  /* Warning global compact */
+  .quota-warning {
+    color: #d97706;
+    font-size: 11px;
+    margin: 8px 0 8px 0;
+    padding: 6px 10px;
+    background: #fef3c7;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Bouton Upgrade compact */
+  .upgrade-button {
+    width: 100%;
+    background: linear-gradient(135deg, #00305a 0%, #004179 100%);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .upgrade-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 48, 90, 0.25);
+  }
+
+  .upgrade-button:active {
+    transform: translateY(0);
+  }
+</style>

@@ -4,6 +4,13 @@ import { getConfig, setValue, resetConfig } from '../utils/storage.js';
 import { changePin, verifyPin, generateSessionToken, verifySessionToken } from '../utils/auth.js';
 import { getRecommendedBlockList, CATEGORIES } from '../utils/lists.js';
 import { initializePrayerTimes } from '../utils/prayerApi.js';
+import { canAddItem, getUserPlan, isFeatureAvailable } from '../utils/quotaManager.js';
+import { initQuotaBar, refreshQuotaBar } from '../components/quotaBar.js';
+import {
+  showUpgradeModal,
+  showQuotaReachedModal,
+  showFeatureLockedModal
+} from '../components/upgradeModal.js';
 
 let config = null;
 let isAuthenticated = false;
@@ -51,7 +58,7 @@ function renderTags(containerId, items, counterId, label) {
   });
 }
 
-function removeTag(containerId, item, counterId, label) {
+async function removeTag(containerId, item, counterId, label) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -63,9 +70,12 @@ function removeTag(containerId, item, counterId, label) {
 
   // Re-render
   renderTags(containerId, filtered, counterId, label);
+
+  // Rafraîchir l'affichage des quotas
+  await refreshQuotaBar();
 }
 
-function addTag(containerId, item, counterId, label) {
+async function addTag(containerId, item, counterId, label) {
   if (!item || !item.trim()) return;
 
   const container = document.getElementById(containerId);
@@ -80,11 +90,33 @@ function addTag(containerId, item, counterId, label) {
     return;
   }
 
+  // Vérifier les quotas AVANT d'ajouter
+  let canAdd = true;
+
+  if (containerId === 'blockedDomainsTags') {
+    canAdd = await checkQuotaBeforeAddingDomain();
+  } else if (containerId === 'blockedKeywordsTags') {
+    // Pour les mots-clés URL (ancienne liste unifiée)
+    canAdd = await checkQuotaBeforeAddingKeywordUrl();
+  } else if (containerId === 'contentKeywordsTags') {
+    canAdd = await checkQuotaBeforeAddingKeywordContent();
+  } else if (containerId === 'whitelistedSitesTags') {
+    canAdd = await checkQuotaBeforeAddingWhitelist();
+  }
+
+  if (!canAdd) {
+    // Quota atteint - le modal a déjà été affiché
+    return;
+  }
+
   // Ajouter le nouvel item
   items.push(item.trim());
 
   // Re-render
   renderTags(containerId, items, counterId, label);
+
+  // Rafraîchir l'affichage des quotas
+  await refreshQuotaBar();
 
   showNotification('Élément ajouté', 'success');
 }
@@ -253,6 +285,12 @@ async function unlockPage() {
   setupTabs();
   setupEventListeners();
   initCategoryManagement();
+
+  // Initialiser les composants freemium
+  await initializeFreemiumComponents();
+
+  // Initialiser la section de synchronisation
+  await initializeSyncSection();
 }
 
 // Charge la configuration
@@ -297,8 +335,12 @@ function populateFields() {
 
   // Listes - Nouveau système de tags
   renderTags('blockedDomainsTags', config.blockedDomains, 'blockedDomainsCount', 'domaines');
-  renderTags('blockedKeywordsTags', config.blockedKeywords, 'blockedKeywordsCount', 'mots-clés');
-  renderTags('contentKeywordsTags', config.contentDetectionKeywords || [], 'contentKeywordsCount', 'mots-clés');
+
+  // Mots-clés pour bloquer les URLs
+  renderTags('blockedKeywordsTags', config.blockedKeywordsUrl || [], 'blockedKeywordsCount', 'mots-clés');
+
+  // Mots-clés pour détecter le contenu dans les pages
+  renderTags('contentKeywordsTags', config.blockedKeywordsContent || [], 'contentKeywordsCount', 'mots-clés');
   renderTags('whitelistedSitesTags', config.whitelistedSites, 'whitelistedSitesCount', 'sites');
 
   // Horaires
@@ -577,6 +619,29 @@ function setupEventListeners() {
   const loadRecommendedContentKeywordsBtn = document.getElementById('loadRecommendedContentKeywords');
   if (loadRecommendedContentKeywordsBtn) loadRecommendedContentKeywordsBtn.addEventListener('click', loadRecommendedContentKeywords);
 
+  // Event listeners pour les checkboxes de catégories (vérification quota)
+  const categoryCheckboxes = [
+    'blockSocialMedia', 'blockMusicStreaming', 'blockVideoStreaming',
+    'blockDating', 'blockGaming', 'blockAdult', 'blockReddit'
+  ];
+
+  categoryCheckboxes.forEach(checkboxId => {
+    const checkbox = document.getElementById(checkboxId);
+    if (checkbox) {
+      checkbox.addEventListener('change', async (e) => {
+        await handleCategoryToggle(e.target);
+      });
+    }
+  });
+
+  // Event listener pour le mode automatique des prières (Premium uniquement)
+  const prayerAutoRadio = document.getElementById('prayer-auto-options');
+  if (prayerAutoRadio) {
+    prayerAutoRadio.addEventListener('change', async (e) => {
+      await handlePrayerModeToggle(e.target);
+    });
+  }
+
   // Changer PIN
   const changePinBtn = document.getElementById('changePinBtn');
   if (changePinBtn) changePinBtn.addEventListener('click', handleChangePin);
@@ -667,8 +732,8 @@ async function saveConfig() {
 
       // Listes - Nouveau système de tags
       blockedDomains: getTagsArray('blockedDomainsTags'),
-      blockedKeywords: getTagsArray('blockedKeywordsTags'),
-      contentDetectionKeywords: getTagsArray('contentKeywordsTags'),
+      blockedKeywordsUrl: getTagsArray('blockedKeywordsTags'),
+      blockedKeywordsContent: getTagsArray('contentKeywordsTags'),
       whitelistedSites: getTagsArray('whitelistedSitesTags'),
 
       // Horaires de prière - gestion selon le mode
@@ -722,25 +787,48 @@ async function saveConfig() {
 }
 
 // Charge la liste recommandée de domaines
-function loadRecommendedList() {
+async function loadRecommendedList() {
   const recommended = getRecommendedBlockList();
   const current = getTagsArray('blockedDomainsTags');
 
   // Combine les listes sans doublons
   const combined = [...new Set([...current, ...recommended])];
+  const newDomainsCount = combined.length - current.length;
+
+  // Vérifier le quota AVANT d'ajouter
+  const result = await canAddItem('blockedDomains', current.length + newDomainsCount);
+
+  if (!result.allowed) {
+    // Calculer combien on peut encore ajouter
+    const canAdd = result.limit - current.length;
+
+    if (canAdd <= 0) {
+      showQuotaReachedModal('blockedDomains', result.limit);
+      return;
+    }
+
+    // Ajouter seulement ce qui est permis
+    const limitedCombined = [...current, ...recommended.slice(0, canAdd)];
+    renderTags('blockedDomainsTags', limitedCombined, 'blockedDomainsCount', 'domaines');
+
+    showNotification(`Limite atteinte: seulement ${canAdd} domaines ajoutés sur ${recommended.length} (Total: ${limitedCombined.length}/${result.limit})`, 'warning');
+    showQuotaReachedModal('blockedDomains', result.limit);
+    return;
+  }
 
   // Re-render avec la liste combinée
   renderTags('blockedDomainsTags', combined, 'blockedDomainsCount', 'domaines');
 
-  showNotification(`${recommended.length} sites ajoutés à la liste (Total: ${combined.length})`, 'success');
+  showNotification(`${newDomainsCount} sites ajoutés à la liste (Total: ${combined.length})`, 'success');
+  await refreshQuotaBar();
 }
 
 // Charge la liste recommandée de mots-clés (URLs)
 async function loadRecommendedKeywords() {
   try {
-    // Charge la liste par défaut depuis storage.js
+    // Charge la liste recommandée depuis storage.js
     const { DEFAULT_CONFIG } = await import('../utils/storage.js');
-    const recommended = DEFAULT_CONFIG.blockedKeywords || [];
+    const recommended = DEFAULT_CONFIG.recommendedKeywordsUrl || [];
     const current = getTagsArray('blockedKeywordsTags');
 
     // Combine les listes sans doublons (insensible à la casse)
@@ -748,10 +836,31 @@ async function loadRecommendedKeywords() {
     const newKeywords = recommended.filter(k => !currentLower.includes(k.toLowerCase()));
     const combined = [...current, ...newKeywords];
 
+    // Vérifier le quota AVANT d'ajouter
+    const result = await canAddItem('blockedKeywordsUrl', combined.length);
+
+    if (!result.allowed) {
+      const canAdd = result.limit - current.length;
+
+      if (canAdd <= 0) {
+        showQuotaReachedModal('blockedKeywordsUrl', result.limit);
+        return;
+      }
+
+      // Ajouter seulement ce qui est permis
+      const limitedCombined = [...current, ...newKeywords.slice(0, canAdd)];
+      renderTags('blockedKeywordsTags', limitedCombined, 'blockedKeywordsCount', 'mots-clés');
+
+      showNotification(`Limite atteinte: seulement ${canAdd} mots-clés ajoutés sur ${newKeywords.length} (Total: ${limitedCombined.length}/${result.limit})`, 'warning');
+      showQuotaReachedModal('blockedKeywordsUrl', result.limit);
+      return;
+    }
+
     // Re-render avec la liste combinée
     renderTags('blockedKeywordsTags', combined, 'blockedKeywordsCount', 'mots-clés');
 
     showNotification(`${newKeywords.length} nouveaux mots-clés ajoutés (Total: ${combined.length})`, 'success');
+    await refreshQuotaBar();
   } catch (error) {
     console.error('Erreur lors du chargement des mots-clés recommandés:', error);
     showNotification('Erreur lors du chargement', 'error');
@@ -761,15 +870,36 @@ async function loadRecommendedKeywords() {
 // Charge la liste recommandée de mots-clés (Détection de contenu)
 async function loadRecommendedContentKeywords() {
   try {
-    // Charge la liste par défaut depuis storage.js
+    // Charge la liste recommandée depuis storage.js
     const { DEFAULT_CONFIG } = await import('../utils/storage.js');
-    const recommended = DEFAULT_CONFIG.contentDetectionKeywords || [];
+    const recommended = DEFAULT_CONFIG.recommendedKeywordsContent || [];
     const current = getTagsArray('contentKeywordsTags');
 
     // Combine les listes sans doublons (insensible à la casse)
     const currentLower = current.map(k => k.toLowerCase());
     const newKeywords = recommended.filter(k => !currentLower.includes(k.toLowerCase()));
     const combined = [...current, ...newKeywords];
+
+    // Vérifier le quota AVANT d'ajouter
+    const result = await canAddItem('blockedKeywordsContent', combined.length);
+
+    if (!result.allowed) {
+      const canAdd = result.limit - current.length;
+
+      if (canAdd <= 0) {
+        showQuotaReachedModal('blockedKeywordsContent', result.limit);
+        return;
+      }
+
+      // Ajouter seulement ce qui est permis
+      const limitedCombined = [...current, ...newKeywords.slice(0, canAdd)];
+      renderTags('contentKeywordsTags', limitedCombined, 'contentKeywordsCount', 'mots-clés de contenu');
+
+      showNotification(`Limite atteinte: seulement ${canAdd} mots-clés de contenu ajoutés sur ${newKeywords.length} (Total: ${limitedCombined.length}/${result.limit})`, 'warning');
+      showQuotaReachedModal('blockedKeywordsContent', result.limit);
+      await refreshQuotaBar();
+      return;
+    }
 
     // Re-render avec la liste combinée
     renderTags('contentKeywordsTags', combined, 'contentKeywordsCount', 'mots-clés');
@@ -1342,3 +1472,413 @@ function updatePrayerPauseSummary() {
     summaryEl.textContent = `Pause totale : ${total} min (${before} min avant + ${after} min après chaque prière)`;
   }
 }
+
+// ============================================
+// SYSTÈME FREEMIUM - GESTION DES QUOTAS
+// ============================================
+
+/**
+ * Charge les composants HTML (quotaBar et upgradeModal)
+ */
+async function loadFreemiumComponents() {
+  try {
+    // Charger le composant quotaBar
+    const quotaBarUrl = chrome.runtime.getURL('components/quotaBar.html');
+    const quotaBarResponse = await fetch(quotaBarUrl);
+    const quotaBarHtml = await quotaBarResponse.text();
+    const quotaContainer = document.getElementById('quota-section-container');
+    if (quotaContainer) {
+      quotaContainer.innerHTML = quotaBarHtml;
+    }
+
+    // Charger le composant upgradeModal
+    const modalUrl = chrome.runtime.getURL('components/upgradeModal.html');
+    const modalResponse = await fetch(modalUrl);
+    const modalHtml = await modalResponse.text();
+    const modalContainer = document.getElementById('upgrade-modal-container');
+    if (modalContainer) {
+      modalContainer.innerHTML = modalHtml;
+    }
+
+    console.log('Composants HTML chargés avec succès');
+  } catch (error) {
+    console.error('Erreur lors du chargement des composants HTML:', error);
+    throw error;
+  }
+}
+
+/**
+ * Initialise les composants freemium (quotaBar et upgradeModal)
+ */
+async function initializeFreemiumComponents() {
+  try {
+    // D'abord charger les composants HTML
+    await loadFreemiumComponents();
+
+    // Ensuite initialiser la barre de quotas
+    await initQuotaBar();
+
+    // Désactiver le mode auto prières pour Free users
+    await disableAutoPrayerModeForFreeUsers();
+
+    console.log('Composants freemium initialisés avec succès');
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation des composants freemium:', error);
+  }
+}
+
+/**
+ * Désactive visuellement le mode automatique des prières pour les utilisateurs Free
+ */
+async function disableAutoPrayerModeForFreeUsers() {
+  const isAvailable = await isFeatureAvailable('autoPrayerMode');
+
+  if (!isAvailable) {
+    const prayerAutoRadio = document.getElementById('prayer-auto-options');
+    const prayerAutoLabel = prayerAutoRadio?.closest('.prayer-mode-btn');
+
+    if (prayerAutoLabel) {
+      // Ajouter un style pour indiquer que c'est Premium
+      prayerAutoLabel.style.opacity = '0.5';
+      prayerAutoLabel.style.cursor = 'not-allowed';
+      prayerAutoLabel.style.position = 'relative';
+
+      // Ajouter un badge Premium
+      const premiumBadge = document.createElement('span');
+      premiumBadge.textContent = '✨ Premium';
+      premiumBadge.style.cssText = `
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+      `;
+      prayerAutoLabel.appendChild(premiumBadge);
+
+      // Désactiver le radio button
+      if (prayerAutoRadio) {
+        prayerAutoRadio.disabled = true;
+      }
+    }
+  }
+}
+
+/**
+ * Gère le toggle du mode automatique des prières (Premium uniquement)
+ */
+async function handlePrayerModeToggle(radio) {
+  // Vérifier si le mode auto est disponible
+  const isAvailable = await isFeatureAvailable('autoPrayerMode');
+
+  if (!isAvailable && radio.value === 'auto' && radio.checked) {
+    // Bloquer le mode auto et remettre sur manuel
+    const manualRadio = document.getElementById('prayer-manual-options');
+    if (manualRadio) {
+      manualRadio.checked = true;
+      radio.checked = false;
+    }
+
+    showFeatureLockedModal('autoPrayerMode');
+  }
+}
+
+/**
+ * Gère le toggle d'une catégorie avec vérification de quota
+ */
+async function handleCategoryToggle(checkbox) {
+  // Si on décoche, toujours autoriser
+  if (!checkbox.checked) {
+    await refreshQuotaBar();
+    return;
+  }
+
+  // Si on coche, vérifier le quota
+  const categoryCheckboxes = [
+    'blockSocialMedia', 'blockMusicStreaming', 'blockVideoStreaming',
+    'blockDating', 'blockGaming', 'blockAdult', 'blockReddit'
+  ];
+
+  // Compter combien de catégories sont déjà activées (sans compter celle qu'on vient de cocher)
+  const enabledCount = categoryCheckboxes.filter(id => {
+    const cb = document.getElementById(id);
+    return cb && cb.checked && cb.id !== checkbox.id;
+  }).length;
+
+  // Vérifier si on peut activer une catégorie de plus
+  const result = await canAddItem('categoriesEnabled', enabledCount);
+
+  if (!result.allowed) {
+    // Bloquer l'activation
+    checkbox.checked = false;
+    showQuotaReachedModal('categoriesEnabled', result.limit);
+    return;
+  }
+
+  await refreshQuotaBar();
+}
+
+/**
+ * Vérifie les quotas avant d'ajouter un domaine bloqué
+ */
+async function checkQuotaBeforeAddingDomain() {
+  const currentDomains = config.blockedDomains || [];
+  const result = await canAddItem('blockedDomains', currentDomains.length);
+
+  if (!result.allowed) {
+    showQuotaReachedModal('blockedDomains', result.limit);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Vérifie les quotas avant d'ajouter un mot-clé URL
+ */
+async function checkQuotaBeforeAddingKeywordUrl() {
+  const currentKeywords = config.blockedKeywordsUrl || [];
+  const result = await canAddItem('blockedKeywordsUrl', currentKeywords.length);
+
+  if (!result.allowed) {
+    showQuotaReachedModal('blockedKeywordsUrl', result.limit);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Vérifie les quotas avant d'ajouter un mot-clé de contenu
+ */
+async function checkQuotaBeforeAddingKeywordContent() {
+  const currentKeywords = config.blockedKeywordsContent || [];
+  const result = await canAddItem('blockedKeywordsContent', currentKeywords.length);
+
+  if (!result.allowed) {
+    showQuotaReachedModal('blockedKeywordsContent', result.limit);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Vérifie les quotas avant d'ajouter un site en whitelist
+ */
+async function checkQuotaBeforeAddingWhitelist() {
+  const currentWhitelist = config.whitelistedSites || [];
+  const result = await canAddItem('whitelistedSites', currentWhitelist.length);
+
+  if (!result.allowed) {
+    showQuotaReachedModal('whitelistedSites', result.limit);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Vérifie les quotas avant d'activer une catégorie
+ */
+async function checkQuotaBeforeEnablingCategory() {
+  // Compter les catégories déjà activées
+  const categoryKeys = Object.keys(CATEGORIES);
+  const enabledCount = categoryKeys.filter(cat => config[`block${capitalize(cat)}`]).length;
+
+  const result = await canAddItem('categoriesEnabled', enabledCount);
+
+  if (!result.allowed) {
+    showQuotaReachedModal('categoriesEnabled', result.limit);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Capitalise la première lettre
+ */
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Vérifie si le mode automatique des prières est disponible
+ */
+async function checkAutoPrayerModeAvailable() {
+  const available = await isFeatureAvailable('autoPrayerMode');
+
+  if (!available) {
+    showFeatureLockedModal('autoPrayerMode');
+    return false;
+  }
+
+  return true;
+}
+
+// ============================================
+// SYNCHRONISATION DU COMPTE
+// ============================================
+
+/**
+ * Initialise la section de synchronisation
+ */
+async function initializeSyncSection() {
+  const forceSyncButton = document.getElementById('forceSyncButton');
+  const loginBackendButton = document.getElementById('loginBackendButton');
+
+  // Afficher la dernière sync et le statut
+  await updateSyncDisplay();
+
+  // Event listener pour le bouton de sync forcée
+  if (forceSyncButton) {
+    forceSyncButton.addEventListener('click', async () => {
+      await forceSyncSubscription();
+    });
+  }
+
+  // Event listener pour le bouton de connexion au backend
+  if (loginBackendButton) {
+    loginBackendButton.addEventListener('click', () => {
+      chrome.tabs.create({
+        url: 'https://www.muslim-guard.com/login?redirect=/dashboard'
+      });
+    });
+  }
+}
+
+/**
+ * Met à jour l'affichage de la dernière sync et du statut
+ */
+async function updateSyncDisplay() {
+  const { lastSyncTimestamp, userPlan, subscriptionStatus } = await chrome.storage.local.get([
+    'lastSyncTimestamp',
+    'userPlan',
+    'subscriptionStatus'
+  ]);
+
+  const lastSyncTime = document.getElementById('lastSyncTime');
+  const syncStatusText = document.getElementById('syncStatusText');
+
+  // Dernière synchronisation
+  if (lastSyncTimestamp) {
+    const date = new Date(lastSyncTimestamp);
+    const now = new Date();
+    const diffMinutes = Math.floor((now - date) / (1000 * 60));
+
+    if (diffMinutes < 1) {
+      lastSyncTime.textContent = 'À l\'instant';
+    } else if (diffMinutes < 60) {
+      lastSyncTime.textContent = `Il y a ${diffMinutes} min`;
+    } else if (diffMinutes < 1440) {
+      const hours = Math.floor(diffMinutes / 60);
+      lastSyncTime.textContent = `Il y a ${hours}h`;
+    } else {
+      lastSyncTime.textContent = date.toLocaleDateString('fr-FR');
+    }
+  } else {
+    lastSyncTime.textContent = 'Jamais';
+  }
+
+  // Statut
+  if (userPlan === 'premium') {
+    syncStatusText.textContent = '✅ Premium actif';
+    syncStatusText.style.color = '#10b981';
+  } else if (userPlan === 'trial') {
+    syncStatusText.textContent = '🎉 Essai Premium';
+    syncStatusText.style.color = '#8b5cf6';
+  } else {
+    syncStatusText.textContent = '📋 Plan gratuit';
+    syncStatusText.style.color = '#6b7280';
+  }
+}
+
+/**
+ * Force une synchronisation immédiate
+ */
+async function forceSyncSubscription() {
+  const button = document.getElementById('forceSyncButton');
+  const message = document.getElementById('syncMessage');
+
+  if (!button || !message) return;
+
+  try {
+    // Désactiver le bouton et changer le texte
+    button.disabled = true;
+    button.innerHTML = '<span>⏳</span><span>Synchronisation en cours...</span>';
+
+    // Importer la fonction de sync
+    const { syncUserSubscription } = await import('../utils/quotaManager.js');
+
+    // Lancer la synchronisation
+    const result = await syncUserSubscription();
+
+    // Afficher le résultat
+    message.style.display = 'block';
+
+    if (result.plan === 'premium') {
+      message.textContent = '✅ Synchronisation réussie : Compte Premium actif !';
+      message.style.color = '#10b981';
+    } else if (result.plan === 'trial') {
+      const daysRemaining = result.daysRemaining || 0;
+      message.textContent = `✅ Synchronisation réussie : Essai Premium (${daysRemaining} jour${daysRemaining > 1 ? 's' : ''} restant${daysRemaining > 1 ? 's' : ''})`;
+      message.style.color = '#8b5cf6';
+    } else if (result.offline) {
+      message.textContent = '⚠️ Impossible de contacter le serveur. Vérifiez votre connexion.';
+      message.style.color = '#f59e0b';
+    } else {
+      message.textContent = '📋 Synchronisation réussie : Plan gratuit actif';
+      message.style.color = '#6b7280';
+    }
+
+    // Mettre à jour l'affichage
+    await updateSyncDisplay();
+
+    // Rafraîchir la barre de quotas
+    await refreshQuotaBar();
+
+    // Recharger la config complète
+    await loadConfig();
+
+    // Cacher le message après 5 secondes
+    setTimeout(() => {
+      message.style.display = 'none';
+    }, 5000);
+
+  } catch (error) {
+    console.error('Erreur lors de la synchronisation:', error);
+    message.style.display = 'block';
+    message.textContent = '❌ Erreur : ' + error.message;
+    message.style.color = '#ef4444';
+  } finally {
+    // Réactiver le bouton
+    button.disabled = false;
+    button.innerHTML = '<span>🔄</span><span>Synchroniser maintenant</span>';
+  }
+}
+
+// ============================================
+// LISTENER POUR RECHARGER LA CONFIG
+// ============================================
+
+/**
+ * Écoute les messages de l'extension pour recharger la config
+ */
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'reloadOptionsConfig') {
+    // Recharger la configuration complète
+    loadConfig().then(() => {
+      // Rafraîchir aussi la barre de quotas
+      refreshQuotaBar();
+      sendResponse({ success: true });
+    }).catch(error => {
+      console.error('Erreur lors du rechargement:', error);
+      sendResponse({ success: false, error: error.message });
+    });
+    return true; // Indique qu'on va répondre de manière asynchrone
+  }
+});

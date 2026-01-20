@@ -138,6 +138,35 @@
       gap: var(--spacing-sm);
     }
 
+    /* Bouton d'avis discret */
+    #reviewBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #f9fafb;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+
+    #reviewBtn:hover {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fbbf24;
+      transform: translateY(-1px);
+    }
+
+    #reviewBtn .star-icon {
+      font-size: 14px;
+    }
+
     #saveBtn {
       display: flex;
       align-items: center;
@@ -2196,11 +2225,56 @@
         <button id="dashboardLink">
           <span>Retour au Dashboard</span>
         </button>
+        <a id="reviewBtn" href="https://chromewebstore.google.com/detail/muslimguard-contr%C3%B4le-pare/khilbklefblhhcombalbofjjliplfdnp/reviews" target="_blank">
+          <span class="star-icon">⭐</span>
+          <span>Laisser un avis</span>
+        </a>
       </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
+      <!-- Section Quotas (inclure le composant) -->
+      <div id="quota-section-container"></div>
+
+      <!-- Section Synchronisation du compte -->
+      <div class="settings-section" style="margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800); margin: 0 0 var(--spacing-md) 0; display: flex; align-items: center; gap: var(--spacing-sm);">
+          <span>🔄</span>
+          <span>Synchronisation du compte</span>
+        </h3>
+        <p style="font-size: 0.875rem; color: var(--gray-600); margin: 0 0 var(--spacing-lg) 0;">
+          Synchronisez votre abonnement avec le backend pour activer les fonctionnalités Premium.
+        </p>
+
+        <div style="display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md); background: var(--gray-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+          <div style="flex: 1;">
+            <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0 0 4px 0; font-weight: 500;">Dernière synchronisation</p>
+            <p id="lastSyncTime" style="font-size: 0.95rem; color: var(--gray-700); margin: 0; font-weight: 600;">Jamais</p>
+          </div>
+          <div style="flex: 1;">
+            <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0 0 4px 0; font-weight: 500;">Statut</p>
+            <p id="syncStatusText" style="font-size: 0.95rem; color: var(--gray-700); margin: 0; font-weight: 600;">Non synchronisé</p>
+          </div>
+        </div>
+
+        <button id="forceSyncButton" style="padding: var(--spacing-md) var(--spacing-lg); background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all var(--transition); box-shadow: var(--shadow); display: flex; align-items: center; gap: var(--spacing-sm); font-size: 0.9rem;">
+          <span>🔄</span>
+          <span>Synchroniser maintenant</span>
+        </button>
+
+        <p id="syncMessage" style="margin: var(--spacing-md) 0 0 0; font-size: 0.85rem; display: none;"></p>
+
+        <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--gray-200);">
+          <p style="font-size: 0.85rem; color: var(--gray-600); margin: 0 0 var(--spacing-sm) 0;">
+            Vous n'avez pas encore de compte Premium ?
+          </p>
+          <button id="loginBackendButton" style="padding: var(--spacing-sm) var(--spacing-md); background: white; color: var(--primary-600); border: 2px solid var(--primary-500); border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all var(--transition); font-size: 0.85rem;">
+            Se connecter au Dashboard
+          </button>
+        </div>
+      </div>
+
       <!-- Tab: Général -->
       <div id="tab-general" class="tab-content active">
         <!-- Mode de Protection -->
@@ -2880,6 +2954,9 @@
       </div>
     </main>
   </div>
+
+  <!-- Modal d'upgrade Premium (inclure le composant) -->
+  <div id="upgrade-modal-container"></div>
 
   <script type="module" src="options.js"></script>
 </body>

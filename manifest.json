@@ -16,7 +16,8 @@
     "webNavigation"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "https://www.muslim-guard.com/*"
   ],
   "background": {
     "service_worker": "background.js",

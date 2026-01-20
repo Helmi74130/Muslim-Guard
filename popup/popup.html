@@ -72,6 +72,95 @@
     }
 
     /* ============================================
+       PLAN BANNER
+       ============================================ */
+
+    #planBanner {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #planBanner.hidden {
+      display: none;
+    }
+
+    #planBanner.premium {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-color: #fbbf24;
+    }
+
+    #planBanner.trial {
+      background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+      border-color: #8b5cf6;
+    }
+
+    .plan-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-icon {
+      font-size: 18px;
+    }
+
+    .plan-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      margin: 0;
+    }
+
+    .plan-subtitle {
+      font-size: 11px;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    #planBanner.premium .plan-title {
+      color: #92400e;
+    }
+
+    #planBanner.trial .plan-title {
+      color: #5b21b6;
+    }
+
+    #upgradePlanBtn {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #00305a 0%, #004179 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    #upgradePlanBtn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 48, 90, 0.25);
+    }
+
+    #upgradePlanBtn:active {
+      transform: translateY(0);
+    }
+
+    /* ============================================
        TOGGLE PROTECTION
        ============================================ */
 
@@ -586,6 +675,30 @@
       <div id="statusBadge">
         <!-- Rempli par JS -->
       </div>
+    </div>
+
+    <!-- Plan Banner -->
+    <div id="planBanner" class="hidden">
+      <div class="plan-info">
+        <span class="plan-icon" id="planIcon">🔓</span>
+        <div class="plan-details">
+          <p class="plan-title" id="planTitle">Version Gratuite</p>
+          <p class="plan-subtitle" id="planSubtitle">Quotas limités</p>
+        </div>
+      </div>
+      <button id="upgradePlanBtn">✨ Upgrade</button>
+    </div>
+
+    <!-- Login Prompt (shown only if Free and not connected) -->
+    <div id="loginPrompt" class="hidden" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #60a5fa; display: flex; align-items: center; gap: 12px;">
+      <div style="font-size: 24px;">🔐</div>
+      <div style="flex: 1;">
+        <p style="font-size: 13px; font-weight: 600; color: #1e3a8a; margin: 0 0 4px 0;">Connectez-vous pour activer Premium</p>
+        <p style="font-size: 12px; color: #1e40af; margin: 0;">Accédez à votre abonnement payant</p>
+      </div>
+      <button id="loginButton" style="padding: 8px 14px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.15s;">
+        Se connecter
+      </button>
     </div>
 
     <!-- Protection Toggle -->
