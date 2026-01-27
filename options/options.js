@@ -16,6 +16,8 @@ import { verifyExtensionToken, fetchUserData } from '../utils/api.js';
 let config = null;
 let isAuthenticated = false;
 let hasUnsavedChanges = false; // Détection des changements non sauvegardés
+let toastShown = false; // Pour n'afficher le toast qu'une seule fois
+let toastTimeout = null; // Pour gérer le timeout du toast
 
 // ============================================
 // HELPER FUNCTIONS POUR SYSTÈME DE TAGS
@@ -635,18 +637,78 @@ function setupTabs() {
 function markAsChanged() {
   hasUnsavedChanges = true;
   updateSaveButtonState();
+
+  // Afficher le toast seulement la première fois
+  if (!toastShown) {
+    showUnsavedToast();
+    toastShown = true;
+  }
 }
 
 // Marque que tout est sauvegardé
 function markAsSaved() {
   hasUnsavedChanges = false;
+  toastShown = false; // Reset pour la prochaine série de changements
   updateSaveButtonState();
+  hideUnsavedToast();
+}
+
+// Affiche le toast de changements non sauvegardés
+function showUnsavedToast() {
+  // Créer le toast s'il n'existe pas
+  let toast = document.getElementById('unsavedToast');
+
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'unsavedToast';
+    toast.className = 'unsaved-toast';
+    toast.innerHTML = `
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <span>Modifications non sauvegardées</span>
+    `;
+
+    // Fermer le toast au clic
+    toast.addEventListener('click', () => {
+      hideUnsavedToast();
+    });
+
+    document.body.appendChild(toast);
+  }
+
+  // Afficher le toast
+  toast.style.display = 'flex';
+  toast.classList.remove('fade-out');
+
+  // Masquer automatiquement après 4 secondes
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+  }
+
+  toastTimeout = setTimeout(() => {
+    hideUnsavedToast();
+  }, 4000);
+}
+
+// Cache le toast
+function hideUnsavedToast() {
+  const toast = document.getElementById('unsavedToast');
+
+  if (toast) {
+    toast.classList.add('fade-out');
+
+    // Supprimer complètement après l'animation
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.display = 'none';
+      }
+    }, 300);
+  }
 }
 
 // Met à jour l'état visuel du bouton Sauvegarder
 function updateSaveButtonState() {
   const saveBtn = document.getElementById('saveBtn');
-  const unsavedIndicator = document.getElementById('unsavedIndicator');
+  const unsavedBadge = document.getElementById('unsavedBadge');
 
   if (!saveBtn) return;
 
@@ -654,17 +716,17 @@ function updateSaveButtonState() {
     // Ajouter l'animation de pulsation
     saveBtn.classList.add('has-changes');
 
-    // Afficher l'indicateur de changements
-    if (unsavedIndicator) {
-      unsavedIndicator.style.display = 'flex';
+    // Afficher le badge
+    if (unsavedBadge) {
+      unsavedBadge.style.display = 'block';
     }
   } else {
     // Retirer l'animation
     saveBtn.classList.remove('has-changes');
 
-    // Masquer l'indicateur
-    if (unsavedIndicator) {
-      unsavedIndicator.style.display = 'none';
+    // Masquer le badge
+    if (unsavedBadge) {
+      unsavedBadge.style.display = 'none';
     }
   }
 }

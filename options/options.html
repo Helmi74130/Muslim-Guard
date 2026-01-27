@@ -230,6 +230,59 @@
       background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     }
 
+    /* Toast notification flottante */
+    .unsaved-toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      color: #92400e;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .unsaved-toast:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 45px rgba(0, 0, 0, 0.2);
+    }
+
+    .unsaved-toast.fade-out {
+      animation: slideOutRight 0.3s ease-in forwards;
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
     /* ============================================
        MAIN CONTENT
        ============================================ */
@@ -2384,15 +2437,11 @@
           </button>
         </div>
 
-        <!-- Indicateur de changements non sauvegardés -->
-        <div id="unsavedIndicator" style="display: none; align-items: center; gap: 8px; padding: 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 8px; margin-bottom: 12px; color: #92400e; font-size: 0.9rem; font-weight: 600;">
-          <span style="font-size: 1.2rem;">⚠️</span>
-          <span>Modifications non sauvegardées</span>
-        </div>
-
-        <button id="saveBtn">
+        <button id="saveBtn" style="position: relative;">
           <span style="margin-right: 8px;">💾</span>
           <span>Sauvegarder</span>
+          <!-- Badge de notification (caché par défaut) -->
+          <span id="unsavedBadge" style="display: none; position: absolute; top: -6px; right: -6px; width: 12px; height: 12px; background: #f59e0b; border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></span>
         </button>
       </div>
     </aside>
