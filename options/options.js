@@ -36,7 +36,7 @@ function renderTags(containerId, items, counterId, label) {
 
   // Si vide, afficher message
   if (items.length === 0) {
-    container.innerHTML = '<div class="list-empty-state"><div class="list-empty-icon">📝</div><div>Aucun élément pour le moment</div></div>';
+    container.innerHTML = '<div class="list-empty-state"><div class="list-empty-icon"><img src="/assets/list.png" alt="" style="height: 28px;"></div><div>Aucun élément pour le moment</div></div>';
     return;
   }
 
@@ -1443,7 +1443,7 @@ function getCategoryDomains(category) {
 }
 
 // Toggle l'affichage des détails d'une catégorie
-function toggleCategoryDetails(category) {
+async function toggleCategoryDetails(category) {
   const detailsDiv = document.querySelector(`.category-details[data-category="${category}"]`);
 
   if (!detailsDiv) return;
@@ -1456,17 +1456,87 @@ function toggleCategoryDetails(category) {
 
   // Sinon, on affiche et on charge les domaines
   detailsDiv.style.display = 'block';
-  renderCategoryDomains(category);
+
+  // Gérer l'affichage des contrôles selon le plan
+  await manageCategoryControls(category, detailsDiv);
+
+  // Charger les domaines
+  await renderCategoryDomains(category);
+}
+
+// Gère l'affichage des contrôles d'ajout/suppression selon le plan
+async function manageCategoryControls(category, detailsDiv) {
+  const userPlan = await getUserPlan();
+  const isPremiumOrTrial = userPlan === 'premium' || userPlan === 'trial';
+
+  // Récupérer les éléments de contrôle
+  const addDomainDiv = detailsDiv.querySelector('.category-add-domain');
+  const restoreBtn = detailsDiv.querySelector('.restore-defaults-btn');
+
+  if (!isPremiumOrTrial) {
+    // Mode FREE : Cacher les contrôles d'ajout et restauration
+    if (addDomainDiv) {
+      addDomainDiv.style.display = 'none';
+    }
+    if (restoreBtn) {
+      restoreBtn.style.display = 'none';
+    }
+
+    // Ajouter un message Premium si pas déjà présent
+    let premiumNotice = detailsDiv.querySelector('.category-premium-notice');
+    if (!premiumNotice) {
+      premiumNotice = document.createElement('div');
+      premiumNotice.className = 'category-premium-notice';
+      premiumNotice.style.cssText = 'margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; text-align: center; color: white; font-size: 0.9rem; cursor: pointer;';
+      premiumNotice.innerHTML = `
+        <div style="font-weight: 600; margin-bottom: 4px;">🔒 Personnalisation Premium</div>
+        <div style="font-size: 0.85rem; opacity: 0.9;">Ajoutez ou supprimez des domaines avec Premium</div>
+      `;
+      premiumNotice.addEventListener('click', () => {
+        showUpgradeModal();
+      });
+
+      // Insérer après les domaines
+      const domainsListDiv = detailsDiv.querySelector('.category-domains-list');
+      if (domainsListDiv) {
+        domainsListDiv.after(premiumNotice);
+      }
+    }
+  } else {
+    // Mode PREMIUM/TRIAL : Afficher tous les contrôles
+    if (addDomainDiv) {
+      addDomainDiv.style.display = 'flex';
+    }
+    if (restoreBtn) {
+      restoreBtn.style.display = 'block';
+    }
+
+    // Supprimer le message Premium s'il existe
+    const premiumNotice = detailsDiv.querySelector('.category-premium-notice');
+    if (premiumNotice) {
+      premiumNotice.remove();
+    }
+  }
 }
 
 // Affiche la liste des domaines d'une catégorie
-function renderCategoryDomains(category) {
+async function renderCategoryDomains(category) {
   const domainsListDiv = document.getElementById(`domains-${category}`);
 
   if (!domainsListDiv) return;
 
-  const domains = getCategoryDomains(category);
+  // Récupérer le plan utilisateur
+  const userPlan = await getUserPlan();
+  const isPremiumOrTrial = userPlan === 'premium' || userPlan === 'trial';
+
+  let domains = getCategoryDomains(category);
   const defaultDomains = CATEGORIES[category]?.domains || [];
+
+  // En mode FREE : limiter à 10 domaines
+  const totalDomains = domains.length;
+  if (!isPremiumOrTrial && domains.length > 10) {
+    domains = domains.slice(0, 10);
+  }
 
   domainsListDiv.innerHTML = '';
 
@@ -1480,24 +1550,52 @@ function renderCategoryDomains(category) {
     const tag = document.createElement('div');
     tag.className = 'domain-tag';
 
-    // Tous les domaines ont maintenant un bouton de suppression
-    tag.innerHTML = `
-      <span class="domain-tag-text">${domain}</span>
-      <button class="remove-domain-btn" title="Supprimer ce domaine">×</button>
-    `;
+    // En mode FREE : pas de bouton de suppression
+    if (isPremiumOrTrial) {
+      tag.innerHTML = `
+        <span class="domain-tag-text">${domain}</span>
+        <button class="remove-domain-btn" title="Supprimer ce domaine">×</button>
+      `;
 
-    // Ajoute l'event listener pour la suppression
-    const removeBtn = tag.querySelector('.remove-domain-btn');
-    removeBtn.addEventListener('click', () => {
-      removeDomainFromCategory(category, domain, isCustom);
-    });
+      // Ajoute l'event listener pour la suppression
+      const removeBtn = tag.querySelector('.remove-domain-btn');
+      removeBtn.addEventListener('click', () => {
+        removeDomainFromCategory(category, domain, isCustom);
+      });
+    } else {
+      // Mode FREE : juste le nom du domaine, sans bouton de suppression
+      tag.innerHTML = `
+        <span class="domain-tag-text">${domain}</span>
+      `;
+    }
 
     domainsListDiv.appendChild(tag);
   });
+
+  // Afficher un message si des domaines sont cachés en mode FREE
+  if (!isPremiumOrTrial && totalDomains > 10) {
+    const premiumMessage = document.createElement('div');
+    premiumMessage.style.cssText = 'margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; text-align: center; color: white; font-size: 0.9rem;';
+    premiumMessage.innerHTML = `
+      <strong>🔒 ${totalDomains - 10} domaines masqués</strong><br>
+      <span style="font-size: 0.85rem; opacity: 0.9;">Passez en Premium pour voir et personnaliser tous les domaines</span>
+    `;
+    domainsListDiv.appendChild(premiumMessage);
+  }
 }
 
 // Ajoute un domaine à une catégorie
 async function addDomainToCategory(category, inputElement) {
+  // Vérifier le plan utilisateur
+  const userPlan = await getUserPlan();
+  const isPremiumOrTrial = userPlan === 'premium' || userPlan === 'trial';
+
+  if (!isPremiumOrTrial) {
+    showNotification('Fonctionnalité réservée aux utilisateurs Premium', 'error');
+    showUpgradeModal();
+    return;
+  }
+
   const domain = inputElement.value.trim().toLowerCase();
 
   // Validation
@@ -1543,6 +1641,16 @@ async function addDomainToCategory(category, inputElement) {
 
 // Supprime un domaine d'une catégorie
 async function removeDomainFromCategory(category, domain, isCustom) {
+  // Vérifier le plan utilisateur
+  const userPlan = await getUserPlan();
+  const isPremiumOrTrial = userPlan === 'premium' || userPlan === 'trial';
+
+  if (!isPremiumOrTrial) {
+    showNotification('Fonctionnalité réservée aux utilisateurs Premium', 'error');
+    showUpgradeModal();
+    return;
+  }
+
   if (isCustom) {
     // Domaine personnalisé : on le retire de customCategoryDomains
     if (!customCategoryDomains[category]) return;
@@ -1573,6 +1681,16 @@ async function removeDomainFromCategory(category, domain, isCustom) {
 
 // Restaure tous les domaines par défaut d'une catégorie
 async function restoreCategoryDefaults(category) {
+  // Vérifier le plan utilisateur
+  const userPlan = await getUserPlan();
+  const isPremiumOrTrial = userPlan === 'premium' || userPlan === 'trial';
+
+  if (!isPremiumOrTrial) {
+    showNotification('Fonctionnalité réservée aux utilisateurs Premium', 'error');
+    showUpgradeModal();
+    return;
+  }
+
   // Supprime tous les domaines marqués comme supprimés pour cette catégorie
   if (removedCategoryDomains[category]) {
     delete removedCategoryDomains[category];

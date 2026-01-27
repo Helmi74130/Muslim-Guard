@@ -3,7 +3,12 @@
   <!-- Header compact -->
   <div class="quota-header">
     <h3 class="quota-title">Quotas <span class="plan-badge" id="plan-badge">Gratuit</span></h3>
-    <span id="trial-days-badge" class="trial-badge" style="display: none;">🎉 <span id="trial-days-remaining">7j</span></span>
+    <div class="trial-info">
+      <span id="trial-days-badge" class="trial-badge" style="display: none;">🎉 <span id="trial-days-remaining">7j</span></span>
+      <span id="trial-countdown" class="trial-countdown" style="display: none;">
+        <span id="countdown-time">--h --m</span>
+      </span>
+    </div>
   </div>
 
   <!-- Liste des quotas en grille -->
@@ -123,6 +128,14 @@
     color: white;
   }
 
+  /* Trial info container */
+  .trial-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
   /* Trial badge compact */
   .trial-badge {
     background: #fef3c7;
@@ -131,6 +144,18 @@
     border-radius: 12px;
     font-size: 11px;
     font-weight: 600;
+  }
+
+  /* Trial countdown */
+  .trial-countdown {
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.5px;
   }
 
   /* Grille de quotas 2x3 */
@@ -206,7 +231,7 @@
   /* Bouton Upgrade compact */
   .upgrade-button {
     width: 100%;
-    background: linear-gradient(135deg, #00305a 0%, #004179 100%);
+    background: #2A7252;
     color: white;
     border: none;
     padding: 10px 16px;
@@ -219,7 +244,7 @@
 
   .upgrade-button:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 48, 90, 0.25);
+    box-shadow: 0 4px 12px #2A7252;
   }
 
   .upgrade-button:active {

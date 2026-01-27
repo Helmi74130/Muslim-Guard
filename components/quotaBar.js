@@ -40,6 +40,11 @@ export async function initQuotaBar() {
   // Afficher/masquer le banner d'essai
   updateTrialBanner(status.plan, status.trial.daysRemaining);
 
+  // Démarrer le compte à rebours si en période d'essai
+  if (status.plan === 'trial') {
+    startTrialCountdown();
+  }
+
   // Mettre à jour chaque quota
   updateQuotaDisplay('domains', status.quotas.blockedDomains);
   updateQuotaDisplay('keywords-url', status.quotas.blockedKeywordsUrl);
@@ -215,6 +220,57 @@ function setupUpgradeButton() {
   newButton.addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://www.muslim-guard.com/pricing' });
   });
+}
+
+/**
+ * Démarre le compte à rebours pour l'essai Premium
+ */
+let countdownInterval = null;
+
+async function startTrialCountdown() {
+  const countdownEl = document.getElementById('trial-countdown');
+  const countdownTime = document.getElementById('countdown-time');
+
+  if (!countdownEl || !countdownTime) return;
+
+  // Récupérer la date de fin de l'essai
+  const { trialEndDate } = await chrome.storage.local.get(['trialEndDate']);
+
+  if (!trialEndDate) {
+    countdownEl.style.display = 'none';
+    return;
+  }
+
+  // Afficher le compte à rebours
+  countdownEl.style.display = 'inline-block';
+
+  // Arrêter tout interval existant
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  // Fonction pour mettre à jour le compte à rebours
+  const updateCountdown = () => {
+    const now = Date.now();
+    const remaining = trialEndDate - now;
+
+    if (remaining <= 0) {
+      countdownTime.textContent = 'Expiré';
+      clearInterval(countdownInterval);
+      return;
+    }
+
+    const hours = Math.floor(remaining / (60 * 60 * 1000));
+    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+
+    countdownTime.textContent = `${hours}h ${minutes}m`;
+  };
+
+  // Mise à jour initiale
+  updateCountdown();
+
+  // Mise à jour toutes les minutes
+  countdownInterval = setInterval(updateCountdown, 60000);
 }
 
 /**
