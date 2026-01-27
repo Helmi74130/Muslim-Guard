@@ -79,9 +79,10 @@ export const DEFAULT_CONFIG = {
   prayerCalculationMethod: 3, // Muslim World League par défaut
   prayerTimesLastUpdate: null, // Timestamp de la dernière mise à jour
   dailyLimitMinutes: 0, // 0 = désactivé
-  allowedHoursStart: '00:00',
-  allowedHoursEnd: '23:59',
+  allowedHoursStart: '00:00', // DEPRECATED - gardé pour migration
+  allowedHoursEnd: '23:59',   // DEPRECATED - gardé pour migration
   scheduleEnabled: false,
+  allowedSchedules: [], // Nouvelles plages horaires multiples: [{ id, start, end, enabled }]
 
   // Monitoring
   loggingEnabled: true,

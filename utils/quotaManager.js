@@ -710,6 +710,45 @@ export async function migrateKeywords() {
   );
 }
 
+/**
+ * Migre l'ancienne plage horaire unique (allowedHoursStart/End) vers le système multi-plages
+ */
+export async function migrateSchedules() {
+  const { allowedSchedules, allowedHoursStart, allowedHoursEnd, scheduleEnabled } =
+    await chrome.storage.local.get([
+      'allowedSchedules',
+      'allowedHoursStart',
+      'allowedHoursEnd',
+      'scheduleEnabled'
+    ]);
+
+  // Si déjà migré (allowedSchedules existe et n'est pas vide), on skip
+  if (allowedSchedules && allowedSchedules.length > 0) {
+    return;
+  }
+
+  // Si l'ancienne config n'existe pas ou est désactivée, on ne fait rien
+  if (!allowedHoursStart || !allowedHoursEnd) {
+    return;
+  }
+
+  console.log('Migration des plages horaires: conversion de l\'ancienne plage unique');
+
+  // Créer une plage unique à partir de l'ancienne config
+  const migratedSchedule = {
+    id: Date.now().toString(),
+    start: allowedHoursStart,
+    end: allowedHoursEnd,
+    enabled: scheduleEnabled || false
+  };
+
+  await chrome.storage.local.set({
+    allowedSchedules: [migratedSchedule]
+  });
+
+  console.log('Migration des plages horaires terminée:', migratedSchedule);
+}
+
 // ============================================
 // FONCTIONS UTILITAIRES
 // ============================================

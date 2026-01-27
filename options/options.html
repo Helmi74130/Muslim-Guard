@@ -152,33 +152,44 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 56px;
       height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 10px;
+      padding: 0 20px;
       background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
       border: none;
-      border-radius: 50%;
+      border-radius: 28px;
       box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
       cursor: pointer;
       transition: all 0.3s ease;
       text-decoration: none;
       z-index: 1000;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     #reviewBtn:hover {
-      transform: translateY(-4px) scale(1.05);
+      transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(251, 191, 36, 0.5);
     }
 
     #reviewBtn:active {
-      transform: translateY(-2px) scale(1.02);
+      transform: translateY(-2px);
     }
 
     #reviewBtn .star-icon {
       font-size: 28px;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      flex-shrink: 0;
+    }
+
+    #reviewBtn .review-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     #saveBtn {
@@ -1531,14 +1542,18 @@
 
       /* Bouton flottant plus petit sur mobile */
       #reviewBtn {
-        width: 48px;
         height: 48px;
         bottom: 16px;
         right: 16px;
+        padding: 0 16px;
       }
 
       #reviewBtn .star-icon {
         font-size: 24px;
+      }
+
+      #reviewBtn .review-text {
+        font-size: 14px;
       }
     }
 
@@ -1744,6 +1759,10 @@
       pointer-events: all;
     }
 
+    .schedule-toggle{
+      width: 100% !important;
+    }
+
     /* ============================================
        PRAYER SECTION MODERN STYLES
        ============================================ */
@@ -1791,8 +1810,10 @@
     .toggle-checkbox {
       position: absolute;
       opacity: 0;
-      width: 0;
-      height: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 1;
     }
 
     .toggle-slider {
@@ -2281,6 +2302,118 @@
       line-height: 1.4;
     }
 
+    /* Nouvelle UI multi-plages */
+    .schedules-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      background: white;
+      border: 2px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      transition: all var(--transition);
+    }
+
+    .schedule-item:hover {
+      border-color: var(--primary-400);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+    }
+
+    .schedule-item-time {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      flex: 1;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      font-family: 'Courier New', monospace;
+    }
+
+    .schedule-item-arrow {
+      color: var(--primary-500);
+      font-weight: 700;
+    }
+
+    .schedule-item-toggle {
+      display: flex;
+      align-items: center;
+    }
+
+    .schedule-item-delete {
+      background: var(--red-50);
+      color: var(--red-600);
+      border: 2px solid var(--red-200);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-sm) var(--spacing-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .schedule-item-delete:hover {
+      background: var(--red-100);
+      border-color: var(--red-300);
+      transform: scale(1.05);
+    }
+
+    .schedule-add-form {
+      border-top: 2px dashed var(--gray-300);
+      padding-top: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .btn-add-schedule {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md) var(--spacing-xl);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+      white-space: nowrap;
+    }
+
+    .btn-add-schedule:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-add-schedule:active {
+      transform: translateY(0);
+    }
+
+    .schedule-error {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: var(--red-50);
+      border: 2px solid var(--red-300);
+      border-radius: var(--radius-md);
+      color: var(--red-700);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .schedules-list:empty::after {
+      content: "Aucune plage horaire définie. Ajoutez-en une ci-dessous.";
+      display: block;
+      text-align: center;
+      padding: var(--spacing-xl);
+      color: var(--gray-500);
+      font-style: italic;
+    }
+
     /* ============================================
        NOTIFICATION ANIMATIONS
        ============================================ */
@@ -2404,12 +2537,12 @@
           <span>Général</span>
         </button>
         <button class="tab-btn" data-tab="lists">
-          <img src="/assets/list.png" alt="" style="height: 18px;">
+          <img src="/assets/clipboard-list.png" alt="" style="height: 18px;">
           <span>Listes</span>
         </button>
         <button class="tab-btn" data-tab="schedule">
           <img src="/assets/clock-1.png" alt="" style="height: 18px;">
-          <span>Horaires</span>
+          <span>Horaires & Prières</span>
         </button>
         <button class="tab-btn" data-tab="appearance">
           <img src="/assets/fingerprint-pattern.png" alt="" style="height: 18px;">
@@ -2448,6 +2581,7 @@
     <!-- Bouton flottant pour laisser un avis -->
     <a id="reviewBtn" href="https://chromewebstore.google.com/detail/muslimguard-contr%C3%B4le-pare/khilbklefblhhcombalbofjjliplfdnp/reviews" target="_blank" title="Laisser un avis">
       <span class="star-icon">⭐</span>
+      <span class="review-text">Laisser un avis</span>
     </a>
 
     <!-- Main Content -->
@@ -3091,37 +3225,52 @@
           <div class="schedule-time-config">
             <div class="schedule-time-card">
               <div class="schedule-time-header">
-                <span class="schedule-time-title">Plage horaire autorisée</span>
+                <span class="schedule-time-title">Plages horaires autorisées</span>
               </div>
               <p class="">Définissez les heures pendant lesquelles Internet sera accessible</p>
 
-              <div class="schedule-time-inputs">
-                <div class="schedule-input-wrapper">
-                  <label for="allowedHoursStart" class="schedule-label">
-                    <span class="schedule-label-text">Début d'accès</span>
-                  </label>
-                  <div class="schedule-input-box">
-                    <input type="time" id="allowedHoursStart" class="schedule-time-input">
+              <!-- Liste des plages horaires -->
+              <div id="schedulesList" class="schedules-list">
+                <!-- Les plages seront ajoutées dynamiquement ici -->
+              </div>
+
+              <!-- Formulaire d'ajout de plage -->
+              <div class="schedule-add-form">
+                <div class="schedule-time-inputs">
+                  <div class="schedule-input-wrapper">
+                    <label for="newScheduleStart" class="schedule-label">
+                      <span class="schedule-label-text">Début</span>
+                    </label>
+                    <div class="schedule-input-box">
+                      <input type="time" id="newScheduleStart" class="schedule-time-input" value="08:00">
+                    </div>
                   </div>
+
+                  <div class="schedule-separator">
+                    <span class="schedule-arrow">→</span>
+                  </div>
+
+                  <div class="schedule-input-wrapper">
+                    <label for="newScheduleEnd" class="schedule-label">
+                      <span class="schedule-label-text">Fin</span>
+                    </label>
+                    <div class="schedule-input-box">
+                      <input type="time" id="newScheduleEnd" class="schedule-time-input" value="22:00">
+                    </div>
+                  </div>
+
+                  <button type="button" id="addScheduleBtn" class="btn-add-schedule">
+                    <span>+ Ajouter</span>
+                  </button>
                 </div>
 
-                <div class="schedule-separator">
-                  <span class="schedule-arrow">→</span>
-                </div>
-
-                <div class="schedule-input-wrapper">
-                  <label for="allowedHoursEnd" class="schedule-label">
-                    <span class="schedule-label-text">Fin d'accès</span>
-                  </label>
-                  <div class="schedule-input-box">
-                    <input type="time" id="allowedHoursEnd" class="schedule-time-input">
-                  </div>
+                <div id="scheduleError" class="schedule-error" style="display: none;">
+                  <!-- Message d'erreur (chevauchement) -->
                 </div>
               </div>
 
               <div class="schedule-example">
-                <span class="schedule-example-icon">💡</span>
-                <span class="schedule-example-text">Exemple : 08:00 → 22:00 autorise l'accès de 8h du matin à 10h du soir</span>
+                <span class="schedule-example-text">Exemple : 08:00 → 12:00 et 14:00 → 22:00 pour bloquer l'accès entre 12h et 14h</span>
               </div>
             </div>
           </div>

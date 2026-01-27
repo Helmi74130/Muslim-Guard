@@ -198,11 +198,15 @@ async function loadRecentLogs(filter = 'all') {
 
       const reasonLabels = {
         'domain': 'Domaine bloqué',
+        'blocked_domain': 'Domaine bloqué',
         'keyword': 'Mot-clé',
-        'category': 'Catégorie',
+        'category': 'Catégorie bloquée',
         'strict': 'Mode strict',
-        'schedule': 'Hors horaires',
-        'prayer': 'Heure de prière'
+        'strict_mode': 'Mode strict',
+        'schedule': 'En dehors des heures autorisées',
+        'outside_schedule': 'En dehors des heures autorisées',
+        'prayer': 'Heure de prière',
+        'prayer_time': 'Heure de prière'
       };
 
       let reason = log.reason;

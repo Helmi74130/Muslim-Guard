@@ -596,15 +596,236 @@ function populateFields() {
   const scheduleEnabled = document.getElementById('scheduleEnabled');
   if (scheduleEnabled) scheduleEnabled.checked = config.scheduleEnabled;
 
-  const allowedHoursStart = document.getElementById('allowedHoursStart');
-  if (allowedHoursStart) allowedHoursStart.value = config.allowedHoursStart;
-
-  const allowedHoursEnd = document.getElementById('allowedHoursEnd');
-  if (allowedHoursEnd) allowedHoursEnd.value = config.allowedHoursEnd;
+  // Charger les plages horaires multiples
+  loadSchedulesList(config.allowedSchedules || []);
 
   // Apparence
   const blockPageMessage = document.getElementById('blockPageMessage');
   if (blockPageMessage) blockPageMessage.value = config.blockPageMessage;
+}
+
+// ============================================
+// GESTION DES PLAGES HORAIRES MULTIPLES
+// ============================================
+
+/**
+ * Affiche la liste des plages horaires
+ */
+function loadSchedulesList(schedules) {
+  const list = document.getElementById('schedulesList');
+  if (!list) return;
+
+  list.innerHTML = '';
+
+  schedules.forEach((schedule) => {
+    const item = document.createElement('div');
+    item.className = 'schedule-item';
+    item.dataset.scheduleId = schedule.id;
+
+    item.innerHTML = `
+      <div class="schedule-item-time">
+        <span>${schedule.start}</span>
+        <span class="schedule-item-arrow">→</span>
+        <span>${schedule.end}</span>
+      </div>
+      <div class="schedule-item-toggle">
+        <div class="toggle-switch">
+          <input type="checkbox" class="toggle-checkbox schedule-toggle" data-schedule-id="${schedule.id}" ${schedule.enabled ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </div>
+      </div>
+      <button class="schedule-item-delete" data-schedule-id="${schedule.id}">
+        Supprimer
+      </button>
+    `;
+
+    list.appendChild(item);
+  });
+
+  // Ajouter les écouteurs d'événements
+  document.querySelectorAll('.schedule-toggle').forEach((toggle) => {
+    toggle.addEventListener('change', toggleScheduleEnabled);
+  });
+
+  document.querySelectorAll('.schedule-item-delete').forEach((btn) => {
+    btn.addEventListener('click', deleteSchedule);
+  });
+}
+
+/**
+ * Ajoute une nouvelle plage horaire
+ */
+async function addSchedule() {
+  const startInput = document.getElementById('newScheduleStart');
+  const endInput = document.getElementById('newScheduleEnd');
+  const errorDiv = document.getElementById('scheduleError');
+
+  if (!startInput || !endInput) return;
+
+  const start = startInput.value;
+  const end = endInput.value;
+
+  // Validation basique
+  if (!start || !end) {
+    showScheduleError('Veuillez remplir les deux champs');
+    return;
+  }
+
+  // Récupérer les plages existantes
+  const config = await getConfig();
+  const schedules = config.allowedSchedules || [];
+
+  // Vérifier les chevauchements
+  const overlap = checkScheduleOverlap(start, end, schedules);
+  if (overlap) {
+    showScheduleError(
+      `Cette plage chevauche une plage existante (${overlap.start} → ${overlap.end}). Veuillez choisir d'autres horaires.`
+    );
+    return;
+  }
+
+  // Créer la nouvelle plage
+  const newSchedule = {
+    id: Date.now().toString(),
+    start,
+    end,
+    enabled: true
+  };
+
+  schedules.push(newSchedule);
+
+  // Sauvegarder
+  await setValue('allowedSchedules', schedules);
+
+  // Recharger l'affichage
+  loadSchedulesList(schedules);
+
+  // Réinitialiser le formulaire
+  startInput.value = '08:00';
+  endInput.value = '22:00';
+  hideScheduleError();
+
+  // Marquer comme modifié
+  markAsChanged();
+}
+
+/**
+ * Supprime une plage horaire
+ */
+async function deleteSchedule(event) {
+  const scheduleId = event.target.dataset.scheduleId;
+  const config = await getConfig();
+  let schedules = config.allowedSchedules || [];
+
+  schedules = schedules.filter((s) => s.id !== scheduleId);
+
+  await setValue('allowedSchedules', schedules);
+  loadSchedulesList(schedules);
+  markAsChanged();
+}
+
+/**
+ * Active/désactive une plage horaire
+ */
+async function toggleScheduleEnabled(event) {
+  const scheduleId = event.target.dataset.scheduleId;
+  const enabled = event.target.checked;
+
+  const config = await getConfig();
+  const schedules = config.allowedSchedules || [];
+
+  const schedule = schedules.find((s) => s.id === scheduleId);
+  if (schedule) {
+    schedule.enabled = enabled;
+    await setValue('allowedSchedules', schedules);
+    markAsChanged();
+  }
+}
+
+/**
+ * Vérifie si une nouvelle plage chevauche une plage existante
+ */
+function checkScheduleOverlap(newStart, newEnd, existingSchedules) {
+  const newStartMinutes = timeToMinutes(newStart);
+  const newEndMinutes = timeToMinutes(newEnd);
+
+  for (const schedule of existingSchedules) {
+    const startMinutes = timeToMinutes(schedule.start);
+    const endMinutes = timeToMinutes(schedule.end);
+
+    // Cas 1: Plage normale (ne traverse pas minuit)
+    if (newEndMinutes >= newStartMinutes && endMinutes >= startMinutes) {
+      // Vérifier le chevauchement simple
+      if (
+        (newStartMinutes >= startMinutes && newStartMinutes < endMinutes) ||
+        (newEndMinutes > startMinutes && newEndMinutes <= endMinutes) ||
+        (newStartMinutes <= startMinutes && newEndMinutes >= endMinutes)
+      ) {
+        return schedule;
+      }
+    }
+    // Cas 2: Une des plages traverse minuit
+    else if (newEndMinutes < newStartMinutes || endMinutes < startMinutes) {
+      // Si la nouvelle plage traverse minuit
+      if (newEndMinutes < newStartMinutes) {
+        // Elle chevauche forcément (simplifié pour la v1)
+        if (endMinutes >= startMinutes) {
+          // Plage existante normale
+          if (
+            (newStartMinutes >= startMinutes && newStartMinutes < endMinutes) ||
+            (newEndMinutes > startMinutes && newEndMinutes <= endMinutes) ||
+            startMinutes >= newStartMinutes ||
+            endMinutes <= newEndMinutes
+          ) {
+            return schedule;
+          }
+        } else {
+          // Les deux traversent minuit - toujours un chevauchement
+          return schedule;
+        }
+      }
+      // Si la plage existante traverse minuit
+      else if (endMinutes < startMinutes) {
+        if (
+          (newStartMinutes >= startMinutes || newStartMinutes < endMinutes) ||
+          (newEndMinutes > startMinutes || newEndMinutes <= endMinutes)
+        ) {
+          return schedule;
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Convertit une heure (HH:MM) en minutes
+ */
+function timeToMinutes(time) {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+/**
+ * Affiche un message d'erreur
+ */
+function showScheduleError(message) {
+  const errorDiv = document.getElementById('scheduleError');
+  if (errorDiv) {
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+}
+
+/**
+ * Cache le message d'erreur
+ */
+function hideScheduleError() {
+  const errorDiv = document.getElementById('scheduleError');
+  if (errorDiv) {
+    errorDiv.style.display = 'none';
+  }
 }
 
 // Gestion des tabs
@@ -965,6 +1186,9 @@ function setupEventListeners() {
       durationConfig.style.display = e.target.checked ? 'block' : 'none';
     }
   });
+
+  // Bouton d'ajout de plage horaire
+  document.getElementById('addScheduleBtn')?.addEventListener('click', addSchedule);
 }
 
 // Sauvegarde la configuration
@@ -980,8 +1204,6 @@ async function saveConfig() {
     const blockAdult = document.getElementById('blockAdult');
     const prayerPauseEnabled = document.getElementById('prayerPauseEnabled');
     const scheduleEnabled = document.getElementById('scheduleEnabled');
-    const allowedHoursStart = document.getElementById('allowedHoursStart');
-    const allowedHoursEnd = document.getElementById('allowedHoursEnd');
     const blockPageMessage = document.getElementById('blockPageMessage');
 
     if (!protectionModeInput || !blockSocialMedia) {
@@ -1043,10 +1265,8 @@ async function saveConfig() {
     }
     // Si mode auto, on ne touche pas aux horaires (déjà sauvegardés par l'API)
 
-    // Autres horaires
+    // Autres horaires (allowedSchedules est géré séparément via addSchedule/deleteSchedule)
     newConfig.scheduleEnabled = scheduleEnabled?.checked || false;
-    newConfig.allowedHoursStart = allowedHoursStart?.value || '00:00';
-    newConfig.allowedHoursEnd = allowedHoursEnd?.value || '23:59';
 
     // Apparence
     newConfig.blockPageMessage = blockPageMessage?.value || 'Ce site est bloqué';

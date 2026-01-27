@@ -13,6 +13,7 @@ import {
   syncUserSubscription,
   enforceQuotasOnLoad,
   migrateKeywords,
+  migrateSchedules,
   verifyQuotaIntegrity
 } from './utils/quotaManager.js';
 import { registerExtension, linkExtensionToAccount } from './utils/api.js';
@@ -83,6 +84,9 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
       // Migrer les mots-clés de l'ancienne liste unique vers 2 listes séparées
       await migrateKeywords();
+
+      // Migrer l'ancienne plage horaire unique vers le système multi-plages
+      await migrateSchedules();
 
       // Notification
       chrome.notifications.create('trial-started', {
@@ -432,21 +436,39 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
       return;
     }
 
-    // Vérifie les horaires autorisés
-    if (config.scheduleEnabled) {
+    // Vérifie les horaires autorisés (système multi-plages)
+    if (config.scheduleEnabled && config.allowedSchedules && config.allowedSchedules.length > 0) {
       const now = new Date();
       const currentTime = now.getHours() * 60 + now.getMinutes();
 
-      const [startH, startM] = config.allowedHoursStart.split(':').map(Number);
-      const [endH, endM] = config.allowedHoursEnd.split(':').map(Number);
+      // Vérifie si l'heure actuelle est dans AU MOINS UNE plage autorisée et activée
+      const isInAllowedSchedule = config.allowedSchedules.some((schedule) => {
+        if (!schedule.enabled) return false;
 
-      const startMinutes = startH * 60 + startM;
-      const endMinutes = endH * 60 + endM;
+        const [startH, startM] = schedule.start.split(':').map(Number);
+        const [endH, endM] = schedule.end.split(':').map(Number);
 
-      if (currentTime < startMinutes || currentTime > endMinutes) {
+        const startMinutes = startH * 60 + startM;
+        const endMinutes = endH * 60 + endM;
+
+        // Gestion des plages qui passent minuit (ex: 22:00 -> 02:00)
+        if (endMinutes < startMinutes) {
+          // La plage traverse minuit
+          return currentTime >= startMinutes || currentTime <= endMinutes;
+        } else {
+          // Plage normale dans la même journée
+          return currentTime >= startMinutes && currentTime <= endMinutes;
+        }
+      });
+
+      // Si aucune plage ne correspond, bloquer
+      if (!isInAllowedSchedule) {
         await addBlockedLog(details.url, 'outside_schedule');
         chrome.tabs.update(details.tabId, {
-          url: chrome.runtime.getURL('blocked/blocked.html') + '?reason=schedule&url=' + encodeURIComponent(details.url)
+          url:
+            chrome.runtime.getURL('blocked/blocked.html') +
+            '?reason=schedule&url=' +
+            encodeURIComponent(details.url)
         });
         return;
       }
