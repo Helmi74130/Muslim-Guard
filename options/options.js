@@ -995,7 +995,7 @@ async function saveConfig() {
     const originalText = saveBtn?.innerHTML;
     if (saveBtn) {
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '<span style="margin-right: 8px;">⏳</span>Sauvegarde...';
+      saveBtn.innerHTML = 'Sauvegarde en cours...';
     }
 
     const newConfig = {
@@ -1065,7 +1065,7 @@ async function saveConfig() {
     // Restaurer le bouton
     if (saveBtn) {
       saveBtn.disabled = false;
-      saveBtn.innerHTML = '<span style="margin-right: 8px;">💾</span>Sauvegarder';
+      saveBtn.innerHTML = 'Sauvegarder';
     }
   } catch (error) {
     console.error('Erreur lors de la sauvegarde:', error);
@@ -1075,7 +1075,7 @@ async function saveConfig() {
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
       saveBtn.disabled = false;
-      saveBtn.innerHTML = '<span style="margin-right: 8px;">💾</span>Sauvegarder';
+      saveBtn.innerHTML = 'Sauvegarder';
     }
   }
 }
