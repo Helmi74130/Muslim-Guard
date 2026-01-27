@@ -207,7 +207,12 @@ function setupUpgradeButton() {
   const upgradeButton = document.getElementById('upgrade-button');
   if (!upgradeButton) return;
 
-  upgradeButton.addEventListener('click', () => {
+  // Supprimer tous les event listeners existants en clonant le bouton
+  const newButton = upgradeButton.cloneNode(true);
+  upgradeButton.parentNode.replaceChild(newButton, upgradeButton);
+
+  // Ajouter un seul event listener au nouveau bouton
+  newButton.addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://www.muslim-guard.com/pricing' });
   });
 }

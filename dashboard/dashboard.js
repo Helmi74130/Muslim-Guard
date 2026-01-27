@@ -66,7 +66,9 @@ async function loadTopSites() {
     if (topSites.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">📊</div>
+          <div class="empty-state-icon">
+          <img src="/assets/chart-pie.png" style="height: 50px;">
+          </div>
           <div>Aucun site bloqué cette semaine</div>
         </div>
       `;

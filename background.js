@@ -15,6 +15,7 @@ import {
   migrateKeywords,
   verifyQuotaIntegrity
 } from './utils/quotaManager.js';
+import { registerExtension, linkExtensionToAccount } from './utils/api.js';
 
 // État global
 let config = null;
@@ -28,7 +29,17 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     // Première installation
     await setValue('installDate', Date.now());
 
-    // Activer l'essai Premium de 7 jours pour les nouveaux utilisateurs
+    // 1. ENREGISTRER L'EXTENSION AUPRÈS DU BACKEND
+    console.log('📡 Enregistrement de l\'extension auprès du backend...');
+    const registration = await registerExtension();
+
+    if (registration.success) {
+      console.log('✅ Extension enregistrée avec succès, token:', registration.token);
+    } else {
+      console.warn('⚠️ Échec de l\'enregistrement backend, mode local uniquement:', registration.error);
+    }
+
+    // 2. Activer l'essai Premium de 7 jours pour les nouveaux utilisateurs
     const trialStartDate = Date.now();
     const trialEndDate = trialStartDate + 7 * 24 * 60 * 60 * 1000;
 
@@ -195,6 +206,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 async function checkPrayerTime() {
   try {
     await loadConfig(); // Recharge la config
+
+    // Ne rien faire si la protection est désactivée
+    if (!config.protectionEnabled) {
+      isPrayerTime = false;
+      return;
+    }
 
     if (!config.prayerPauseEnabled) {
       isPrayerTime = false;
@@ -501,42 +518,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true; // Indique qu'on va répondre de manière asynchrone
 });
 
-/**
- * Détecte automatiquement quand l'utilisateur se connecte sur muslim-guard.com
- */
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  try {
-    // Ne traiter que les pages complètement chargées
-    if (changeInfo.status !== 'complete') return;
-
-    // Vérifier si c'est le site muslim-guard.com
-    if (!tab.url || !tab.url.includes('muslim-guard.com')) return;
-
-    console.log('Site MuslimGuard détecté, tentative de synchronisation...');
-
-    // Attendre 2 secondes pour que les cookies soient bien définis
-    setTimeout(async () => {
-      const result = await syncUserSubscription();
-
-      // Si l'utilisateur vient de passer en Premium, afficher une notification
-      if (result.plan === 'premium' && result.changed) {
-        chrome.notifications.create('premium-activated', {
-          type: 'basic',
-          iconUrl: 'icons/icon128.png',
-          title: '✅ Compte Premium activé !',
-          message: 'Votre abonnement Premium a été détecté. Toutes les fonctionnalités sont débloquées !'
-        });
-
-        // Recharger la config
-        await loadConfig();
-      } else if (result.offline) {
-        console.warn('Impossible de synchroniser : backend inaccessible');
-      }
-    }, 2000);
-  } catch (error) {
-    console.error('Erreur lors de la détection de connexion:', error);
-  }
-});
+// NOTE: Listener tabs.onUpdated déplacé plus bas (ligne 626+)
+// pour éviter les doublons et fusionner la logique d'enregistrement + sync
 
 /**
  * Ajoute un domaine à la whitelist temporaire
@@ -606,4 +589,80 @@ chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) =
 
   // Fermer la notification
   chrome.notifications.clear(notificationId);
+});
+
+/**
+ * Détecte quand l'utilisateur visite muslim-guard.com
+ * et tente de lier l'extension à son compte
+ */
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  // Attendre que la page soit complètement chargée
+  if (changeInfo.status !== 'complete') return;
+  if (!tab.url || !tab.url.includes('muslim-guard.com')) return;
+
+  console.log('🌐 Visite de muslim-guard.com détectée');
+
+  // Vérifier si on a déjà un token
+  const { extensionToken } = await chrome.storage.local.get('extensionToken');
+
+  if (!extensionToken) {
+    console.warn('⚠️ Pas de token, enregistrement nécessaire');
+    const registration = await registerExtension();
+
+    if (!registration.success) {
+      console.error('❌ Échec de l\'enregistrement');
+      return;
+    }
+  }
+
+  // Attendre 2 secondes pour que les cookies de session soient définis
+  setTimeout(async () => {
+    // Toujours vérifier si l'utilisateur est toujours connecté
+    const linkResult = await linkExtensionToAccount();
+
+    if (linkResult.success) {
+      // Utilisateur connecté
+      const { isAuthenticated: wasAuthenticated } = await chrome.storage.local.get('isAuthenticated');
+
+      if (!wasAuthenticated) {
+        // Nouvelle connexion
+        console.log('✅ Extension liée à l\'équipe:', linkResult.message);
+      } else {
+        // Déjà connecté, juste faire un sync
+        console.log('✅ Extension déjà liée, synchronisation du plan...');
+      }
+
+      // Synchroniser pour récupérer les nouvelles données utilisateur
+      const syncResult = await syncUserSubscription();
+
+      if (syncResult.plan === 'premium' && syncResult.changed) {
+        // Passage en Premium détecté
+        chrome.notifications.create('premium-activated', {
+          type: 'basic',
+          iconUrl: 'icons/icon128.png',
+          title: '✅ Compte Premium activé !',
+          message:
+            'Votre extension est maintenant liée à votre abonnement Premium. Toutes les fonctionnalités sont débloquées !'
+        });
+
+        await loadConfig();
+      }
+    } else {
+      // Utilisateur déconnecté
+      const { isAuthenticated: wasAuthenticated } = await chrome.storage.local.get('isAuthenticated');
+
+      if (wasAuthenticated) {
+        // Déconnexion détectée - vider les données utilisateur
+        console.log('🚪 Déconnexion détectée, nettoyage des données utilisateur...');
+        await chrome.storage.local.set({
+          isAuthenticated: false,
+          userEmail: null,
+          storedEmail: null
+        });
+      } else {
+        // Jamais connecté
+        console.log('ℹ️ Utilisateur non connecté:', linkResult.message);
+      }
+    }
+  }, 2000);
 });

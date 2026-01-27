@@ -3,6 +3,7 @@
 import { getConfig, getValue, setValue } from '../utils/storage.js';
 import { verifyPin, isSetupComplete } from '../utils/auth.js';
 import { getTodayStats, calculateStreak, getAchievements } from '../utils/analytics.js';
+import { getExtensionStatus } from '../utils/extensionAuth.js';
 
 let config = null;
 let pendingAction = null;
@@ -360,12 +361,16 @@ async function loadPlanBanner() {
  */
 async function checkLoginStatus() {
   try {
+    const extensionStatus = await getExtensionStatus();
     const userPlan = await getValue('userPlan') || 'free';
     const loginPrompt = document.getElementById('loginPrompt');
     const loginButton = document.getElementById('loginButton');
 
-    // Afficher le bouton de connexion uniquement pour les utilisateurs Free
-    if (userPlan === 'free') {
+    // Afficher le bouton de connexion uniquement si:
+    // 1. L'extension est enregistrée (a un token)
+    // 2. Mais n'est PAS liée à un compte utilisateur
+    // 3. Et le plan est Free (potentiellement premium non réclamé)
+    if (extensionStatus.registered && !extensionStatus.linked && userPlan === 'free') {
       loginPrompt.classList.remove('hidden');
 
       // Event listener pour le bouton de connexion

@@ -138,33 +138,47 @@
       gap: var(--spacing-sm);
     }
 
-    /* Bouton d'avis discret */
-    #reviewBtn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 12px;
-      background: #f9fafb;
-      color: #6b7280;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-decoration: none;
-    }
-
-    #reviewBtn:hover {
-      background: #fef3c7;
-      color: #92400e;
-      border-color: #fbbf24;
+    #loginBackendButton:hover {
+      background: var(--primary-50);
       transform: translateY(-1px);
     }
 
+    #loginBackendButton:active {
+      transform: translateY(0);
+    }
+
+    /* Bouton flottant en bas à droite */
+    #reviewBtn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      z-index: 1000;
+    }
+
+    #reviewBtn:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(251, 191, 36, 0.5);
+    }
+
+    #reviewBtn:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+
     #reviewBtn .star-icon {
-      font-size: 14px;
+      font-size: 28px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
 
     #saveBtn {
@@ -189,32 +203,6 @@
     }
 
     #saveBtn:active {
-      transform: scale(0.98);
-    }
-
-    #dashboardLink {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--spacing-sm);
-      padding: var(--spacing-md) var(--spacing-lg);
-      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
-      color: white;
-      border: none;
-      border-radius: var(--radius-md);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition);
-      box-shadow: var(--shadow);
-      margin-top: var(--spacing-md);
-    }
-
-    #dashboardLink:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    #dashboardLink:active {
       transform: scale(0.98);
     }
 
@@ -252,6 +240,116 @@
       font-size: 0.875rem;
       color: var(--gray-600);
       margin: 0;
+    }
+
+    /* ============================================
+       USER HEADER
+       ============================================ */
+
+    .user-header {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-status-label {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .user-email {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .user-status-disconnected {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--gray-600);
+    }
+
+    .user-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-badge.connected {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .user-badge.disconnected {
+      background: var(--gray-200);
+      color: var(--gray-600);
+    }
+
+    .user-badge-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    @media (max-width: 768px) {
+      .user-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+        padding: var(--spacing-md);
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+      }
+
+      .user-email {
+        font-size: 0.875rem;
+      }
     }
 
     /* ============================================
@@ -597,16 +695,19 @@
       justify-content: center;
       cursor: pointer;
       font-size: 1.2rem;
-      transition: all var(--transition);
       z-index: 2;
+      transition: none !important;
+      animation: none !important;
     }
 
     .category-info-btn:hover {
       background: var(--primary-50);
       border-color: var(--primary-500);
+      transform: translateY(-50%);
     }
-        .category-info-btn:active {
-      transform: scale(0.95);
+
+    .category-info-btn:active {
+      transform: translateY(-50%);
     }
 
 
@@ -1344,6 +1445,23 @@
       .settings-section {
         padding: var(--spacing-lg);
         margin-bottom: var(--spacing-lg);
+      }
+
+      /* Quotas et Synchronisation en colonne sur mobile */
+      .main-content > div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Bouton flottant plus petit sur mobile */
+      #reviewBtn {
+        width: 48px;
+        height: 48px;
+        bottom: 16px;
+        right: 16px;
+      }
+
+      #reviewBtn .star-icon {
+        font-size: 24px;
       }
     }
 
@@ -2205,74 +2323,103 @@
 
       <nav class="sidebar-nav">
         <button class="tab-btn active" data-tab="general">
+          <img src="/assets/layers.png" alt="" style="height: 18px;">
           <span>Général</span>
         </button>
         <button class="tab-btn" data-tab="lists">
+          <img src="/assets/list.png" alt="" style="height: 18px;">
           <span>Listes</span>
         </button>
         <button class="tab-btn" data-tab="schedule">
+          <img src="/assets/clock-1.png" alt="" style="height: 18px;">
           <span>Horaires</span>
         </button>
         <button class="tab-btn" data-tab="appearance">
+          <img src="/assets/fingerprint-pattern.png" alt="" style="height: 18px;">
           <span>Sécurité</span>
+        </button>
+        <button id="dashboardLink" class="tab-btn">
+          <img src="/assets/chart-line.png" alt="" style="height: 18px;">
+          <span>Statistique</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
+        <!-- Section Premium -->
+        <div style="padding: var(--spacing-md); background: var(--gray-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md); border: 1px solid var(--gray-200);">
+          <p style="font-size: 0.8rem; color: var(--gray-600); margin: 0 0 var(--spacing-sm) 0; text-align: center;">
+            Vous n'avez pas encore de compte Premium ?
+          </p>
+          <button id="loginBackendButton" style="width: 100%; padding: var(--spacing-sm) var(--spacing-md); background: white; color: var(--primary-600); border: 2px solid var(--primary-500); border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all var(--transition); font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
+            <img src="/assets/house.png" alt="" style="height: 16px;">
+            <span>Se connecter au Dashboard</span>
+          </button>
+        </div>
+
         <button id="saveBtn">
           <span>Sauvegarder</span>
         </button>
-        <button id="dashboardLink">
-          <span>Retour au Dashboard</span>
-        </button>
-        <a id="reviewBtn" href="https://chromewebstore.google.com/detail/muslimguard-contr%C3%B4le-pare/khilbklefblhhcombalbofjjliplfdnp/reviews" target="_blank">
-          <span class="star-icon">⭐</span>
-          <span>Laisser un avis</span>
-        </a>
       </div>
     </aside>
 
+    <!-- Bouton flottant pour laisser un avis -->
+    <a id="reviewBtn" href="https://chromewebstore.google.com/detail/muslimguard-contr%C3%B4le-pare/khilbklefblhhcombalbofjjliplfdnp/reviews" target="_blank" title="Laisser un avis">
+      <span class="star-icon">⭐</span>
+    </a>
+
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Section Quotas (inclure le composant) -->
-      <div id="quota-section-container"></div>
-
-      <!-- Section Synchronisation du compte -->
-      <div class="settings-section" style="margin-bottom: var(--spacing-xl);">
-        <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--gray-800); margin: 0 0 var(--spacing-md) 0; display: flex; align-items: center; gap: var(--spacing-sm);">
-          <span>🔄</span>
-          <span>Synchronisation du compte</span>
-        </h3>
-        <p style="font-size: 0.875rem; color: var(--gray-600); margin: 0 0 var(--spacing-lg) 0;">
-          Synchronisez votre abonnement avec le backend pour activer les fonctionnalités Premium.
-        </p>
-
-        <div style="display: flex; align-items: center; gap: var(--spacing-lg); padding: var(--spacing-md); background: var(--gray-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
-          <div style="flex: 1;">
-            <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0 0 4px 0; font-weight: 500;">Dernière synchronisation</p>
-            <p id="lastSyncTime" style="font-size: 0.95rem; color: var(--gray-700); margin: 0; font-weight: 600;">Jamais</p>
+      <!-- User Header -->
+      <div class="user-header" id="userHeader">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">
+            <span id="userAvatarText">
+              <img src="/assets/user-round.png" alt="" style="height: 24px;">
+            </span>
           </div>
-          <div style="flex: 1;">
-            <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0 0 4px 0; font-weight: 500;">Statut</p>
-            <p id="syncStatusText" style="font-size: 0.95rem; color: var(--gray-700); margin: 0; font-weight: 600;">Non synchronisé</p>
+          <div class="user-details">
+            <span class="user-status-label">Compte</span>
+            <span class="user-email" id="userEmail" style="display: none;"></span>
+            <span class="user-status-disconnected" id="userDisconnected">Non connecté</span>
           </div>
         </div>
+        <div class="user-badge disconnected" id="userBadge">
+          <span class="user-badge-icon"></span>
+          <span>Hors ligne</span>
+        </div>
+      </div>
 
-        <button id="forceSyncButton" style="padding: var(--spacing-md) var(--spacing-lg); background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all var(--transition); box-shadow: var(--shadow); display: flex; align-items: center; gap: var(--spacing-sm); font-size: 0.9rem;">
-          <span>🔄</span>
-          <span>Synchroniser maintenant</span>
-        </button>
+      <!-- Conteneur flex pour Quotas et Synchronisation côte à côte -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
 
-        <p id="syncMessage" style="margin: var(--spacing-md) 0 0 0; font-size: 0.85rem; display: none;"></p>
+        <!-- Section Quotas (inclure le composant) -->
+        <div id="quota-section-container"></div>
 
-        <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--gray-200);">
-          <p style="font-size: 0.85rem; color: var(--gray-600); margin: 0 0 var(--spacing-sm) 0;">
-            Vous n'avez pas encore de compte Premium ?
+        <!-- Section Synchronisation du compte -->
+        <div class="settings-section">
+          <p style="font-size: 0.875rem; color: var(--gray-600); margin: 0 0 var(--spacing-lg) 0;">
+            Synchronisez votre abonnement pour activer les fonctionnalités Premium.
           </p>
-          <button id="loginBackendButton" style="padding: var(--spacing-sm) var(--spacing-md); background: white; color: var(--primary-600); border: 2px solid var(--primary-500); border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all var(--transition); font-size: 0.85rem;">
-            Se connecter au Dashboard
+
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); padding: var(--spacing-md); background: var(--gray-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0; font-weight: 500;">Dernière synchronisation</p>
+              <p id="lastSyncTime" style="font-size: 0.875rem; color: var(--gray-700); margin: 0; font-weight: 600;">Jamais</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <p style="font-size: 0.8rem; color: var(--gray-500); margin: 0; font-weight: 500;">Statut</p>
+              <p id="syncStatusText" style="font-size: 0.875rem; color: var(--gray-700); margin: 0; font-weight: 600;">Non synchronisé</p>
+            </div>
+          </div>
+
+          <button id="forceSyncButton" style="width: 100%; padding: var(--spacing-md) var(--spacing-lg); background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all var(--transition); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); font-size: 0.9rem;">
+            <img src="/assets/refresh-cw.png" alt="" style="height: 16px;">
+            <span>Synchroniser maintenant</span>
           </button>
+
+          <p id="syncMessage" style="margin: var(--spacing-md) 0 0 0; font-size: 0.85rem; display: none;"></p>
         </div>
+
       </div>
 
       <!-- Tab: Général -->
@@ -2728,7 +2875,7 @@
               <label class="prayer-mode-btn">
                 <input type="radio" name="prayerModeOptions" value="auto" id="prayer-auto-options">
                 <div class="prayer-mode-btn-content">
-                  <img src="/assets/auto.png" style="height: 50px;">
+                  <img src="/assets/calendar-sync.png" style="height: 50px;">
                   <span class="prayer-mode-text">Automatique</span>
                   <span class="prayer-mode-desc">Mise à jour quotidienne</span>
                 </div>
@@ -2736,7 +2883,7 @@
               <label class="prayer-mode-btn">
                 <input type="radio" name="prayerModeOptions" value="manual" id="prayer-manual-options">
                 <div class="prayer-mode-btn-content">
-                  <img src="/assets/hand.png" style="height: 50px;">
+                  <img src="/assets/square-pen.png" style="height: 50px;">
                   <span class="prayer-mode-text">Manuel</span>
                   <span class="prayer-mode-desc">Configuration manuelle</span>
                 </div>

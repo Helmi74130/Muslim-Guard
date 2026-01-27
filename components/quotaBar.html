@@ -71,7 +71,8 @@
 
   <!-- Bouton Upgrade compact -->
   <button id="upgrade-button" class="upgrade-button">
-    ✨ Passer à Premium
+    <img src="/assets/sparkles.png" alt="" style="height: 16px;">
+     Passer à Premium
   </button>
 </div>
 
@@ -223,5 +224,12 @@
 
   .upgrade-button:active {
     transform: translateY(0);
+  }
+
+  /* Responsive: Une seule colonne sur mobile */
+  @media (max-width: 768px) {
+    .quota-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

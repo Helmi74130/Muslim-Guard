@@ -199,3 +199,289 @@ export async function checkBackendHealth() {
     return false;
   }
 }
+
+// ============================================
+// EXTENSION TOKEN AUTHENTICATION SYSTEM
+// ============================================
+
+/**
+ * Récupère le token d'extension depuis le storage
+ * @returns {Promise<string|null>} Token ou null si absent
+ */
+async function getExtensionToken() {
+  const { extensionToken } = await chrome.storage.local.get('extensionToken');
+  return extensionToken || null;
+}
+
+/**
+ * Génère les headers d'authentification avec le token d'extension
+ * @returns {Promise<Object>} Headers avec token si disponible
+ */
+async function getAuthHeaders() {
+  const token = await getExtensionToken();
+
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (token) {
+    headers['X-Extension-Token'] = token;
+  }
+
+  return headers;
+}
+
+/**
+ * Enregistre une nouvelle extension et récupère son token
+ * @returns {Promise<Object>} Résultat avec {success, token, tokenId} ou {success, error}
+ */
+export async function registerExtension() {
+  try {
+    const deviceName = `Chrome - ${navigator.platform}`;
+    const extensionVersion = chrome.runtime.getManifest().version;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    const response = await fetch(`${BACKEND_URL}/api/extension/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        deviceName,
+        extensionVersion
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message || errorData.error) {
+          errorMessage += ` - ${errorData.message || errorData.error}`;
+        }
+      } catch (e) {
+        // Impossible de parser la réponse JSON
+      }
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+
+    // Accepter les deux formats de réponse :
+    // 1. {success: true, token, tokenId} (format attendu)
+    // 2. {token, tokenId} (format backend actuel)
+    if (result.token) {
+      console.log('🔑 Token reçu du backend:', result.token.substring(0, 30) + '...');
+      console.log('🆔 Token ID:', result.tokenId);
+
+      // Stocker le token dans chrome.storage.local
+      await chrome.storage.local.set({
+        extensionToken: result.token,
+        extensionTokenId: result.tokenId,
+        extensionRegisteredAt: Date.now()
+      });
+
+      console.log('💾 Token sauvegardé dans chrome.storage.local');
+
+      // Vérifier que le token a bien été sauvegardé
+      const verification = await chrome.storage.local.get(['extensionToken', 'extensionTokenId']);
+      console.log('✅ Vérification storage:', {
+        tokenSaved: !!verification.extensionToken,
+        tokenIdSaved: !!verification.extensionTokenId,
+        tokenMatch: verification.extensionToken === result.token
+      });
+
+      return {
+        success: true,
+        token: result.token,
+        tokenId: result.tokenId
+      };
+    }
+
+    throw new Error('Invalid response from backend: no token received');
+
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement de l\'extension:', error);
+
+    if (error.name === 'AbortError') {
+      return {
+        success: false,
+        error: 'TIMEOUT',
+        message: 'Timeout lors de l\'enregistrement'
+      };
+    }
+
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: error.message
+    };
+  }
+}
+
+/**
+ * Vérifie le token et récupère le statut de l'abonnement
+ * @returns {Promise<Object>} Résultat avec données team/user si lié
+ */
+export async function verifyExtensionToken() {
+  try {
+    const headers = await getAuthHeaders();
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    const response = await fetch(`${BACKEND_URL}/api/extension/verify`, {
+      method: 'GET',
+      headers,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 401) {
+      // Token invalide ou révoqué
+      console.warn('Token invalide ou révoqué, réenregistrement nécessaire');
+      return {
+        success: false,
+        error: 'INVALID_TOKEN',
+        needsReregistration: true
+      };
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    // Adapter la réponse du backend au format attendu par l'extension
+    if (result.valid && result.linked && result.team) {
+      // Token lié à un compte avec team
+      return {
+        success: true,
+        data: {
+          teamId: result.team.id,
+          userId: result.user?.id || null,
+          userPlan: result.team.subscriptionStatus === 'active' ? 'premium' : 'free',
+          subscriptionStatus: result.team.subscriptionStatus,
+          planName: result.team.planName || 'Gratuit',
+          isAuthenticated: true,
+          email: result.user?.email || null,
+          teamName: result.team.name
+        }
+      };
+    } else if (result.valid && !result.linked) {
+      // Token valide mais pas encore lié
+      return {
+        success: true,
+        data: {
+          userPlan: 'trial',
+          isAuthenticated: false,
+          linked: false
+        }
+      };
+    }
+
+    throw new Error('Unexpected response format');
+
+  } catch (error) {
+    console.error('Erreur lors de la vérification du token:', error);
+
+    if (error.name === 'AbortError') {
+      return {
+        success: false,
+        error: 'TIMEOUT',
+        message: 'Timeout lors de la vérification'
+      };
+    }
+
+    if (!navigator.onLine) {
+      return {
+        success: false,
+        error: 'OFFLINE',
+        message: 'Pas de connexion Internet'
+      };
+    }
+
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: error.message
+    };
+  }
+}
+
+/**
+ * Lie l'extension au compte utilisateur connecté
+ * Nécessite que l'utilisateur soit connecté sur muslim-guard.com (cookies de session)
+ * @returns {Promise<Object>} Résultat de la liaison
+ */
+export async function linkExtensionToAccount() {
+  try {
+    const token = await getExtensionToken();
+
+    if (!token) {
+      return {
+        success: false,
+        error: 'NO_TOKEN',
+        message: 'Aucun token d\'extension trouvé'
+      };
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
+    const response = await fetch(`${BACKEND_URL}/api/extension/link-account`, {
+      method: 'POST',
+      credentials: 'include', // Important pour envoyer les cookies de session
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        return {
+          success: false,
+          error: 'NOT_AUTHENTICATED',
+          message: 'Utilisateur non connecté'
+        };
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log('✅ Extension liée au compte:', result.message);
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('Erreur lors de la liaison de l\'extension:', error);
+
+    if (error.name === 'AbortError') {
+      return {
+        success: false,
+        error: 'TIMEOUT',
+        message: 'Timeout lors de la liaison'
+      };
+    }
+
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: error.message
+    };
+  }
+}

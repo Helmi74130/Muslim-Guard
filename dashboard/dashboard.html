@@ -146,9 +146,83 @@
       gap: var(--spacing-sm);
     }
 
-    #exportBtn,
-    #refreshBtn,
     #settingsBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: var(--shadow);
+      font-size: 0.95rem;
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+      color: white;
+    }
+
+    #settingsBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    #settingsBtn:active {
+      transform: scale(0.98);
+    }
+
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--spacing-2xl);
+    }
+
+    /* ============================================
+       DASHBOARD HEADER
+       ============================================ */
+
+    .dashboard-header {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .dashboard-header-title h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 0;
+    }
+
+    .dashboard-header-title p {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin: 0;
+    }
+
+    .dashboard-header-actions {
+      display: flex;
+      gap: var(--spacing-md);
+    }
+
+    .header-btn {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -163,51 +237,46 @@
       font-size: 0.95rem;
     }
 
-    #exportBtn {
+    .header-btn.primary {
       background: linear-gradient(135deg, var(--secondary-500) 0%, var(--secondary-600) 100%);
       color: white;
     }
 
-    #exportBtn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    #refreshBtn {
+    .header-btn.secondary {
       background: white;
       color: var(--gray-700);
       border: 1px solid var(--gray-200);
     }
 
-    #refreshBtn:hover {
-      background: var(--gray-50);
-    }
-
-    #settingsBtn {
-      background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
-      color: white;
-      margin-top: var(--spacing-md);
-    }
-
-    #settingsBtn:hover {
+    .header-btn:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
     }
 
-    #exportBtn:active,
-    #refreshBtn:active,
-    #settingsBtn:active {
+    .header-btn.secondary:hover {
+      background: var(--gray-50);
+    }
+
+    .header-btn:active {
       transform: scale(0.98);
     }
 
-    /* ============================================
-       MAIN CONTENT
-       ============================================ */
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+        padding: var(--spacing-md);
+      }
 
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--spacing-2xl);
+      .dashboard-header-actions {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .header-btn {
+        width: 100%;
+      }
     }
 
     .content-header {
@@ -286,6 +355,10 @@
       border-radius: 8px;
       padding: 1.5rem;
       transition: all 0.2s;
+    }
+    #exportBtn{
+      background-color: #5ea500;
+      color: white;
     }
 
     .stat-card:hover {
@@ -984,8 +1057,6 @@
         width: 100%;
       }
 
-      #exportBtn,
-      #refreshBtn,
       #settingsBtn {
         width: 100%;
       }
@@ -1127,33 +1198,26 @@
 
       <nav class="sidebar-nav">
         <button class="tab-btn active" data-tab="overview">
+          <img src="/assets/chart-pie.png" alt="" style="height: 18px;">
           <span>Vue d'ensemble</span>
         </button>
         <button class="tab-btn" data-tab="top-sites">
+          <img src="/assets/shield-off.png" alt="" style="height: 18px;">
           <span>Top Sites Bloqués</span>
         </button>
         <button class="tab-btn" data-tab="recent-logs">
+          <img src="/assets/shield-alert.png" alt="" style="height: 18px;">
           <span>Derniers Blocages</span>
         </button>
         <button class="tab-btn" data-tab="achievements">
+          <img src="/assets/award.png" alt="" style="height: 18px;">
           <span>Achievements</span>
         </button>
       </nav>
 
       <div class="sidebar-footer">
-        <button id="exportBtn">
-          <span>
-            <img style="height: 15px;" src="/assets/export.png" alt="">
-          </span>
-          <span>Exporter CSV</span>
-        </button>
-        <button id="refreshBtn">
-          <span>
-            <img style="height: 15px;" src="/assets/refresh.png" alt="">
-          </span>
-          <span>Actualiser</span>
-        </button>
         <button id="settingsBtn">
+          <img src="/assets/settings.png" alt="" style="height: 18px;">
           <span>Paramètres</span>
         </button>
       </div>
@@ -1161,6 +1225,26 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <div class="dashboard-header-title">
+          <h1>Dashboard Parent</h1>
+          <p>Consultez et gérez les statistiques de protection</p>
+        </div>
+        <div class="dashboard-header-actions">
+          <button id="refreshBtn" class="header-btn secondary">
+              <img style="height: 15px;" src="/assets/refresh-ccw-dot.png" alt="">
+            <span>Actualiser</span>
+          </button>
+          <button id="exportBtn" class="header-btn">
+            <span>
+              <img style="height: 15px;" src="/assets/export.png" alt="">
+            </span>
+            <span>Exporter CSV</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Tab: Vue d'ensemble -->
       <div id="tab-overview" class="tab-content active">
         <div class="content-header">
@@ -1174,28 +1258,28 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">
-              <img style="height: 50px;" src="/assets/handblock.png" alt="">
+              <img style="height: 30px;" src="/assets/shield-check.png" alt="">
             </div>
             <div class="stat-value" id="totalBlocked">0</div>
             <div class="stat-label">Sites bloqués (7j)</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <img style="height: 50px;" src="/assets/streak.png" alt="">
+              <img style="height: 30px;" src="/assets/trophy.png" alt="">
             </div>
             <div class="stat-value success" id="streak">0</div>
             <div class="stat-label">Jours de streak</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <img style="height: 50px;" src="/assets/block.png" alt="">
+              <img style="height: 30px;" src="/assets/circle-off.png" alt="">
             </div>
             <div class="stat-value info" id="todayBlocked">0</div>
             <div class="stat-label">Bloqués aujourd'hui</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">
-              <img style="height: 50px;" src="/assets/danger.png" alt="">
+              <img style="height: 30px;" src="/assets/octagon-alert.png" alt="">
             </div>
             <div class="stat-value danger" id="suspiciousCount">0</div>
             <div class="stat-label">Tentatives suspectes</div>

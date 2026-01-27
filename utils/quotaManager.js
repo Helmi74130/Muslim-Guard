@@ -8,7 +8,7 @@
  * - Gestion des downgrades
  */
 
-import { fetchTeamData } from './api.js';
+import { fetchTeamData, verifyExtensionToken, registerExtension, fetchUserData } from './api.js';
 import { getConfig, setValue } from './storage.js';
 import { CATEGORIES } from './lists.js';
 
@@ -46,7 +46,21 @@ export const PREMIUM_LIMITS = {
 export async function syncUserSubscription() {
   try {
     // 1. Vérifier si en période d'essai
-    const { trialEndDate, userPlan } = await chrome.storage.local.get(['trialEndDate', 'userPlan']);
+    const { trialEndDate, userPlan, extensionToken } = await chrome.storage.local.get([
+      'trialEndDate',
+      'userPlan',
+      'extensionToken'
+    ]);
+
+    // Si pas de token d'extension, essayer de s'enregistrer
+    if (!extensionToken) {
+      console.warn('⚠️ Pas de token d\'extension, tentative d\'enregistrement...');
+      const registration = await registerExtension();
+
+      if (!registration.success) {
+        console.warn('Enregistrement échoué, mode local uniquement');
+      }
+    }
 
     if (userPlan === 'trial' && trialEndDate) {
       if (Date.now() > trialEndDate) {
@@ -56,12 +70,35 @@ export async function syncUserSubscription() {
       } else {
         // Essai toujours actif → pas besoin de sync backend
         const daysRemaining = Math.ceil((trialEndDate - Date.now()) / (24 * 60 * 60 * 1000));
+
+        // Mettre à jour le timestamp même si pas de sync backend nécessaire
+        const newTimestamp = Date.now();
+        await chrome.storage.local.set({ lastSyncTimestamp: newTimestamp });
+        console.log('📅 [Sync] Timestamp mis à jour (essai actif, pas de sync backend):', new Date(newTimestamp));
+
         return { plan: 'trial', daysRemaining, changed: false };
       }
     }
 
-    // 2. Appeler le backend
-    const result = await fetchTeamData();
+    // 2. Appeler le backend avec le système de tokens
+    let result;
+
+    // Essayer d'abord avec le token d'extension
+    if (extensionToken) {
+      result = await verifyExtensionToken();
+
+      // Si le token est invalide, réenregistrer
+      if (!result.success && result.needsReregistration) {
+        console.warn('🔄 Token invalide, réenregistrement...');
+        const registration = await registerExtension();
+        if (registration.success) {
+          result = await verifyExtensionToken();
+        }
+      }
+    } else {
+      // Fallback vers l'ancien système (cookies) pour rétrocompatibilité
+      result = await fetchTeamData();
+    }
 
     if (!result.success) {
       // Backend inaccessible → garder l'état actuel
@@ -72,17 +109,43 @@ export async function syncUserSubscription() {
 
       console.warn('Backend inaccessible, conservation du dernier état:', currentPlan);
 
+      // Mettre à jour le timestamp même en mode offline pour indiquer la tentative de sync
+      const newTimestamp = Date.now();
+      await chrome.storage.local.set({ lastSyncTimestamp: newTimestamp });
+      console.log('📅 [Sync] Timestamp mis à jour en mode offline:', new Date(newTimestamp));
+
       return {
         plan: currentPlan || 'free',
         offline: true,
-        lastSync: lastSyncTimestamp,
+        lastSync: newTimestamp,
         error: result.error
       };
     }
 
     const teamData = result.data;
+    console.log('📊 [Sync] teamData reçu:', teamData);
 
-    // 3. Déterminer le plan
+    // 3. Récupérer l'email utilisateur si non fourni par teamData
+    let userEmail = teamData.email || null;
+    console.log('📧 [Sync] Email depuis teamData:', userEmail);
+
+    // Si l'email n'est pas dans teamData, essayer de le récupérer via fetchUserData
+    if (!userEmail) {
+      console.log('⚠️ [Sync] Email non trouvé dans teamData, tentative fetchUserData...');
+      try {
+        const userData = await fetchUserData();
+        if (userData.success && userData.data?.email) {
+          userEmail = userData.data.email;
+          console.log('✅ [Sync] Email récupéré via fetchUserData:', userEmail);
+        }
+      } catch (error) {
+        console.warn('❌ [Sync] Impossible de récupérer l\'email utilisateur:', error);
+      }
+    } else {
+      console.log('✅ [Sync] Email trouvé dans teamData:', userEmail);
+    }
+
+    // 4. Déterminer le plan
     let newPlan = 'free';
     if (
       teamData.subscriptionStatus === 'active' ||
@@ -91,20 +154,32 @@ export async function syncUserSubscription() {
       newPlan = 'premium';
     }
 
-    // 4. Détecter changement de plan
+    // 5. Détecter changement de plan
     const { userPlan: oldPlan } = await chrome.storage.local.get('userPlan');
     const planChanged = oldPlan !== newPlan;
 
-    // 5. Sauvegarder
+    // 6. Sauvegarder
+    console.log('💾 [Sync] Sauvegarde dans storage:', {
+      userPlan: newPlan,
+      subscriptionStatus: teamData.subscriptionStatus,
+      planName: teamData.planName || 'Gratuit',
+      isAuthenticated: teamData.isAuthenticated || false,
+      userEmail: userEmail
+    });
+
     await chrome.storage.local.set({
       userPlan: newPlan,
       subscriptionStatus: teamData.subscriptionStatus,
-      planName: teamData.planName,
-      stripeCustomerId: teamData.stripeCustomerId,
+      planName: teamData.planName || 'Gratuit',
+      stripeCustomerId: teamData.stripeCustomerId || null,
+      isAuthenticated: teamData.isAuthenticated || false,
+      userEmail: userEmail,
       lastSyncTimestamp: Date.now()
     });
 
-    // 6. Si downgrade → tronquer (même depuis trial)
+    console.log('✅ [Sync] Données sauvegardées dans storage');
+
+    // 7. Si downgrade → tronquer (même depuis trial)
     if (planChanged && newPlan === 'free') {
       await handleDowngrade();
     }
@@ -121,10 +196,15 @@ export async function syncUserSubscription() {
       'lastSyncTimestamp'
     ]);
 
+    // Mettre à jour le timestamp même en cas d'erreur
+    const newTimestamp = Date.now();
+    await chrome.storage.local.set({ lastSyncTimestamp: newTimestamp });
+    console.log('📅 [Sync] Timestamp mis à jour après erreur:', new Date(newTimestamp));
+
     return {
       plan: userPlan || 'free',
       offline: true,
-      lastSync: lastSyncTimestamp,
+      lastSync: newTimestamp,
       error: error.message
     };
   }

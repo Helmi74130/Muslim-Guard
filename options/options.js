@@ -11,6 +11,7 @@ import {
   showQuotaReachedModal,
   showFeatureLockedModal
 } from '../components/upgradeModal.js';
+import { verifyExtensionToken, fetchUserData } from '../utils/api.js';
 
 let config = null;
 let isAuthenticated = false;
@@ -138,7 +139,136 @@ function clearAllTags(containerId, counterId, label) {
 document.addEventListener('DOMContentLoaded', async () => {
   await checkAuthentication();
   setupPinProtection();
+  await loadUserHeader(); // Charger les infos utilisateur
 });
+
+// ============================================
+// USER HEADER - Affichage des informations utilisateur
+// ============================================
+
+/**
+ * Charge et affiche les informations de l'utilisateur dans le header
+ */
+async function loadUserHeader() {
+  const userEmail = document.getElementById('userEmail');
+  const userDisconnected = document.getElementById('userDisconnected');
+  const userAvatar = document.getElementById('userAvatar');
+  const userAvatarText = document.getElementById('userAvatarText');
+  const userBadge = document.getElementById('userBadge');
+
+  try {
+    console.log('🔍 [UserHeader] Chargement des informations utilisateur...');
+
+    // Méthode 1 (PRIORITAIRE): Lire depuis le storage local
+    // Le storage est mis à jour par syncUserSubscription() dans quotaManager.js
+    const { userEmail: storedEmail, isAuthenticated } = await chrome.storage.local.get([
+      'userEmail',
+      'isAuthenticated'
+    ]);
+
+    console.log('📦 [UserHeader] Storage:', { storedEmail, isAuthenticated });
+
+    if (storedEmail && isAuthenticated) {
+      // Email trouvé dans le storage
+      console.log('✅ [UserHeader] Email trouvé dans storage:', storedEmail);
+      displayConnectedUser(
+        storedEmail,
+        userEmail,
+        userDisconnected,
+        userAvatar,
+        userAvatarText,
+        userBadge
+      );
+      return;
+    }
+
+    // Méthode 2: Essayer via verifyExtensionToken (système de tokens)
+    console.log('🔑 [UserHeader] Tentative verifyExtensionToken...');
+    const tokenResult = await verifyExtensionToken();
+    console.log('🔑 [UserHeader] Résultat verifyExtensionToken:', tokenResult);
+
+    // Vérifier que le token est lié ET l'utilisateur authentifié
+    if (tokenResult.success && tokenResult.data?.email && tokenResult.data?.linked && tokenResult.data?.isAuthenticated) {
+      // Utilisateur connecté ET lié via token
+      console.log('✅ [UserHeader] Email trouvé via token (lié et authentifié):', tokenResult.data.email);
+      displayConnectedUser(
+        tokenResult.data.email,
+        userEmail,
+        userDisconnected,
+        userAvatar,
+        userAvatarText,
+        userBadge
+      );
+      return;
+    } else if (tokenResult.success && tokenResult.data?.email) {
+      // Token trouvé mais pas lié ou pas authentifié = utilisateur déconnecté
+      console.log('⚠️ [UserHeader] Token trouvé mais utilisateur déconnecté (linked:', tokenResult.data?.linked, ', isAuthenticated:', tokenResult.data?.isAuthenticated, ')');
+    }
+
+    // Méthode 3: Essayer via fetchUserData (système de cookies)
+    console.log('🍪 [UserHeader] Tentative fetchUserData...');
+    const userResult = await fetchUserData();
+    console.log('🍪 [UserHeader] Résultat fetchUserData:', userResult);
+
+    if (userResult.success && userResult.data?.email) {
+      // Utilisateur connecté via cookies
+      console.log('✅ [UserHeader] Email trouvé via cookies:', userResult.data.email);
+      displayConnectedUser(
+        userResult.data.email,
+        userEmail,
+        userDisconnected,
+        userAvatar,
+        userAvatarText,
+        userBadge
+      );
+      return;
+    }
+
+    // Aucune méthode n'a fonctionné - utilisateur non connecté
+    console.log('❌ [UserHeader] Aucune méthode n\'a fonctionné - utilisateur non connecté');
+    displayDisconnectedUser(userEmail, userDisconnected, userBadge);
+
+  } catch (error) {
+    console.error('Erreur lors du chargement des informations utilisateur:', error);
+    displayDisconnectedUser(userEmail, userDisconnected, userBadge);
+  }
+}
+
+/**
+ * Affiche les informations d'un utilisateur connecté
+ */
+function displayConnectedUser(email, emailElement, disconnectedElement, avatarElement, avatarTextElement, badgeElement) {
+  // Afficher l'email
+  emailElement.textContent = email;
+  emailElement.style.display = 'block';
+  disconnectedElement.style.display = 'none';
+
+  // Mettre à jour l'avatar avec l'initiale de l'email
+  const initial = email.charAt(0).toUpperCase();
+  avatarTextElement.textContent = initial;
+
+  // Mettre à jour le badge
+  badgeElement.className = 'user-badge connected';
+  badgeElement.innerHTML = `
+    <span class="user-badge-icon"></span>
+    <span>Connecté</span>
+  `;
+}
+
+/**
+ * Affiche l'état déconnecté
+ */
+function displayDisconnectedUser(emailElement, disconnectedElement, badgeElement) {
+  emailElement.style.display = 'none';
+  disconnectedElement.style.display = 'block';
+  disconnectedElement.textContent = 'Non connecté';
+
+  badgeElement.className = 'user-badge disconnected';
+  badgeElement.innerHTML = `
+    <span class="user-badge-icon"></span>
+    <span>Hors ligne</span>
+  `;
+}
 
 // Vérifie si l'utilisateur a une session valide
 async function checkAuthentication() {
@@ -1745,7 +1875,7 @@ async function initializeSyncSection() {
   if (loginBackendButton) {
     loginBackendButton.addEventListener('click', () => {
       chrome.tabs.create({
-        url: 'https://www.muslim-guard.com/login?redirect=/dashboard'
+        url: 'https://www.muslim-guard.com/pricing'
       });
     });
   }
@@ -1761,8 +1891,15 @@ async function updateSyncDisplay() {
     'subscriptionStatus'
   ]);
 
+  console.log('📊 updateSyncDisplay - lastSyncTimestamp:', lastSyncTimestamp, new Date(lastSyncTimestamp));
+
   const lastSyncTime = document.getElementById('lastSyncTime');
   const syncStatusText = document.getElementById('syncStatusText');
+
+  if (!lastSyncTime || !syncStatusText) {
+    console.warn('⚠️ Éléments DOM lastSyncTime ou syncStatusText introuvables');
+    return;
+  }
 
   // Dernière synchronisation
   if (lastSyncTimestamp) {
@@ -1770,29 +1907,33 @@ async function updateSyncDisplay() {
     const now = new Date();
     const diffMinutes = Math.floor((now - date) / (1000 * 60));
 
+    let displayText = '';
     if (diffMinutes < 1) {
-      lastSyncTime.textContent = 'À l\'instant';
+      displayText = 'À l\'instant';
     } else if (diffMinutes < 60) {
-      lastSyncTime.textContent = `Il y a ${diffMinutes} min`;
+      displayText = `Il y a ${diffMinutes} min`;
     } else if (diffMinutes < 1440) {
       const hours = Math.floor(diffMinutes / 60);
-      lastSyncTime.textContent = `Il y a ${hours}h`;
+      displayText = `Il y a ${hours}h`;
     } else {
-      lastSyncTime.textContent = date.toLocaleDateString('fr-FR');
+      displayText = date.toLocaleDateString('fr-FR');
     }
+
+    lastSyncTime.textContent = displayText;
+    console.log('✅ lastSyncTime mis à jour:', displayText);
   } else {
     lastSyncTime.textContent = 'Jamais';
   }
 
   // Statut
   if (userPlan === 'premium') {
-    syncStatusText.textContent = '✅ Premium actif';
+    syncStatusText.textContent = 'Premium actif';
     syncStatusText.style.color = '#10b981';
   } else if (userPlan === 'trial') {
-    syncStatusText.textContent = '🎉 Essai Premium';
+    syncStatusText.textContent = 'Essai Premium';
     syncStatusText.style.color = '#8b5cf6';
   } else {
-    syncStatusText.textContent = '📋 Plan gratuit';
+    syncStatusText.textContent = 'Plan gratuit';
     syncStatusText.style.color = '#6b7280';
   }
 }
@@ -1801,21 +1942,30 @@ async function updateSyncDisplay() {
  * Force une synchronisation immédiate
  */
 async function forceSyncSubscription() {
+  console.log('🔄 [forceSyncSubscription] Fonction appelée');
+
   const button = document.getElementById('forceSyncButton');
   const message = document.getElementById('syncMessage');
 
-  if (!button || !message) return;
+  if (!button || !message) {
+    console.error('❌ [forceSyncSubscription] Bouton ou message introuvable', { button, message });
+    return;
+  }
 
   try {
     // Désactiver le bouton et changer le texte
     button.disabled = true;
     button.innerHTML = '<span>⏳</span><span>Synchronisation en cours...</span>';
 
+    console.log('📦 [forceSyncSubscription] Import de syncUserSubscription...');
     // Importer la fonction de sync
     const { syncUserSubscription } = await import('../utils/quotaManager.js');
 
+    console.log('🚀 [forceSyncSubscription] Lancement de la synchronisation...');
     // Lancer la synchronisation
     const result = await syncUserSubscription();
+
+    console.log('✅ [forceSyncSubscription] Résultat de la sync:', result);
 
     // Afficher le résultat
     message.style.display = 'block';
@@ -1835,11 +1985,17 @@ async function forceSyncSubscription() {
       message.style.color = '#6b7280';
     }
 
+    // Petit délai pour s'assurer que le storage est bien écrit
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     // Mettre à jour l'affichage
     await updateSyncDisplay();
 
     // Rafraîchir la barre de quotas
     await refreshQuotaBar();
+
+    // Recharger le header utilisateur avec le nouvel email
+    await loadUserHeader();
 
     // Recharger la config complète
     await loadConfig();
@@ -1871,14 +2027,32 @@ async function forceSyncSubscription() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'reloadOptionsConfig') {
     // Recharger la configuration complète
-    loadConfig().then(() => {
+    loadConfig().then(async () => {
       // Rafraîchir aussi la barre de quotas
-      refreshQuotaBar();
+      await refreshQuotaBar();
+      // Rafraîchir le header utilisateur
+      await loadUserHeader();
       sendResponse({ success: true });
     }).catch(error => {
       console.error('Erreur lors du rechargement:', error);
       sendResponse({ success: false, error: error.message });
     });
     return true; // Indique qu'on va répondre de manière asynchrone
+  }
+});
+
+// ============================================
+// LISTENER POUR LES CHANGEMENTS DU STORAGE
+// ============================================
+
+/**
+ * Écoute les changements du storage pour mettre à jour le header en temps réel
+ */
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local') {
+    // Si l'email utilisateur a changé, mettre à jour le header
+    if (changes.userEmail || changes.isAuthenticated) {
+      loadUserHeader();
+    }
   }
 });
