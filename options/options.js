@@ -15,6 +15,7 @@ import { verifyExtensionToken, fetchUserData } from '../utils/api.js';
 
 let config = null;
 let isAuthenticated = false;
+let hasUnsavedChanges = false; // Détection des changements non sauvegardés
 
 // ============================================
 // HELPER FUNCTIONS POUR SYSTÈME DE TAGS
@@ -74,6 +75,9 @@ async function removeTag(containerId, item, counterId, label) {
 
   // Rafraîchir l'affichage des quotas
   await refreshQuotaBar();
+
+  // Marquer comme modifié
+  markAsChanged();
 }
 
 async function addTag(containerId, item, counterId, label) {
@@ -119,6 +123,9 @@ async function addTag(containerId, item, counterId, label) {
   // Rafraîchir l'affichage des quotas
   await refreshQuotaBar();
 
+  // Marquer comme modifié
+  markAsChanged();
+
   showNotification('Élément ajouté', 'success');
 }
 
@@ -132,6 +139,7 @@ function getTagsArray(containerId) {
 
 function clearAllTags(containerId, counterId, label) {
   renderTags(containerId, [], counterId, label);
+  markAsChanged();
   showNotification('Liste vidée', 'success');
 }
 
@@ -623,11 +631,81 @@ function setupTabs() {
   });
 }
 
+// Marque qu'il y a des changements non sauvegardés
+function markAsChanged() {
+  hasUnsavedChanges = true;
+  updateSaveButtonState();
+}
+
+// Marque que tout est sauvegardé
+function markAsSaved() {
+  hasUnsavedChanges = false;
+  updateSaveButtonState();
+}
+
+// Met à jour l'état visuel du bouton Sauvegarder
+function updateSaveButtonState() {
+  const saveBtn = document.getElementById('saveBtn');
+  const unsavedIndicator = document.getElementById('unsavedIndicator');
+
+  if (!saveBtn) return;
+
+  if (hasUnsavedChanges) {
+    // Ajouter l'animation de pulsation
+    saveBtn.classList.add('has-changes');
+
+    // Afficher l'indicateur de changements
+    if (unsavedIndicator) {
+      unsavedIndicator.style.display = 'flex';
+    }
+  } else {
+    // Retirer l'animation
+    saveBtn.classList.remove('has-changes');
+
+    // Masquer l'indicateur
+    if (unsavedIndicator) {
+      unsavedIndicator.style.display = 'none';
+    }
+  }
+}
+
 // Configuration des event listeners
 function setupEventListeners() {
   // Bouton Sauvegarder
   const saveBtn = document.getElementById('saveBtn');
   if (saveBtn) saveBtn.addEventListener('click', saveConfig);
+
+  // ============================================
+  // DÉTECTION DES CHANGEMENTS
+  // ============================================
+
+  // Écouter les changements sur tous les checkboxes
+  document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', markAsChanged);
+  });
+
+  // Écouter les changements sur tous les radio buttons
+  document.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', markAsChanged);
+  });
+
+  // Écouter les changements sur tous les selects
+  document.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', markAsChanged);
+  });
+
+  // Écouter les changements sur tous les inputs texte/time
+  document.querySelectorAll('input[type="text"], input[type="time"], textarea').forEach(input => {
+    input.addEventListener('input', markAsChanged);
+  });
+
+  // Confirmation avant fermeture si changements non sauvegardés
+  window.addEventListener('beforeunload', (e) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      return (e.returnValue = 'Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter ?');
+    }
+  });
 
   // ============================================
   // LISTES - NOUVEAUX BOUTONS AJOUTER
@@ -850,6 +928,14 @@ async function saveConfig() {
       return;
     }
 
+    // Marquer qu'on est en train de sauvegarder
+    const saveBtn = document.getElementById('saveBtn');
+    const originalText = saveBtn?.innerHTML;
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span style="margin-right: 8px;">⏳</span>Sauvegarde...';
+    }
+
     const newConfig = {
       // Général
       protectionMode: protectionModeInput.value,
@@ -908,11 +994,27 @@ async function saveConfig() {
     // Recharge la config dans le background
     await chrome.runtime.sendMessage({ action: 'reloadConfig' });
 
+    // Marquer comme sauvegardé
+    markAsSaved();
+
     // Notification de succès
     showNotification('Configuration sauvegardée avec succès', 'success');
+
+    // Restaurer le bouton
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span style="margin-right: 8px;">💾</span>Sauvegarder';
+    }
   } catch (error) {
     console.error('Erreur lors de la sauvegarde:', error);
     showNotification('Erreur lors de la sauvegarde', 'error');
+
+    // Restaurer le bouton en cas d'erreur
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span style="margin-right: 8px;">💾</span>Sauvegarder';
+    }
   }
 }
 
