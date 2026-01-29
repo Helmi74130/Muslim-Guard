@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG = {
   // Config générale
   protectionEnabled: true,
   protectionMode: 'moderate', // strict, moderate, permissive
+  contentBlockingMode: 'strict', // Mode de blocage de contenu: 'strict', 'moderate', 'surveillance'
   language: 'fr',
   darkMode: false,
 
@@ -143,7 +144,16 @@ export const DEFAULT_CONFIG = {
 export async function getConfig() {
   try {
     const result = await chrome.storage.local.get(null);
-    return { ...DEFAULT_CONFIG, ...result };
+    const config = { ...DEFAULT_CONFIG, ...result };
+
+    // MIGRATION : Si contentBlockingMode n'existe pas, utilise protectionMode
+    if (!config.contentBlockingMode && config.protectionMode) {
+      config.contentBlockingMode = config.protectionMode;
+      // Sauvegarde la valeur migrée
+      await setValue('contentBlockingMode', config.protectionMode);
+    }
+
+    return config;
   } catch (error) {
     console.error('Erreur lors de la récupération de la config:', error);
     return DEFAULT_CONFIG;

@@ -530,6 +530,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         sendResponse({ success: true });
+      } else if (message.action === 'contentBlocked') {
+        // Mode 1 : Overlay complet bloquant (comportement actuel)
+        await addBlockedLog(message.url, `keyword:${message.keyword}`);
+        sendResponse({ success: true });
+      } else if (message.action === 'contentBlurred') {
+        // Mode 2 : Contenu flouté
+        await addBlockedLog(message.url, `content_blurred:${message.keyword}`);
+        sendResponse({ success: true });
+      } else if (message.action === 'contentDetected') {
+        // Mode 3 : Surveillance avec log détaillé
+        if (message.detailedLog && message.keywords && message.keywords.length > 0) {
+          // Log chaque mot détecté individuellement pour traçabilité maximale
+          const allKeywords = message.keywords.join(', ');
+          await addBlockedLog(message.url, `surveillance:${allKeywords} (${message.keywordCount} détections)`);
+        } else {
+          await addBlockedLog(message.url, `surveillance:${message.keywords[0]}`);
+        }
+        sendResponse({ success: true });
       }
     } catch (error) {
       console.error('Erreur dans le gestionnaire de messages:', error);

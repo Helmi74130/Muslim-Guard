@@ -444,6 +444,63 @@ async function loadConfig() {
   }
 }
 
+/**
+ * Met à jour la description du mode de blocage de contenu
+ */
+function updateContentBlockingModeInfo(mode) {
+  const infoTitle = document.getElementById('contentBlockingModeTitle');
+  const infoDesc = document.getElementById('contentBlockingModeDesc');
+  const infoBox = document.getElementById('contentBlockingModeInfo');
+
+  if (!infoTitle || !infoDesc || !infoBox) return;
+
+  const modes = {
+    strict: {
+      title: 'Mode Strict',
+      desc: 'Overlay complet bloquant. Pour les jeunes enfants.'
+    },
+    moderate: {
+      title: 'Mode Modéré (Recommandé)',
+      desc: 'Floutage des zones suspectes + bannière. Pour pré-ados/ados.'
+    },
+    surveillance: {
+      title: 'Mode Surveillance',
+      desc: 'Bannière seule + logs détaillés. Pour ados responsables.'
+    }
+  };
+
+  const selectedMode = modes[mode] || modes.strict;
+  infoTitle.textContent = selectedMode.title;
+  infoDesc.textContent = selectedMode.desc;
+}
+
+function updateProtectionModeInfo(mode) {
+  const infoTitle = document.getElementById('protectionModeTitle');
+  const infoDesc = document.getElementById('protectionModeDesc');
+  const infoBox = document.getElementById('protectionModeInfo');
+
+  if (!infoTitle || !infoDesc || !infoBox) return;
+
+  const modes = {
+    strict: {
+      title: 'Mode Strict',
+      desc: 'Tous les sites sont bloqués par défaut, à l\'exception des sites explicitement autorisés dans l\'onglet LISTES. Idéal pour un environnement très encadré.'
+    },
+    moderate: {
+      title: 'Mode Par Catégories (Recommandé)',
+      desc: 'Les contenus inappropriés sont bloqués selon des catégories définies (adultes, violence, jeux d\'argent, etc.), tandis que les sites standards restent accessibles.'
+    },
+    permissive: {
+      title: 'Mode Personnalisé',
+      desc: 'Le filtrage repose uniquement sur des listes de blocage ou d\'autorisation définies manuellement dans l\'onglet LISTES. Idéal pour adapter la protection à ses propres besoins.'
+    }
+  };
+
+  const selectedMode = modes[mode] || modes.moderate;
+  infoTitle.textContent = selectedMode.title;
+  infoDesc.textContent = selectedMode.desc;
+}
+
 // Remplit les champs avec les valeurs actuelles
 function populateFields() {
   if (!config) {
@@ -451,9 +508,37 @@ function populateFields() {
     return;
   }
 
-  // Général
-  const protectionModeInput = document.querySelector(`input[name="protectionMode"][value="${config.protectionMode}"]`);
-  if (protectionModeInput) protectionModeInput.checked = true;
+  // Général - Mode de protection (liste)
+  const protectionModeInput = document.getElementById('protectionMode');
+  const currentMode = config.protectionMode || 'moderate';
+  if (protectionModeInput) {
+    protectionModeInput.value = currentMode;
+  }
+
+  // Active visuellement l'item correspondant
+  document.querySelectorAll('.protection-mode-item').forEach(item => {
+    if (item.dataset.mode === currentMode) {
+      item.classList.add('active');
+    }
+  });
+
+  updateProtectionModeInfo(currentMode);
+
+  // Mode de blocage de contenu (liste)
+  const contentBlockingModeInput = document.getElementById('contentBlockingMode');
+  const currentContentMode = config.contentBlockingMode || config.protectionMode || 'strict';
+  if (contentBlockingModeInput) {
+    contentBlockingModeInput.value = currentContentMode;
+  }
+
+  // Active visuellement l'item correspondant
+  document.querySelectorAll('.content-blocking-mode-item').forEach(item => {
+    if (item.dataset.mode === currentContentMode) {
+      item.classList.add('active');
+    }
+  });
+
+  updateContentBlockingModeInfo(currentContentMode);
 
   const blockSocialMedia = document.getElementById('blockSocialMedia');
   if (blockSocialMedia) blockSocialMedia.checked = config.blockSocialMedia;
@@ -1189,13 +1274,59 @@ function setupEventListeners() {
 
   // Bouton d'ajout de plage horaire
   document.getElementById('addScheduleBtn')?.addEventListener('click', addSchedule);
+
+  // Listener pour les items de la liste du mode de blocage de contenu
+  document.querySelectorAll('.content-blocking-mode-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const mode = item.dataset.mode;
+
+      // Désactive tous les items
+      document.querySelectorAll('.content-blocking-mode-item').forEach(i => i.classList.remove('active'));
+
+      // Active l'item cliqué
+      item.classList.add('active');
+
+      // Met à jour l'input caché
+      const contentBlockingModeInput = document.getElementById('contentBlockingMode');
+      if (contentBlockingModeInput) {
+        contentBlockingModeInput.value = mode;
+      }
+
+      // Met à jour la description
+      updateContentBlockingModeInfo(mode);
+      markAsChanged();
+    });
+  });
+
+  // Listener pour les items de la liste du mode de protection
+  document.querySelectorAll('.protection-mode-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const mode = item.dataset.mode;
+
+      // Désactive tous les items
+      document.querySelectorAll('.protection-mode-item').forEach(i => i.classList.remove('active'));
+
+      // Active l'item cliqué
+      item.classList.add('active');
+
+      // Met à jour l'input caché
+      const protectionModeInput = document.getElementById('protectionMode');
+      if (protectionModeInput) {
+        protectionModeInput.value = mode;
+      }
+
+      // Met à jour la description
+      updateProtectionModeInfo(mode);
+      markAsChanged();
+    });
+  });
 }
 
 // Sauvegarde la configuration
 async function saveConfig() {
   try {
     // Vérification des éléments critiques
-    const protectionModeInput = document.querySelector('input[name="protectionMode"]:checked');
+    const protectionModeInput = document.getElementById('protectionMode');
     const blockSocialMedia = document.getElementById('blockSocialMedia');
     const blockMusicStreaming = document.getElementById('blockMusicStreaming');
     const blockVideoStreaming = document.getElementById('blockVideoStreaming');
@@ -1220,9 +1351,13 @@ async function saveConfig() {
       saveBtn.innerHTML = 'Sauvegarde en cours...';
     }
 
+    // Mode de blocage de contenu (input caché)
+    const contentBlockingModeInput = document.getElementById('contentBlockingMode');
+
     const newConfig = {
       // Général
       protectionMode: protectionModeInput.value,
+      contentBlockingMode: contentBlockingModeInput?.value || 'strict',
       blockSocialMedia: blockSocialMedia.checked,
       blockMusicStreaming: blockMusicStreaming?.checked || false,
       blockVideoStreaming: blockVideoStreaming?.checked || false,

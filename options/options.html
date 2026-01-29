@@ -473,12 +473,12 @@
   background: white;
   border-radius: var(--radius-lg);
   /* Réduction du padding pour moins d'espace perdu */
-  padding: var(--spacing-lg); 
-  margin-bottom: var(--spacing-lg);
+  padding: 30px 24px; 
+  margin-bottom: 40px;
   box-shadow: var(--shadow);
   transition: all var(--transition);
   /* Suppression de la bordure gauche épaisse qui faisait "vieux" */
-  border: 1px solid var(--gray-200);
+  border: 1px solid #123c61;
 }
 
 .settings-section:hover {
@@ -1089,11 +1089,11 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      padding: var(--spacing-lg);
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+      padding: 30px 16px;
+      background: #ffefef;
+      border: 1px solid #FECACA;
       border-radius: 8px;
-      min-height: 120px;
+      min-height: 40px;
       max-height: 400px;
       overflow-y: auto;
       margin-bottom: var(--spacing-lg);
@@ -1125,9 +1125,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 10px;
-      background: white;
-      border: 1px solid #e5e7eb;
+      padding: 4px 8px;
+      background: #fecaca;
+      border: 1px solid #ff9191;
       border-radius: 6px;
       font-size: 0.875rem;
       font-family: 'Courier New', monospace;
@@ -1200,7 +1200,7 @@
 
     .list-action-btn.secondary {
       background: white;
-      border-color: #e5e7eb;
+      border-color: #003463;
     }
 
     .list-action-btn.secondary:hover {
@@ -1530,11 +1530,6 @@
         grid-template-columns: 1fr;
       }
 
-      .settings-section {
-        padding: var(--spacing-lg);
-        margin-bottom: var(--spacing-lg);
-      }
-
       /* Quotas et Synchronisation en colonne sur mobile */
       .main-content > div[style*="grid-template-columns: 1fr 1fr"] {
         grid-template-columns: 1fr !important;
@@ -1589,11 +1584,6 @@
 
       .section-icon {
         font-size: 1.25rem;
-      }
-
-      .settings-section {
-        padding: var(--spacing-md);
-        margin-bottom: var(--spacing-md);
       }
 
       .code-textarea {
@@ -2650,43 +2640,115 @@
         </div>
 
         <div class="settings-section">
-          <div class="protection-modes">
-            <label class="mode-option mode-strict">
-              <input type="radio" name="protectionMode" value="strict">
-              <div class="mode-icon"></div>
-              <div class="mode-label">
-                <div class="mode-name">Mode Strict</div>
-                <div class="mode-description">
-                  <strong>Bloque tout sauf sites éducatifs et islamiques</strong>
-                  <p>
-                    Tous les sites sont bloqués par défaut, à l’exception des sites explicitement autorisés dans l'onglet <b>LISTES</b>.
-                    Idéal pour un environnement très encadré.
-                  </p>
+          <!-- Mode de protection (liste à gauche avec info à droite) -->
+          <div style="
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+          ">
+            <label style="
+              display: block;
+              font-weight: 600;
+              margin-bottom: 12px;
+              color: #111827;
+              font-size: 14px;
+            ">
+              Mode de protection
+            </label>
+
+            <div style="display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: stretch;">
+              <!-- Liste à gauche -->
+              <div id="protectionModeList" style="
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              ">
+                <div class="protection-mode-item" data-mode="strict" style="
+                  padding: 10px 14px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: #111827;
+                  background-color: white;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  font-weight: 500;
+                ">
+                  Mode Strict
+                </div>
+
+                <div class="protection-mode-item" data-mode="moderate" style="
+                  padding: 10px 14px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: #111827;
+                  background-color: white;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  font-weight: 500;
+                ">
+                  Mode Par Catégories
+                </div>
+
+                <div class="protection-mode-item" data-mode="permissive" style="
+                  padding: 10px 14px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: #111827;
+                  background-color: white;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  font-weight: 500;
+                ">
+                  Mode Personnalisé
                 </div>
               </div>
-            </label>
-            <label class="mode-option mode-moderate">
-              <input type="radio" name="protectionMode" value="moderate">
-              <div class="mode-icon"></div>
-              <div class="mode-label">
-                <div class="mode-name">Mode Par Catégories</div>
-                <div class="mode-description">
-                  <strong>Bloque contenus inappropriés selon catégories</strong>
-                  <p>Les contenus inappropriés sont bloqués selon des catégories définies (adultes, violence, jeux d’argent, etc.), tandis que les sites standards restent accessibles.</p>
-                </div>
+
+              <!-- Description dynamique à droite -->
+              <div id="protectionModeInfo" style="
+                padding: 14px 16px;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #6b7280;
+                background: #f9fafb;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+              ">
+                <strong id="protectionModeTitle" style="display: block; margin-bottom: 6px; color: #111827; font-size: 14px;">Mode Par Catégories</strong>
+                <span id="protectionModeDesc" style="display: block;">
+                  Bloque contenus inappropriés selon catégories définies (adultes, violence, jeux d'argent, etc.), tandis que les sites standards restent accessibles.
+                </span>
               </div>
-            </label>
-            <label class="mode-option mode-permissive">
-              <input type="radio" name="protectionMode" value="permissive">
-              <div class="mode-icon"></div>
-              <div class="mode-label">
-                <div class="mode-name">Mode Personnalisé</div>
-                <div class="mode-description">
-                  <strong>Bloque uniquement contenus explicites</strong>
-                  <p>Le filtrage repose uniquement sur des listes de blocage ou d’autorisation définies manuellement dans l'onglet <b>listes</b>. Idéal pour adapter la protection à ses propres besoins.</p>
-                </div>
-              </div>
-            </label>
+            </div>
+
+            <!-- Input caché pour stocker la valeur -->
+            <input type="hidden" id="protectionMode" name="protectionMode" value="moderate">
+
+            <style>
+              .protection-mode-item:hover {
+                background-color: #f9fafb;
+                border-color: #9ca3af;
+              }
+
+              .protection-mode-item.active {
+                background-color: #003463 !important;
+                border-color: #003463 !important;
+                color: white !important;
+              }
+
+              @media (max-width: 768px) {
+                #protectionModeList + #protectionModeInfo {
+                  grid-template-columns: 1fr !important;
+                }
+              }
+            </style>
           </div>
         </div>
 
@@ -2944,8 +3006,119 @@
             <div class="list-count-badge" id="contentKeywordsCount">0 mots-clés</div>
           </div>
           <p class="section-description">
-            <strong>Analyse le contenu des pages chargées.</strong> Si un de ces mots est détecté dans le texte de la page, un overlay de blocage apparaît.
+            <strong>Analyse le contenu des pages chargées.</strong> Si un de ces mots est détecté, le mode de blocage sélectionné sera appliqué.
           </p>
+
+          <!-- Mode de blocage (liste avec info à droite) -->
+          <div style="
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+          ">
+            <label style="
+              display: block;
+              font-weight: 600;
+              margin-bottom: 12px;
+              color: #111827;
+              font-size: 14px;
+            ">
+              Mode de blocage
+            </label>
+
+            <div style="display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: stretch;">
+              <!-- Liste à gauche -->
+              <div id="contentBlockingModeList" style="
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              ">
+                <div class="content-blocking-mode-item" data-mode="strict" style="
+                  padding: 10px 14px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: #111827;
+                  background-color: white;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  font-weight: 500;
+                ">
+                  Mode Strict
+                </div>
+
+                <div class="content-blocking-mode-item" data-mode="moderate" style="
+                  padding: 10px 14px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: #111827;
+                  background-color: white;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  font-weight: 500;
+                ">
+                  Mode Modéré
+                </div>
+
+                <div class="content-blocking-mode-item" data-mode="surveillance" style="
+                  padding: 10px 14px;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  color: #111827;
+                  background-color: white;
+                  cursor: pointer;
+                  transition: all 0.2s;
+                  font-weight: 500;
+                ">
+                  Mode Surveillance
+                </div>
+              </div>
+
+              <!-- Description dynamique à droite -->
+              <div id="contentBlockingModeInfo" style="
+                padding: 14px 16px;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #6b7280;
+                background: #f9fafb;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+              ">
+                <strong id="contentBlockingModeTitle" style="display: block; margin-bottom: 6px; color: #111827; font-size: 14px;">Mode Strict</strong>
+                <span id="contentBlockingModeDesc" style="display: block;">
+                  Overlay complet bloquant. Pour les jeunes enfants.
+                </span>
+              </div>
+            </div>
+
+            <!-- Input caché pour stocker la valeur -->
+            <input type="hidden" id="contentBlockingMode" name="contentBlockingMode" value="strict">
+
+            <style>
+              .content-blocking-mode-item:hover {
+                background-color: #f9fafb;
+                border-color: #9ca3af;
+              }
+
+              .content-blocking-mode-item.active {
+                background-color: #003463 !important;
+                border-color: #003463 !important;
+                color: white !important;
+              }
+
+              @media (max-width: 768px) {
+                #contentBlockingModeList + #contentBlockingModeInfo {
+                  grid-template-columns: 1fr !important;
+                }
+              }
+            </style>
+          </div>
 
           <div class="list-input-group">
             <input
